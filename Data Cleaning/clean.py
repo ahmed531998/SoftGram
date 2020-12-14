@@ -118,10 +118,10 @@ apps = result.rename(columns={"Content Rating":"Age Group"},errors="raise")
 
 
 
-uniqueUsers.to_csv('users.csv')
-uniqueDevelopers.to_csv('developers.csv')
-reviewsWithoutAnon.to_csv('reviews.csv')
-apps.to_csv('apps.csv')
+uniqueUsers.to_csv('users.csv', sep=';')
+uniqueDevelopers.to_csv('developers.csv', sep=';')
+reviewsWithoutAnon.to_csv('reviews.csv', sep=';')
+apps.to_csv('apps.csv', sep=';')
 
 
 
