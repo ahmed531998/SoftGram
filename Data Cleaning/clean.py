@@ -126,12 +126,12 @@ def createAppDict(index, row, appReviews=[]):
     
 def createUserDict(index, row, userReviews=[]):
     rec = {}
-    rec['_id'] = row['Developer Id'] if 'Developer Id' in row else row['userName']
+    rec['_id'] = row['userName']
     
     rec['birthday'] = None if 'Birthday' not in row or ('Birthday' in row and pandas.isnull(row['Birthday'])) else row ['Birthday']
     rec['email'] = None if 'Developer Email' not in row or ('Developer Email' in row and pandas.isnull(row['Developer Email'])) else row ['Developer Email']
     rec['website'] = None if 'Developer Website' not in row or ('Developer Website' in row and pandas.isnull(row['Developer Website'])) else row ['Developer Website']
-    rec['role'] = 'Developer' if 'Developer Id' in row else 'Normal User'
+    rec['role'] = None if 'Role' not in row or ('Role' in row and pandas.isnull(row['Role'])) else row['Role']
     rec['password'] = None if 'Password' not in row or ('Password' in row and pandas.isnull(row['Password'])) else row ['Password']
     rec['Country'] = None if 'Country' not in row or ('Country' in row and pandas.isnull(row['Country'])) else row ['Country']
 
@@ -153,11 +153,12 @@ def writeToJson(filename, dataList):
 
 
 
+#reading the files
 bigApps = pandas.read_csv('appInfo.csv')
 smallApps = pandas.read_csv('Apps.csv')
 reviews = pandas.read_csv('Reviews.csv')
 
-#Removing the useless attributes
+#removing the useless attributes
 bigAppsWithoutUselessCols = removeCols(bigApps, ['Minimum Installs', 'Maximum Installs', 'Minimum Android', 'Privacy Policy', 'Editors Choice', 'Free'])
 smallAppsWithoutUselessCols = removeCols(smallApps, ['free', 'url', 'containsAds', 'contentRatingDescription', 'reviews'])
 reviewsWithoutUselessCols= removeCols(reviews, ['reviewId', 'userImage', 'thumbsUpCount', 'replyContent', 'repliedAt'])
@@ -170,7 +171,7 @@ smallAppsUnique = removeDups(smallAppsWithoutUselessCols, 'appId', 'first')
 reviewsWithoutAnon = removeRowsWithValue(reviewsWithoutUselessCols, 'userName', 'A Google user')
 reviewsWithoutAnon = removeRowsWithValue(reviewsWithoutAnon, 'userName', 'A Google User')
 
-#extracting the user
+#extracting the users
 users = reviewsWithoutAnon['userName']
 uniqueUsers = users.drop_duplicates(keep='first')
 
@@ -179,30 +180,39 @@ developers = bigAppsUnique[['Developer Id', 'Developer Website', 'Developer Emai
 uniqueDevelopers = removeDups(developers, 'Developer Id', 'first')
 uniqueDevelopers['Role']='Developer'
 
+#merging users and developers
 globalUsers = mergeUsers(uniqueDevelopers, uniqueUsers)
 usersDF = globalUsers.rename(columns={'Developer Id': 'userName'},errors='raise')
 
 
+#merging apps
 smallAppsNewScheme = smallAppsUnique.rename(columns={'appId': 'App Id', 'adSupported': 'Ad Supported', 'released': 'Released',
                                                      'title': 'App Name', 'score': 'Rating', 'price':'Price', 'genre':'Category',
                                                      'ratings':'Rating Count', 'installs': 'Installs', 'size':'Size', 'contentRating':'Content Rating'},
                                             errors='raise')
 
-
 result = mergeApps(smallAppsNewScheme, bigAppsUnique, 'App Id')
-
-
-
 
 
 reviewsDF = reviewsWithoutAnon
 appsDF = result.rename(columns={'Content Rating':'Age Group'},errors='raise')
 
+
+#removing all null id values
+usersDF.dropna(subset=['userName'], inplace=True)
+
+appsDF.dropna(subset=['App Id'], inplace=True)
+appsDF.dropna(subset=['Developer Id'], inplace=True)
+
+reviewsDF.dropna(subset=['userName'], inplace=True)
+reviewsDF.dropna(subset=['app_Id'], inplace=True)
+
+#writing to csv 
 appsDF.to_csv('apps.csv')
 usersDF.to_csv('users.csv')
 reviewsDF.to_csv('reviews.csv')
 
-
+#writing to json
 apps = get_entity_dict(appsDF, createAppDict, user=False, revDF=reviewsDF)
 writeToJson('app.json', apps)
 
