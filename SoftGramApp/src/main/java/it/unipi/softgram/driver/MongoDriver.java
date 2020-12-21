@@ -12,20 +12,20 @@ public class MongoDriver {
 
     public void connectMongo(){
         if(mongoClient!=null){
-            mongoClient = MongoClients.create("mongodb://localhost:27017");
-            mongoDatabase = mongoClient.getDatabase("proj");
+            this.mongoClient = MongoClients.create("mongodb://localhost:27017");
+            this.mongoDatabase = this.mongoClient.getDatabase("proj");
         }
     }
 
     public MongoCollection<Document> getCollection(String collection){
-        if(mongoClient!= null)
-            return mongoDatabase.getCollection(collection);
+        if(this.mongoClient!= null)
+            return this.mongoDatabase.getCollection(collection);
         else throw new RuntimeException("Connection doesn't exist.");
     }
 
     public void close(){
         if(mongoClient!= null)
-            mongoClient.close();
+            this.mongoClient.close();
         else throw new RuntimeException("Connection doesn't exist.");
     }
 
