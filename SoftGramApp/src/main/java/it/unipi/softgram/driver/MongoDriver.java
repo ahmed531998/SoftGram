@@ -1,0 +1,32 @@
+package it.unipi.softgram.driver;
+
+import org.bson.Document;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+
+public class MongoDriver {
+    private static MongoClient mongoClient = null;
+    private MongoDatabase mongoDatabase;
+
+    public void connectMongo(){
+        if(mongoClient!=null){
+            mongoClient = MongoClients.create("mongodb://localhost:27017");
+            mongoDatabase = mongoClient.getDatabase("proj");
+        }
+    }
+
+    public MongoCollection<Document> getCollection(String collection){
+        if(mongoClient!= null)
+            return mongoDatabase.getCollection(collection);
+        else throw new RuntimeException("Connection doesn't exist.");
+    }
+
+    public void close(){
+        if(mongoClient!= null)
+            mongoClient.close();
+        else throw new RuntimeException("Connection doesn't exist.");
+    }
+
+}
