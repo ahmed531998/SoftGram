@@ -191,6 +191,8 @@ smallAppsNewScheme = smallAppsUnique.rename(columns={'appId': 'App Id', 'adSuppo
                                                      'ratings':'Rating Count', 'installs': 'Installs', 'size':'Size', 'contentRating':'Content Rating'},
                                             errors='raise')
 
+bigAppsUnique.dropna(subset=['Developer Id'], inplace=True)
+
 result = mergeApps(smallAppsNewScheme, bigAppsUnique, 'App Id')
 
 
@@ -202,7 +204,6 @@ appsDF = result.rename(columns={'Content Rating':'Age Group'},errors='raise')
 usersDF.dropna(subset=['userName'], inplace=True)
 
 appsDF.dropna(subset=['App Id'], inplace=True)
-appsDF.dropna(subset=['Developer Id'], inplace=True)
 
 reviewsDF.dropna(subset=['userName'], inplace=True)
 reviewsDF.dropna(subset=['app_Id'], inplace=True)
