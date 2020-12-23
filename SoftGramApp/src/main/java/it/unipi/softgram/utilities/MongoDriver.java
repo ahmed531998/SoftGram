@@ -1,4 +1,4 @@
-package it.unipi.softgram.driver;
+package it.unipi.softgram.utilities;
 
 import org.bson.Document;
 import com.mongodb.client.MongoClient;
