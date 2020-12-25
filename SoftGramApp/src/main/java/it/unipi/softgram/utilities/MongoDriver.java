@@ -6,26 +6,31 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class MongoDriver {
-    private static MongoClient mongoClient = null;
+    private static MongoClient mongoClient;
     private MongoDatabase mongoDatabase;
 
-    public void connectMongo(){
-        if(mongoClient!=null){
-            this.mongoClient = MongoClients.create("mongodb://localhost:27017");
-            this.mongoDatabase = this.mongoClient.getDatabase("proj");
+    public MongoDriver(){
+        if(mongoClient==null){
+            Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
+            mongoLogger.setLevel(Level.SEVERE);
+            mongoClient = MongoClients.create("mongodb://localhost:27017");
+            this.mongoDatabase = mongoClient.getDatabase("proj");
         }
     }
 
     public MongoCollection<Document> getCollection(String collection){
-        if(this.mongoClient!= null)
+        if(mongoClient!= null)
             return this.mongoDatabase.getCollection(collection);
         else throw new RuntimeException("Connection doesn't exist.");
     }
 
     public void close(){
         if(mongoClient!= null)
-            this.mongoClient.close();
+            mongoClient.close();
         else throw new RuntimeException("Connection doesn't exist.");
     }
 

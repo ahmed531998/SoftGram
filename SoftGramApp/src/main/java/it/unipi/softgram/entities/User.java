@@ -1,8 +1,10 @@
 package it.unipi.softgram.entities;
 
+import com.mongodb.client.model.Filters;
 import it.unipi.softgram.utilities.MongoDriver;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 import org.bson.Document;
 import com.mongodb.client.MongoCollection;
@@ -16,52 +18,113 @@ import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Updates.*;
 
 public class User {
-    private String username;
-    private Date date_of_birth;
+    private final String username;
+    private Date birthday;
     private String country;
     private String password;
+    private String email;
+    private String role;
 
-    public void setDate_of_birth(Date date_of_birth) {
-        this.date_of_birth = date_of_birth;
+    public User(String username){
+        this.username = username;
+    }
+    private void setBirthday(Date birthday) {
+        this.birthday = birthday;
     }
 
-    public void setCountry(String country) {
+    private void setCountry(String country) {
         this.country = country;
+    }
+
+    private void setEmail(String email){
+        this.email = email;
+    }
+
+    public void setPassword(String password){
+        this.password = password;
     }
 
     public String getUsername() {
         return username;
     }
 
-    public Date getDate_of_birth() {
-        return date_of_birth;
+    public Date getBirthday() {
+        return birthday;
     }
 
     public String getCountry() {
         return country;
     }
 
+    public String getEmail(){
+        return email;
+    }
+
     private static Consumer<Document> printFormattedDocuments() {
-        return doc -> System.out.println(doc.toJson(JsonWriterSettings.builder().indent(true).build()));
+        return doc -> System.out.println(doc.toJson(JsonWriterSettings.builder().indent(true).build())
+                .replace("null","not set").replace("_id","username"));
     }
 
-    public void saveNewInformationsForCurrentUser(){
-        MongoDriver driver = new MongoDriver();
-        MongoCollection<Document> userColl = driver.getCollection("user");
-        combine(set("date of birth",this.date_of_birth),set( "country",this.country));
-        userColl.updateOne(eq("_id",this.username),
-                combine(set("date of birth",this.date_of_birth),set( "country",this.country)));
-    }
-
-    public static void searchUser(String username){
-        MongoDriver driver = new MongoDriver();
-        List<Document> matchingUsers = new ArrayList<>();
+    private void saveNewBirthdayForCurrentUser(){
         try {
-            driver.connectMongo();
+            MongoDriver driver = new MongoDriver();
             MongoCollection<Document> userColl = driver.getCollection("user");
-            Bson match = match(eq("_id", username));
-            Bson project = project(fields(exclude("reviews"),computed("username","$_id")));
-            Bson limit = limit(10);
+            userColl.updateOne(eq("_id",this.username),
+                    set("birthday",this.birthday));
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void saveNewCountryForCurrentUser(){
+        try {
+            MongoDriver driver = new MongoDriver();
+            MongoCollection<Document> userColl = driver.getCollection("user");
+            userColl.updateOne(eq("_id",this.username),
+                    set("Country",this.country));
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void saveNewEmailForCurrentUser(){
+        try {
+            MongoDriver driver = new MongoDriver();
+            MongoCollection<Document> userColl = driver.getCollection("user");
+            userColl.updateOne(eq("_id",this.username),
+                    set("email",this.email));
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+    }
+
+    private void saveNewPasswordForCurrentUser(){
+        try {
+            MongoDriver driver = new MongoDriver();
+            MongoCollection<Document> userColl = driver.getCollection("user");
+            userColl.updateOne(eq("_id",this.username),
+                    set("password",this.password));
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void searchUser(String username){
+        this.searchUser(username, 10);
+    }
+
+    private void searchUser(String username, int limitNumber){
+        try {
+            MongoDriver driver = new MongoDriver();
+            MongoCollection<Document> userColl = driver.getCollection("user");
+            Pattern pattern = Pattern.compile("^" + username + ".*$");
+            Bson match = match(Filters.regex("_id", pattern));
+            Bson project = project(fields(exclude("reviews","password")));
+            Bson limit = limit(limitNumber);
             userColl.aggregate(Arrays.asList(match,project,limit)).forEach(printFormattedDocuments());
         }
         catch (Exception e){
@@ -69,8 +132,20 @@ public class User {
         }
     }
 
-    public static void main(String[] args){
-        User.searchUser("a");
-
+    public void showOwnProfile(){
+        searchUser(this.username,1);
     }
+
+    public void becomeDeveloper(){
+        try {
+            MongoDriver driver = new MongoDriver();
+            MongoCollection<Document> userColl = driver.getCollection("user");
+            userColl.updateOne(eq("_id",this.username),
+                    set("role","Developer"));
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
 }
