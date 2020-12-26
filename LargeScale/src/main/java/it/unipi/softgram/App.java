@@ -2,13 +2,14 @@ package it.unipi.softgram;
 
 import java.util.List;
 
+//driver program
 public class App {
     public static void main(String[] args){
         MongoDriver driver = MongoDriver.getMongoDriver("mongodb://localhost:27017/",
                                                         "proj");
 
         ReviewQueryManager RQ = new ReviewQueryManager(driver, "user", "app");
-
+	
         Review r = new Review("com.tplink.skylight",
                 "Richard L",
                 "2019-02-22 17:21:47",
