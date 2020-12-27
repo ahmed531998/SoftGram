@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 public class MongoDriver {
     private static MongoClient mongoClient;
-    private MongoDatabase mongoDatabase;
+    private static MongoDatabase mongoDatabase;
 
     public MongoDriver(){
         if(mongoClient==null){

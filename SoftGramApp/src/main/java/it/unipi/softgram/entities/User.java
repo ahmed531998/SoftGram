@@ -19,16 +19,17 @@ import static com.mongodb.client.model.Updates.*;
 
 public class User {
     private final String username;
-    private Date birthday;
+    private String birthday;
     private String country;
     private String password;
     private String email;
     private String role;
 
-    public User(String username){
+    public User(String username) {
         this.username = username;
     }
-    private void setBirthday(Date birthday) {
+
+    private void setBirthday(String birthday) {
         this.birthday = birthday;
     }
 
@@ -48,7 +49,7 @@ public class User {
         return username;
     }
 
-    public Date getBirthday() {
+    public String getBirthday() {
         return birthday;
     }
 
@@ -148,4 +149,19 @@ public class User {
         }
     }
 
+    public static void main(String args[]){
+        User user = new User("andrea allen");
+        user.becomeDeveloper();
+        user.setPassword(null);
+        user.saveNewPasswordForCurrentUser();
+        user.setBirthday(null);
+        user.saveNewBirthdayForCurrentUser();
+        user.setEmail(null);
+        user.saveNewEmailForCurrentUser();
+        user.setCountry(null);
+        user.saveNewCountryForCurrentUser();
+        user.showOwnProfile();
+
+
+    }
 }
