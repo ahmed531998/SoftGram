@@ -1,6 +1,7 @@
 package it.unipi.softgram.entities;
 
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.result.UpdateResult;
 import it.unipi.softgram.utilities.MongoDriver;
 import java.util.*;
 import java.util.function.Consumer;
@@ -63,15 +64,17 @@ public class User {
 
     private static Consumer<Document> printFormattedDocuments() {
         return doc -> System.out.println(doc.toJson(JsonWriterSettings.builder().indent(true).build())
-                .replace("null","not set").replace("_id","username"));
+                .replace("_id","username"));
     }
 
     private void saveNewBirthdayForCurrentUser(){
         try {
             MongoDriver driver = new MongoDriver();
             MongoCollection<Document> userColl = driver.getCollection("user");
-            userColl.updateOne(eq("_id",this.username),
+            UpdateResult result = userColl.updateOne(eq("_id",this.username),
                     set("birthday",this.birthday));
+            if(result.getModifiedCount()==0)
+                System.out.println("Requested user to update not found");
         }
         catch (Exception e){
             e.printStackTrace();
@@ -82,8 +85,10 @@ public class User {
         try {
             MongoDriver driver = new MongoDriver();
             MongoCollection<Document> userColl = driver.getCollection("user");
-            userColl.updateOne(eq("_id",this.username),
+            UpdateResult result = userColl.updateOne(eq("_id",this.username),
                     set("Country",this.country));
+            if(result.getModifiedCount()==0)
+                System.out.println("Requested user to update not found");
         }
         catch (Exception e){
             e.printStackTrace();
@@ -94,8 +99,10 @@ public class User {
         try {
             MongoDriver driver = new MongoDriver();
             MongoCollection<Document> userColl = driver.getCollection("user");
-            userColl.updateOne(eq("_id",this.username),
+            UpdateResult result = userColl.updateOne(eq("_id",this.username),
                     set("email",this.email));
+            if(result.getModifiedCount()==0)
+                System.out.println("Requested user to update not found");
             }
             catch (Exception e){
                 e.printStackTrace();
@@ -106,8 +113,10 @@ public class User {
         try {
             MongoDriver driver = new MongoDriver();
             MongoCollection<Document> userColl = driver.getCollection("user");
-            userColl.updateOne(eq("_id",this.username),
+            UpdateResult result = userColl.updateOne(eq("_id",this.username),
                     set("password",this.password));
+            if(result.getModifiedCount()==0)
+                System.out.println("Requested user to update not found");
         }
         catch (Exception e){
             e.printStackTrace();
@@ -141,27 +150,15 @@ public class User {
         try {
             MongoDriver driver = new MongoDriver();
             MongoCollection<Document> userColl = driver.getCollection("user");
-            userColl.updateOne(eq("_id",this.username),
+            UpdateResult result = userColl.updateOne(eq("_id",this.username),
                     set("role","Developer"));
+            if(result.getModifiedCount()==0)
+                System.out.println("Requested user to update not found");
         }
         catch (Exception e){
             e.printStackTrace();
         }
     }
 
-    public static void main(String args[]){
-        User user = new User("andrea allen");
-        user.becomeDeveloper();
-        user.setPassword(null);
-        user.saveNewPasswordForCurrentUser();
-        user.setBirthday(null);
-        user.saveNewBirthdayForCurrentUser();
-        user.setEmail(null);
-        user.saveNewEmailForCurrentUser();
-        user.setCountry(null);
-        user.saveNewCountryForCurrentUser();
-        user.showOwnProfile();
 
-
-    }
 }

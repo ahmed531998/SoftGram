@@ -1,6 +1,8 @@
 package it.unipi.softgram.entities;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
 import it.unipi.softgram.utilities.MongoDriver;
 import org.bson.Document;
 
@@ -34,8 +36,11 @@ public class Admin extends Developer {
         try {
             MongoDriver driver = new MongoDriver();
             MongoCollection<Document> userColl = driver.getCollection("user");
-            userColl.updateOne(eq("_id",username),
+            UpdateResult result = userColl.updateOne(eq("_id",username),
                     set("role",roleString));
+            if(result.getModifiedCount()==0){
+                System.out.println("Requested user to update not found");
+            }
         }
         catch (Exception e){
             e.printStackTrace();
@@ -65,12 +70,14 @@ public class Admin extends Developer {
         try {
             MongoDriver driver = new MongoDriver();
             MongoCollection<Document> userColl = driver.getCollection("user");
-            userColl.deleteOne(eq("_id",username));
+            DeleteResult result = userColl.deleteOne(eq("_id",username));
+            if(result.getDeletedCount()==0){
+                System.out.println("User to delete not found");
+            }
         }
         catch (Exception e){
             e.printStackTrace();
         }
     }
-
 
 }

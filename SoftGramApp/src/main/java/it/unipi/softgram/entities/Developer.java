@@ -1,6 +1,7 @@
 package it.unipi.softgram.entities;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.result.UpdateResult;
 import it.unipi.softgram.utilities.MongoDriver;
 import org.bson.Document;
 
@@ -26,8 +27,11 @@ public class Developer extends User{
         try {
             MongoDriver driver = new MongoDriver();
             MongoCollection<Document> userColl = driver.getCollection("user");
-            userColl.updateOne(eq("_id", this.getUsername()),
+            UpdateResult result = userColl.updateOne(eq("_id", this.getUsername()),
                     set("role","Normal User"));
+            if(result.getModifiedCount()==0){
+                System.out.println("Requested user to update not found");
+            }
         }
         catch (Exception e){
             e.printStackTrace();
@@ -38,8 +42,11 @@ public class Developer extends User{
         try {
             MongoDriver driver = new MongoDriver();
             MongoCollection<Document> userColl = driver.getCollection("user");
-            userColl.updateOne(eq("_id",this.getUsername()),
+            UpdateResult result = userColl.updateOne(eq("_id",this.getUsername()),
                     set("website",this.website));
+            if(result.getModifiedCount()==0){
+                System.out.println("Requested user to update not found");
+            }
         }
         catch (Exception e){
             e.printStackTrace();

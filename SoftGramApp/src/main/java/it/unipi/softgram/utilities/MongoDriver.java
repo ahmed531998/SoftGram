@@ -18,13 +18,13 @@ public class MongoDriver {
             Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
             mongoLogger.setLevel(Level.SEVERE);
             mongoClient = MongoClients.create("mongodb://localhost:27017");
-            this.mongoDatabase = mongoClient.getDatabase("proj");
+            mongoDatabase = mongoClient.getDatabase("proj");
         }
     }
 
     public MongoCollection<Document> getCollection(String collection){
         if(mongoClient!= null)
-            return this.mongoDatabase.getCollection(collection);
+            return mongoDatabase.getCollection(collection);
         else throw new RuntimeException("Connection doesn't exist.");
     }
 
