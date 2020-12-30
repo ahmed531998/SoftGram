@@ -16,8 +16,9 @@ public class MongoDriver {
     public MongoDriver(){
         if(mongoClient==null){
             Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
-            mongoLogger.setLevel(Level.SEVERE);
-            mongoClient = MongoClients.create("mongodb://localhost:27017");
+            mongoLogger.setLevel(Level.WARNING);
+            String uri = "mongodb://localhost:27017";
+            mongoClient = MongoClients.create(uri);
             mongoDatabase = mongoClient.getDatabase("proj");
         }
     }

@@ -9,31 +9,15 @@ import org.bson.Document;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Updates.set;
 
-enum Role{NORMAL_USER, DEVELOPER, ADMIN}
-
 public class Admin extends Developer {
 
     public Admin(String username) {
         super(username);
     }
 
-    private void changeUserRole(String username, Role role){
-        String roleString = null;
-        switch (role){
-            case ADMIN:
-                roleString = "Admin";
-                break;
-            case DEVELOPER:
-                roleString = "Developer";
-                break;
-            case NORMAL_USER:
-                roleString = "Normal User";
-                break;
-        }
-        if(roleString == null){
-            throw new RuntimeException("Role not set");
-        }
+    private void changeUserRole(String username, Role.RoleValue role){
         try {
+            String roleString = Role.getRoleString(role);
             MongoDriver driver = new MongoDriver();
             MongoCollection<Document> userColl = driver.getCollection("user");
             UpdateResult result = userColl.updateOne(eq("_id",username),
