@@ -1,4 +1,4 @@
-package it.unipi.softgram;
+package it.unipi.softgram.utilities;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
