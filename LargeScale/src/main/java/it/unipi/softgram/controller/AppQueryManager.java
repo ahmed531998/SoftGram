@@ -55,7 +55,7 @@ public class AppQueryManager {
 
     //Graph App Queries
 
-    public void addAppToNeo(App a, User u){
+    public void addAppToGraph(App a, User u){
         try (Session session = neo.getSession()){
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run( "MERGE (a:App {id: $id, app_name: $name, category: $category}) ",
