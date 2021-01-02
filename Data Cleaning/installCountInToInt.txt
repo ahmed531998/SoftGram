@@ -1,0 +1,3 @@
+db.apps.updateMany({'installCount': {$exists : false}}, {$set: {'installCount': '0'}})
+db.apps.find().forEach(function(doc) {doc.installCount = doc.installCount.replace(/[^0-9]/g, '');db.apps.save(doc);});
+db.apps.find().forEach(function(doc) {doc.installCount = parseInt(doc.installCount);db.apps.save(doc);});
