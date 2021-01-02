@@ -55,7 +55,7 @@ public class AppQueryManager {
 
     //Graph App Queries
 
-    public void addApp(App a, User u){
+    public void addAppToNeo(App a, User u){
         try (Session session = neo.getSession()){
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run( "MERGE (a:App {id: $id, app_name: $name, category: $category}) ",
@@ -67,6 +67,13 @@ public class AppQueryManager {
             if (u != null){
                 followOrDevelopApp(u, a, Relation.RelationType.DEVELOP);
             }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    
+    public void addAppToMongo(App a){
+        try{
             Document appDoc = a.toAppDocument();
             appCollection.insertOne(appDoc);
         } catch (Exception e){
@@ -74,8 +81,9 @@ public class AppQueryManager {
         }
     }
 
+    
 
-    public void removeApp(App a){
+    public void removeAppFromGraph(App a){
         try ( Session session = neo.getSession() ) {
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run( "MATCH (a:App {id: $id}) " +
@@ -83,6 +91,14 @@ public class AppQueryManager {
                         parameters( "id", a.getId()) );
                 return null;
             });
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void removeAppFromMongo(App a){
+        try {
             Document appDoc = a.toAppDocument();
             appCollection.deleteOne(appDoc);
         }
@@ -90,7 +106,8 @@ public class AppQueryManager {
             e.printStackTrace();
         }
     }
-
+ 
+    
     public void followOrDevelopApp(User u, App a, Relation.RelationType type){
         try (Session session = neo.getSession() ) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd, hh:mm:ss a");
