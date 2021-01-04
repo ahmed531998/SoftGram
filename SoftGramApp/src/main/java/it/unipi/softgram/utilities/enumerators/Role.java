@@ -1,4 +1,4 @@
-package it.unipi.softgram.entities;
+package it.unipi.softgram.utilities.enumerators;
 
 
 public class Role {

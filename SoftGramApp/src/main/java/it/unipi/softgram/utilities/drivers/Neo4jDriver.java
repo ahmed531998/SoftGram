@@ -1,4 +1,4 @@
-package it.unipi.softgram.utilities.Neo4j;
+package it.unipi.softgram.utilities.drivers;
 
 import org.neo4j.driver.*;
 import org.neo4j.driver.internal.logging.JULogging;

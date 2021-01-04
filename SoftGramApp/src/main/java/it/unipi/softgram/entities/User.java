@@ -1,36 +1,29 @@
 package it.unipi.softgram.entities;
 
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.result.UpdateResult;
-import it.unipi.softgram.utilities.MongoDriver;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.regex.Pattern;
-
 import org.bson.Document;
-import com.mongodb.client.MongoCollection;
-
-import org.bson.conversions.Bson;
-import org.bson.json.JsonWriterSettings;
-
-import static com.mongodb.client.model.Aggregates.*;
-import static com.mongodb.client.model.Projections.*;
-import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Updates.*;
 
 public class User {
-    private final String username;
-    private String birthday;
+    private String username;
+    private Date birthday;
     private String country;
     private String password;
     private String email;
     private String role;
+    private String website;
 
-    public User(String username) {
+    List<Review> reviews;
+
+    List<User> followersList;
+    List<User> followingList;
+
+    List<App> developedApps;
+
+    public void setUsername(String username) {
         this.username = username;
     }
 
-    private void setBirthday(String birthday) {
+    private void setBirthday(Date birthday) {
         this.birthday = birthday;
     }
 
@@ -46,11 +39,13 @@ public class User {
         this.password = password;
     }
 
+    public void setWebsite(String website){}
+
     public String getUsername() {
         return username;
     }
 
-    public String getBirthday() {
+    public Date getBirthday() {
         return birthday;
     }
 
@@ -62,102 +57,53 @@ public class User {
         return email;
     }
 
-    private static Consumer<Document> printFormattedDocuments() {
-        return doc -> System.out.println(doc.toJson(JsonWriterSettings.builder().indent(true).build())
-                .replace("_id","username"));
+    public String getWebsite(){
+        return website;
     }
 
-    private void saveNewBirthdayForCurrentUser(){
-        try {
-            MongoDriver driver = new MongoDriver();
-            MongoCollection<Document> userColl = driver.getCollection("user");
-            UpdateResult result = userColl.updateOne(eq("_id",this.username),
-                    set("birthday",this.birthday));
-            if(result.getModifiedCount()==0)
-                System.out.println("Requested user to update not found");
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+    public String getPassword() {
+        return password;
     }
 
-    private void saveNewCountryForCurrentUser(){
-        try {
-            MongoDriver driver = new MongoDriver();
-            MongoCollection<Document> userColl = driver.getCollection("user");
-            UpdateResult result = userColl.updateOne(eq("_id",this.username),
-                    set("Country",this.country));
-            if(result.getModifiedCount()==0)
-                System.out.println("Requested user to update not found");
+
+    public Document toUserDocument(){
+        List<Document> reviewDocList = new ArrayList<>();
+        for (Review review: this.reviews){
+            Document reviewDoc = new Document("review", new Document("content", review.getContent())
+                    .append("date", review.getDateOfReview())
+                    .append("appId", review.getAppId()))
+                    .append("score", review.getScore())
+                    .append("scoreDate", review.getDateOfScore());
+            reviewDocList.add(reviewDoc);
         }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+
+        return new Document("_id", this.username)
+                .append("birthday", this.birthday)
+                .append("email", this.email)
+                .append("website", this.website)
+                .append("role", this.role)
+                .append("password", this.password)
+                .append("country", this.country)
+                .append("reviews", reviewDocList);
     }
 
-    private void saveNewEmailForCurrentUser(){
-        try {
-            MongoDriver driver = new MongoDriver();
-            MongoCollection<Document> userColl = driver.getCollection("user");
-            UpdateResult result = userColl.updateOne(eq("_id",this.username),
-                    set("email",this.email));
-            if(result.getModifiedCount()==0)
-                System.out.println("Requested user to update not found");
-            }
-            catch (Exception e){
-                e.printStackTrace();
-            }
-    }
-
-    private void saveNewPasswordForCurrentUser(){
-        try {
-            MongoDriver driver = new MongoDriver();
-            MongoCollection<Document> userColl = driver.getCollection("user");
-            UpdateResult result = userColl.updateOne(eq("_id",this.username),
-                    set("password",this.password));
-            if(result.getModifiedCount()==0)
-                System.out.println("Requested user to update not found");
+    public User fromUserDocument(Document r){
+        this.username = (String) r.get("_id");
+        this.birthday = (Date) r.get("birthday");
+        this.email = (String) r.get("email");
+        this.website = (String) r.get("website");
+        this.role = (String) r.get("role");
+        this.password = (String) r.get("password");
+        this.country = (String) r.get("country");
+        //check this warning (by andrea)
+        List<Document> reviewsDocList = (List<Document>) r.get("reviews");
+        List<Review> reviews = new ArrayList<>();
+        for (Document review: reviewsDocList){
+            Review x = new Review();
+            reviews.add(x.fromUserCollDocument(review, this.username));
         }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    private void searchUser(String username){
-        this.searchUser(username, 10);
-    }
-
-    private void searchUser(String username, int limitNumber){
-        try {
-            MongoDriver driver = new MongoDriver();
-            MongoCollection<Document> userColl = driver.getCollection("user");
-            Pattern pattern = Pattern.compile("^" + username + ".*$");
-            Bson match = match(Filters.regex("_id", pattern));
-            Bson project = project(fields(exclude("reviews","password")));
-            Bson limit = limit(limitNumber);
-            userColl.aggregate(Arrays.asList(match,project,limit)).forEach(printFormattedDocuments());
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    public void showOwnProfile(){
-        searchUser(this.username,1);
-    }
-
-    public void becomeDeveloper(){
-        try {
-            MongoDriver driver = new MongoDriver();
-            MongoCollection<Document> userColl = driver.getCollection("user");
-            UpdateResult result = userColl.updateOne(eq("_id",this.username),
-                    set("role","Developer"));
-            if(result.getModifiedCount()==0)
-                System.out.println("Requested user to update not found");
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+        this.reviews = reviews;
+        return this;
     }
 
 }
