@@ -23,7 +23,7 @@ import  static com.mongodb.client.model.Projections.*;
 
 public class ReviewMongoManager {
     private MongoDriver driver;
-//before never used (by andrea)
+
     public enum DateQuery{
         Before,
         After,

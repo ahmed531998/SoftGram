@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 import com.mongodb.client.model.Filters;
 import org.bson.BsonRegularExpression;
 
+import javax.print.Doc;
 import java.util.List;
 
 
@@ -30,20 +31,7 @@ public class AppMongoManager {
     public void addApp(App a) {
         try {
             MongoCollection<Document> appColl = driver.getCollection("apps");
-            Document d1 = new Document("_id", a.getId());
-            d1.append("category", a.getCategory());
-            d1.append("released", a.getReleased());
-            d1.append("ageGroup", a.getAgeGroup());
-            d1.append("size", a.getSize());
-            d1.append("installCount", a.getInstallCount());
-            d1.append("adSupported", a.getAdSupported());
-            d1.append("price", a.getPrice());
-            d1.append("currency", a.getCurrency());
-            d1.append("name", a.getName());
-            d1.append("ratingCount", a.getRatingCount());
-            d1.append("inAppPurchase", a.isInAppPurchase());
-            //fixed 101? (by andrea)
-            d1.append("installCount", "101");
+            Document d1 = a.toAppDocument();
             appColl.insertOne(d1);
             System.out.println("added");
         }
