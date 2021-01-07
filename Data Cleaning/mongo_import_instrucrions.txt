@@ -1,0 +1,49 @@
+mongoimport --db proj --collection app --jsonArray --legacy /home/andrea/Scrivania/Magistrale/"Large-scale and multi-structured databases"/Project/dataset/json/app.json
+
+mongoimport --db proj --collection user --jsonArray --legacy /home/andrea/Scrivania/Magistrale/"Large-scale and multi-structured databases"/Project/dataset/json/user.json
+
+
+// run in mongo shell  
+
+
+
+var coll = db.getCollection("user");
+var cursor = coll.find();
+while (cursor.hasNext()) {
+    var doc = cursor.next();
+    var keys = {};
+    var hasNull = false;
+    for ( var x in doc) {
+        if (x != "_id" && doc[x] == null) {
+            keys[x] = 1;
+            hasNull = true;
+        }
+    }
+    if (hasNull) {
+        coll.update({_id: doc._id}, {$unset:keys});
+    }
+}
+
+var coll = db.getCollection("app");
+var cursor = coll.find();
+while (cursor.hasNext()) {
+    var doc = cursor.next();
+    var keys = {};
+    var hasNull = false;
+    for ( var x in doc) {
+        if (x != "_id" && doc[x] == null) {
+            keys[x] = 1;
+            hasNull = true;
+        }
+    }
+    if (hasNull) {
+        coll.update({_id: doc._id}, {$unset:keys});
+    }
+}
+
+
+db.app.updateMany({"developer.developerWebsite": null}, { $unset : { "developer.developerWebsite" : 1 }})
+
+db.app.updateMany({"developer.developerEmail": null}, { $unset : { "developer.developerEmail" : 1 }})
+
+mongoexport --collection=app --db=proj --out=/home/andrea/Scrivania/Magistrale/"Large-scale and multi-structured databases"/Project/dataset/app.json --type=json
