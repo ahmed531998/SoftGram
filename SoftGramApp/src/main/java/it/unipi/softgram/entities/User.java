@@ -14,10 +14,10 @@ public class User {
 
     List<Review> reviews;
 
-    List<User> followersList;
-    List<User> followingList;
+    List<String> followersList;
+    List<String> followingList;
 
-    List<App> developedApps;
+    List<String> developedApps;
 
     public void setUsername(String username) {
         this.username = username;
