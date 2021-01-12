@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="677.0" prefWidth="1106.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.ApplicationMain">
+    <children>
+        <Label fx:id="appid" layoutX="20.0" layoutY="121.0" prefHeight="18.0" prefWidth="230.0" text="appid" />
+        <Label fx:id="price" layoutX="20.0" layoutY="140.0" prefHeight="18.0" prefWidth="230.0" text="price" />
+        <Label fx:id="agegroup" layoutX="20.0" layoutY="158.0" prefHeight="18.0" prefWidth="230.0" text="agegroup" />
+        <Label fx:id="currency" layoutX="20.0" layoutY="176.0" prefHeight="18.0" prefWidth="230.0" text="category" />
+      <Button layoutX="29.0" layoutY="14.0" mnemonicParsing="false" onAction="#home_fun" text="home" />
+      <TextArea fx:id="name_txt" editable="false" layoutX="14.0" layoutY="240.0" prefHeight="2.0" prefWidth="378.0" promptText="App name" />
+      <Label layoutX="23.0" layoutY="63.0" prefHeight="18.0" prefWidth="386.0" text="Application Data" underline="true" wrapText="true">
+         <font>
+            <Font size="26.0" />
+         </font>
+      </Label>
+      <TextArea fx:id="released_txt" editable="false" layoutX="14.0" layoutY="287.0" prefHeight="2.0" prefWidth="378.0" promptText="released" />
+      <Label fx:id="currency1" layoutX="20.0" layoutY="194.0" prefHeight="18.0" prefWidth="230.0" text="currency" />
+      <Label fx:id="size" layoutX="20.0" layoutY="212.0" prefHeight="18.0" prefWidth="230.0" text="size" />
+      <TextArea fx:id="last_txt" editable="false" layoutX="14.0" layoutY="339.0" prefHeight="2.0" prefWidth="378.0" promptText="released" />
+      <Label layoutX="459.0" layoutY="71.0" prefHeight="18.0" prefWidth="386.0" text="Developer Data" underline="true" wrapText="true">
+         <font>
+            <Font size="26.0" />
+         </font>
+      </Label>
+      <TextArea fx:id="developeremail" editable="false" layoutX="450.0" layoutY="124.0" prefHeight="2.0" prefWidth="378.0" promptText="developer email" />
+      <TextArea fx:id="developerweb" editable="false" layoutX="450.0" layoutY="171.0" prefHeight="2.0" prefWidth="378.0" promptText="developer website" />
+      <Text fx:id="developerid" layoutX="448.0" layoutY="280.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Developer ID" wrappingWidth="378.39999999999986" />
+    </children>
+</AnchorPane>
