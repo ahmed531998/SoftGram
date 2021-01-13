@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
 import org.bson.conversions.Bson;
 
 
+import javax.print.Doc;
+
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Aggregates.*;
 import  static com.mongodb.client.model.Projections.*;
@@ -54,79 +56,43 @@ public class ReviewMongoManager {
         }
     }
 
-    public List<Review> searchByWord(String word, int limit) {
-
-        Bson myUnwind = unwind("reviews");
-        Bson myMatch = match(regex("reviews.review.content", ".*" + Pattern.quote(" " + word + " ") + ".*"));
+    private List<Review> getReviewsList(int limit, Bson myUnwind, Bson myMatch, MongoCollection<Document> userCollection) {
         Bson myProj = project(fields(include("reviews"), include("_id")));
         Bson myLimit = limit(limit);
         try {
-            MongoCollection<Document> userCollection = driver.getCollection("user");
             List<Document> output = userCollection.aggregate(Arrays.asList(myUnwind,
                     myMatch,
                     myProj,
                     myLimit))
                     .into(new ArrayList<>());
             List<Review> reviews = new ArrayList<>();
-            System.out.println(output);
 
+            for (Document doc: output){
+                Review r = new Review().fromUserCollDocument((Document)doc.get("reviews"), (String)doc.get("_id"));
+                reviews.add(r);
+            }
 
             return reviews;
         } catch (Exception e){
             e.printStackTrace();
         }
-
-//        List<Document> results = output.get(0).getList("reviews", Document.class);
-//        for (Document result : results) {
-//            Review r = new Review();
-//            r.fromUserCollDocument(result, (String) result.get("_id"));
-//            reviews.add(r);
-//        }
         return null;
     }
 
+    public List<Review> searchByWord(String word, int limit) {
+        MongoCollection<Document> userCollection = driver.getCollection("user");
+        Bson myUnwind = unwind("$reviews");
+        Bson myMatch = match(regex("reviews.review.content", ".*" + Pattern.quote(" " + word + " ") + ".*"));
+        return getReviewsList(limit, myUnwind, myMatch, userCollection);
+    }
+
     public List<Review> searchByDate(Date myDate, DateQuery when, int limit) {
-
-        Bson myUnwind = unwind("reviews");
-
-
-        Bson myMatch = (when == DateQuery.On)? eq("reviews.review.date", myDate):
-                (when == DateQuery.After)? gt("reviews.review.date", myDate):
-                        lt("reviews.review.date", myDate);
-
-
-        Bson myProj = project(fields(include("reviews"), include("_id")));
-        Bson myLimit = limit(limit);
-
-        try {
-            MongoCollection<Document> userCollection = driver.getCollection("user");
-            List<Document> output = userCollection.aggregate(Arrays.asList(myUnwind,
-                    myMatch,
-                    myProj,
-                    myLimit))
-                    .into(new ArrayList<>());
-
-
-            System.out.println(output);
-            //returning null (by andrea)
-            List<Review> reviews = new ArrayList<>();
-            return reviews;
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-//        List<Document> results = output.get(0).getList("reviews", Document.class);
-//        for (Document result : results) {
-//            Review r = new Review();
-//            if (user) {
-//                r.fromUserCollDocument(result, id);
-//            } else {
-//                r.fromAppCollDocument(result, id);
-//            }
-//            reviews.add(r);
-//        }
-        return null;
+        MongoCollection<Document> userCollection = driver.getCollection("user");
+        Bson myUnwind = unwind("$reviews");
+        Bson myMatch = (when == DateQuery.On)? match(eq("reviews.review.date", myDate)):
+                (when == DateQuery.After)? match(gt("reviews.review.date", myDate)):
+                        match(lt("reviews.review.date", myDate));
+        return getReviewsList(limit, myUnwind, myMatch, userCollection);
     }
 
     public List<Review> searchById(String id, boolean user, int limit) {
@@ -135,37 +101,9 @@ public class ReviewMongoManager {
             coll= driver.getCollection("user");
         else
             coll = driver.getCollection("app");
-
-        Bson myUnwind = unwind("reviews");
+        Bson myUnwind = unwind("$reviews");
         Bson myMatch = match(eq("_id", id));
-        Bson myProj = project(fields(include("reviews"), include("_id")));
-        Bson myLimit = limit(limit);
-        try {
-            List<Document> output = coll.aggregate(Arrays.asList(myUnwind,
-                    myMatch,
-                    myProj,
-                    myLimit))
-                    .into(new ArrayList<>());
-            System.out.println(output);
-            //returning null (by andrea)
-            List<Review> reviews = new ArrayList<>();
-            return reviews;
-
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        //    List<Document> results = output.get(0).getList("reviews", Document.class);
-
-//        for (Document result : results) {
-//            Review r = new Review();
-//            if (user) {
-//                r.fromUserCollDocument(result, id);
-//            } else {
-//                r.fromAppCollDocument(result, id);
-//            }
-//            reviews.add(r);
-//        }
-        return null;
+        return getReviewsList(limit, myUnwind, myMatch, coll);
     }
 
     public void updateReviewScore(Review oldReview, double newScore) {

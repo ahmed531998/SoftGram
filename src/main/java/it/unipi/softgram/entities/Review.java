@@ -99,4 +99,5 @@ public class Review {
         this.score = (double) r.get("score");
         return this;
     }
+
 }
