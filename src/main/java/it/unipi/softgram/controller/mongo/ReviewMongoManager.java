@@ -39,6 +39,7 @@ public class ReviewMongoManager {
        }
     }
 
+    //not controlling review
     public void postNewReview(Review review) {
         Document appDoc = review.toAppCollDocument();
         Document userDoc = review.toUserCollDocument();
@@ -54,6 +55,7 @@ public class ReviewMongoManager {
         }
     }
 
+    //by user, by app too
     public List<Review> searchByWord(String word, int limit) {
 
         Bson myUnwind = unwind("reviews");
@@ -85,6 +87,7 @@ public class ReviewMongoManager {
         return null;
     }
 
+    //by user, by app too
     public List<Review> searchByDate(Date myDate, DateQuery when, int limit) {
 
         Bson myUnwind = unwind("reviews");
@@ -129,6 +132,7 @@ public class ReviewMongoManager {
         return null;
     }
 
+    //inside app mongo manager and inside user mongo manager too
     public List<Review> searchById(String id, boolean user, int limit) {
         MongoCollection<Document> coll;
         if(user)

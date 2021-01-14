@@ -12,12 +12,12 @@ public class User {
     private String role;
     private String website;
 
-    List<Review> reviews;
+    public List<Review> reviews;
 
-    List<String> followersList;
-    List<String> followingList;
+    public List<String> followersList;
+    public List<String> followingList;
 
-    List<String> developedApps;
+    public List<String> developedApps;
 
     public void setUsername(String username) {
         this.username = username;
@@ -65,26 +65,8 @@ public class User {
         return password;
     }
 
-
-    public Document toUserDocument(){
-        List<Document> reviewDocList = new ArrayList<>();
-        for (Review review: this.reviews){
-            Document reviewDoc = new Document("review", new Document("content", review.getContent())
-                    .append("date", review.getDateOfReview())
-                    .append("appId", review.getAppId()))
-                    .append("score", review.getScore())
-                    .append("scoreDate", review.getDateOfScore());
-            reviewDocList.add(reviewDoc);
-        }
-
-        return new Document("_id", this.username)
-                .append("birthday", this.birthday)
-                .append("email", this.email)
-                .append("website", this.website)
-                .append("role", this.role)
-                .append("password", this.password)
-                .append("country", this.country)
-                .append("reviews", reviewDocList);
+    public String getRole(){
+        return role;
     }
 
     public User fromUserDocument(Document r){

@@ -1,5 +1,8 @@
 package it.unipi.softgram.controller.neo4j;
 
+import it.unipi.softgram.controller.mongo.UserMongoManager;
+import it.unipi.softgram.entities.User;
+import it.unipi.softgram.utilities.drivers.MongoDriver;
 import it.unipi.softgram.utilities.drivers.Neo4jDriver;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
@@ -23,14 +26,22 @@ public class UserNeo4jManager {
     }
 
 
-    public void addUser( final String username, Role.RoleValue roleEnum){
-        String roleString = Role.getRoleString(roleEnum);
-        final String role = roleString.replaceAll("\\s","");
+    public void addUser( User user){
         try ( Session session = neo4jDriver.getSession() ) {
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run( "MERGE (u:User {username: $username})" +
-                        "SET u:" + role,
-                        parameters( "username", username) );
+                        "SET u:NormalUser",
+                        parameters( "username", user.getUsername()) );
+                try {
+                    UserMongoManager mongo = new UserMongoManager();
+                    mongo.addUser(user);
+                }
+                catch (RuntimeException r ) {
+                    if (r.getMessage().equals("add failed")) {
+                        tx.rollback();
+                    }
+                    r.printStackTrace();
+                }
                 return null;
             });
         }
@@ -85,12 +96,12 @@ public class UserNeo4jManager {
 
     public void addFollow(String followerUsername, String followedUsername, boolean request){
         String partOfQuery = "";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String currentDate = sdf.format(new Date());
         if(request)
             partOfQuery = "SET f.accepted = false";
         final String partOfQueryFinal = partOfQuery;
         try ( Session session = neo4jDriver.getSession() ) {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            String currentDate = sdf.format(new Date());
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run( "MATCH (u:User {username: $followerUsername}),(u2:User {username: $followedUsername})" +
                                 "MERGE (u)-[f:FOLLOW]->(u2)" +
@@ -162,16 +173,21 @@ public class UserNeo4jManager {
         return null;
     }
 
-    //if boolean is true browse follow requests, if false browse followers
-    public List<String> browseFollowers(String username, boolean requests){
+    public List<String> browseActualFollowers(String username){
         String partOfQuery = "AND f.accepted = null";
-        if(requests)
-            partOfQuery = "AND f.accepted = false";
-        final String partOfQueryFinal = partOfQuery;
+        return browseFollowers(username,partOfQuery);
+    }
+
+    public List<String> browseFollowRequests(String username){
+        String partOfQuery = "AND f.accepted = false";
+        return browseFollowers(username, partOfQuery);
+    }
+
+    public List<String> browseFollowers(String username, final String partOfQuery){
         try (Session session = neo4jDriver.getSession()){
             return session.readTransaction((TransactionWork<List<String>>) tx ->{
                 Result result = tx.run("MATCH (u:User)-[f:FOLLOW]->(f:User)" +
-                                "WHERE f.username = $name"+ partOfQueryFinal +
+                                "WHERE f.username = $name"+ partOfQuery +
                                 "RETURN u.username" +
                                 "ORDER BY f.date DESC",
                         parameters("name",username));
