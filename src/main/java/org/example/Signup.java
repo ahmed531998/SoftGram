@@ -1,5 +1,7 @@
 package org.example;
 
+import controller.mongo.UserMongoManager;
+import controller.neo4j.UserNeo4jManager;
 import entities.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -55,8 +57,14 @@ public class Signup implements Initializable {
         if(username.getText().isEmpty() || email.getText().isEmpty() || website.getText().isEmpty() || password.getText().isEmpty()){
             JOptionPane.showMessageDialog(null, "Fields required");
         }else{
-            User user=new User();
-            user.addUser(username.getText().toString(), email.getText().toString(), password.getText().toString(),website.getText().toString(),role.getItems().toString(), country.getItems().toString());
+            UserNeo4jManager user=new UserNeo4jManager();
+            User userobj=new User();
+            userobj.setUsername(username.getText().toString());
+            userobj.setWebsite(website.getText().toString());
+            userobj.setPassword(password.getText().toString());
+            userobj.setCountry(country.getItems().toString());
+            userobj.setEmail(email.getText().toString());
+            user.addUser(userobj);
             JOptionPane.showMessageDialog(null, "Added successfully");
             setRoot("admin");
         }

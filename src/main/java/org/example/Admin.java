@@ -1,12 +1,17 @@
 package org.example;
 
 import com.mongodb.client.MongoCollection;
+import controller.neo4j.AppNeo4jManager;
+import controller.neo4j.UserNeo4jManager;
 import entities.Apps;
+import entities.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TableCell;
@@ -34,23 +39,25 @@ import utilities.MongoDriver;
 import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static com.mongodb.client.model.Filters.eq;
 import static org.example.App.setRoot;
 
 public class Admin implements Initializable {
+
+    String app_id;
+
+    @FXML ListView userlist,applist, listcommon,listfav,listfav11,listfav1;
     public Button search_btn_pop;
     @FXML
     private ComboBox app_purchase, ad_supported;
     @FXML
     private DatePicker released, last_update;
     @FXML
-    TextField _id, appname, price, category, ratingcount, installscount, size, age_group, currency, searchtxt, text_pop, text_year;
+    TextField _id, favtxt,appname, price, category, ratingcount, installscount, size, age_group, currency, searchtxt, text_pop, text_year;
     ObservableList<AppData> app_data_array = FXCollections.observableArrayList();
     ObservableList<AppData> app_data_array2 = FXCollections.observableArrayList();
     ObservableList<MostPopCat> app_data_array1 = FXCollections.observableArrayList();
@@ -66,7 +73,7 @@ public class Admin implements Initializable {
     @FXML
     private TableColumn<AppData, String> app_id_col, app_id_col2;
     @FXML
-    private TableColumn<AppData, String> appname_col, appname_col2;
+    private TableColumn<AppData, String> appname_col, appname_col2,name_col2;
     @FXML
     private TableColumn<AppData, Boolean> adsupported_col;
     @FXML
@@ -95,6 +102,8 @@ public class Admin implements Initializable {
     private TableColumn<MostPopCat, String> name_col3;
 
 
+    UserNeo4jManager userneo=new UserNeo4jManager();
+    AppNeo4jManager appneo=new AppNeo4jManager();
     @FXML private Label appid;
     int page = 0;
     int p = 0;
@@ -108,6 +117,12 @@ public class Admin implements Initializable {
             JOptionPane.showMessageDialog(null, "Fields required");
         } else {
             Apps app = new Apps();
+            //neo4j
+            /*entities.App app1 = new entities.App();
+            AppNeo4jManager appneo=new AppNeo4jManager();
+            User user=new User();
+            user.setUsername(appid.getText().toString());
+            */
             app.set_id(_id.getText().toString());
             app.setCategory(category.getText().toString());
             app.setAdSupported(Boolean.parseBoolean(ad_supported.getItems().toString()));
@@ -118,6 +133,9 @@ public class Admin implements Initializable {
             app.setCurrency(currency.getText().toString());
             app.setPrice(Double.parseDouble(price.getText().toString()));
             app.setRatingCount(Integer.parseInt(ratingcount.getText().toString()));
+            /*neo4j
+            appneo.addApp(app1,user);
+            */
             JOptionPane.showMessageDialog(null, "Added Successfully");
         }
     }
@@ -132,46 +150,16 @@ public class Admin implements Initializable {
         app_purchase.getItems().addAll(options);
         ad_supported.getItems().addAll(options);
 
-        search_table.setEditable(true);
+        appid.setVisible(false);
+
+        applist.setOrientation(Orientation.HORIZONTAL);
+        userlist.setOrientation(Orientation.HORIZONTAL);
         app_id_col.setCellValueFactory(new PropertyValueFactory<>("_id"));
-        app_id_col.setCellFactory(TextFieldTableCell.forTableColumn());
-        app_id_col.setOnEditCommit(
-                new EventHandler<CellEditEvent<AppData, String>>() {
-                    @Override
-                    public void handle(CellEditEvent<AppData, String> t) {
-                        ((AppData) t.getTableView().getItems().get(
-                                t.getTablePosition().getRow())
-                        ).set_id(t.getNewValue());
-                    }
-                }
-        );
         appname_col.setCellValueFactory(new PropertyValueFactory<>("name"));
-        appname_col.setCellFactory(TextFieldTableCell.forTableColumn());
-        appname_col.setOnEditCommit(
-                new EventHandler<CellEditEvent<AppData, String>>() {
-                    @Override
-                    public void handle(CellEditEvent<AppData, String> t) {
-                        ((AppData) t.getTableView().getItems().get(
-                                t.getTablePosition().getRow())
-                        ).setName(t.getNewValue());
-                    }
-                }
-        );
         adsupported_col.setCellValueFactory(new PropertyValueFactory<>("adSupported"));
         price_col.setCellValueFactory(new PropertyValueFactory<>("price"));
         released_col.setCellValueFactory(new PropertyValueFactory<>("released"));
         cat_col.setCellValueFactory(new PropertyValueFactory<>("category"));
-        cat_col.setCellFactory(TextFieldTableCell.forTableColumn());
-        cat_col.setOnEditCommit(
-                new EventHandler<CellEditEvent<AppData, String>>() {
-                    @Override
-                    public void handle(CellEditEvent<AppData, String> t) {
-                        ((AppData) t.getTableView().getItems().get(
-                                t.getTablePosition().getRow())
-                        ).setCategory(t.getNewValue());
-                    }
-                }
-        );
         age_col.setCellValueFactory(new PropertyValueFactory<>("ageGroup"));
 
         last_col.setCellValueFactory(new PropertyValueFactory<>("lastUpdated"));
@@ -181,6 +169,7 @@ public class Admin implements Initializable {
 
         app_id_col2.setCellValueFactory(new PropertyValueFactory<>("_id"));
         appname_col2.setCellValueFactory(new PropertyValueFactory<>("name"));
+        name_col2.setCellValueFactory(new PropertyValueFactory<>("name"));
         num_col2.setCellValueFactory(new PropertyValueFactory<>("numberOfReviews"));
         avg_col2.setCellValueFactory(new PropertyValueFactory<>("Avg"));
 
@@ -190,10 +179,11 @@ public class Admin implements Initializable {
         avg_col3.setCellValueFactory(new PropertyValueFactory<>("Avg"));
 
 
+
+
         findApp("");
         deleteButtonToTable();
         updateButtonToTable();
-        setTableEditable();
         MostPopularApps();
 
         search_table.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -224,8 +214,88 @@ public class Admin implements Initializable {
 
             }
         });
+        search_table2.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event){
+                if(event.getClickCount() == 2){
+                    Apps app=new Apps();
+                    try {
+                        //Load second scene
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("ApplicationMain.fxml"));
+                        Parent root = loader.load();
+
+                        //Get controller of scene2
+                        appid.setText(search_table2.getSelectionModel().getSelectedItem().get_id());
+                        ApplicationMain scene2Controller = loader.getController();
+                        //Pass whatever data you want. You can have multiple method calls here
+                        scene2Controller.transferMessage(appid.getText());
+
+                        //Show scene 2 in new window
+                        Stage stage = new Stage();
+                        stage.setScene(new Scene(root));
+                        stage.setTitle("Second Window");
+                        stage.show();
+                    } catch (IOException ex) {
+                        System.err.println(ex);
+                    }
+                }
+
+            }
+        });
+        search_table3.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event){
+                if(event.getClickCount() == 2){
+                    Apps app=new Apps();
+                    try {
+                        //Load second scene
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("ApplicationMain.fxml"));
+                        Parent root = loader.load();
+
+                        //Get controller of scene2
+                        appid.setText(search_table3.getSelectionModel().getSelectedItem().get_id());
+                        ApplicationMain scene2Controller = loader.getController();
+                        //Pass whatever data you want. You can have multiple method calls here
+                        scene2Controller.transferMessage(appid.getText());
+
+                        //Show scene 2 in new window
+                        Stage stage = new Stage();
+                        stage.setScene(new Scene(root));
+                        stage.setTitle("Second Window");
+                        stage.show();
+                    } catch (IOException ex) {
+                        System.err.println(ex);
+                    }
+                }
+
+            }
+        });
 
 
+
+
+    }
+    public void transferMessage(String message) {
+        //Display the message
+        appid.setText(message);
+        app_id=message;
+
+       /*ObservableList<String> useritems = FXCollections.observableArrayList();
+       ObservableList<String> appitems = FXCollections.observableArrayList();
+        ArrayList suggesteduser= (ArrayList) userneo.browseSuggestedUsers(app_id,10);
+        ArrayList suggestedapp= (ArrayList) userneo.browseSuggestedUsers(app_id,10);
+        for (int i=0; i<suggesteduser.size();i++)
+        {
+            useritems.get(0);
+            useritems.add((String) suggesteduser.get(0));
+        }
+        userlist.setItems(useritems);
+        for (int i=0; i<suggestedapp.size();i++)
+        {
+            appitems.get(0);
+            appitems.add((String) suggestedapp.get(0));
+        }
+        applist.setItems(appitems);*/
     }
 
     public void add_function(ActionEvent actionEvent) {
@@ -467,70 +537,7 @@ public class Admin implements Initializable {
 
     }
 
-    private void setTableEditable() {
-        search_table.setEditable(true);
-        // allows the individual cells to be selected
-        search_table.getSelectionModel().cellSelectionEnabledProperty().set(true);
-        // when character or numbers pressed it will start edit in editable
-        // fields
-        search_table.setOnKeyPressed(event -> {
-            if (event.getCode().isLetterKey() || event.getCode().isDigitKey()) {
-                editFocusedCell();
-            } else if (event.getCode() == KeyCode.RIGHT
-                    || event.getCode() == KeyCode.TAB) {
-                search_table.getSelectionModel().selectNext();
-                event.consume();
-            } else if (event.getCode() == KeyCode.LEFT) {
-                // work around due to
-                // TableView.getSelectionModel().selectPrevious() due to a bug
-                // stopping it from working on
-                // the first column in the last row of the table
-                selectPrevious();
-                event.consume();
-            }
-        });
-    }
 
-    @SuppressWarnings("unchecked")
-    private void editFocusedCell() {
-        final TablePosition<AppData, ?> focusedCell = search_table
-                .focusModelProperty().get().focusedCellProperty().get();
-        search_table.edit(focusedCell.getRow(), focusedCell.getTableColumn());
-    }
-
-    @SuppressWarnings("unchecked")
-    private void selectPrevious() {
-        if (search_table.getSelectionModel().isCellSelectionEnabled()) {
-            // in cell selection mode, we have to wrap around, going from
-            // right-to-left, and then wrapping to the end of the previous line
-            TablePosition<AppData, ?> pos = search_table.getFocusModel()
-                    .getFocusedCell();
-            if (pos.getColumn() - 1 >= 0) {
-                // go to previous row
-                search_table.getSelectionModel().select(pos.getRow(),
-                        getTableColumn(pos.getTableColumn(), -1));
-            } else if (pos.getRow() < search_table.getItems().size()) {
-                // wrap to end of previous row
-                search_table.getSelectionModel().select(pos.getRow() - 1,
-                        search_table.getVisibleLeafColumn(
-                                search_table.getVisibleLeafColumns().size() - 1));
-            }
-        } else {
-            int focusIndex = search_table.getFocusModel().getFocusedIndex();
-            if (focusIndex == -1) {
-                search_table.getSelectionModel().select(search_table.getItems().size() - 1);
-            } else if (focusIndex > 0) {
-                search_table.getSelectionModel().select(focusIndex - 1);
-            }
-        }
-    }
-
-    private TableColumn<AppData, ?> getTableColumn(
-            final TableColumn<AppData, ?> column, int offset) {
-        int columnIndex = search_table.getVisibleLeafIndex(column);
-        int newColumnIndex = columnIndex + offset;
-        return search_table.getVisibleLeafColumn(newColumnIndex);
-    }
 
     public void MostPopularApps() {
         MongoDriver driver = new MongoDriver();
@@ -765,11 +772,51 @@ public class Admin implements Initializable {
     }
 
     public void usersmainpage(ActionEvent actionEvent) throws IOException {
-        App.setRoot("users");
+        try {
+            //Load second scene
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("users.fxml"));
+            Parent root = loader.load();
+
+            //Get controller of scene2
+
+            Users scene2Controller = loader.getController();
+            //Pass whatever data you want. You can have multiple method calls here
+            scene2Controller.transferMessage(appid.getText());
+
+            //Show scene 2 in new window
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Users Window");
+            stage.show();
+            ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
+        } catch (IOException ex) {
+            System.err.println(ex);
+        }
+        //App.setRoot("users");
+        //((Node)(actionEvent.getSource())).getScene().getWindow().hide();
     }
 
     public void appmainpage(ActionEvent actionEvent) throws IOException {
-        App.setRoot("admin");
+        try {
+            //Load second scene
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("admin.fxml"));
+            Parent root = loader.load();
+
+            //Get controller of scene2
+
+            Admin scene2Controller = loader.getController();
+            //Pass whatever data you want. You can have multiple method calls here
+            scene2Controller.transferMessage(appid.getText());
+
+            //Show scene 2 in new window
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Admin Window");
+            stage.show();
+            ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
+        } catch (IOException ex) {
+            System.err.println(ex);
+        }
     }
 
     public void nextfun(ActionEvent actionEvent) {
@@ -786,6 +833,83 @@ public class Admin implements Initializable {
 
     public void signout_fun(ActionEvent actionEvent) throws IOException {
         setRoot("login");
+    }
+//neo4j
+    public  void suggestedapps(){
+        AppNeo4jManager user=new AppNeo4jManager();
+        ArrayList<String> data=
+                (ArrayList<String>) user.browseSuggestedapps("",10);
+        ObservableList<String> items = FXCollections.observableArrayList();
+        for (int i=0; i<data.size();i++)
+        {
+            items.add(data.get(0));
+        }
+        applist.setItems(items);
+    }
+    //neo4j
+    public void suggestedusers(){
+        UserNeo4jManager user=new UserNeo4jManager();
+        ArrayList<String> data=
+                (ArrayList<String>) user.browseSuggestedUsers("",10);
+        ObservableList<String> items = FXCollections.observableArrayList();
+        for (int i=0; i<data.size();i++)
+        {
+            items.add(data.get(0));
+        }
+        userlist.setItems(items);
+    }
+
+
+    public void commonapps(){
+        AppNeo4jManager user=new AppNeo4jManager();
+        User u=new User();
+        u.setUsername(favtxt.getText().toString());
+        ArrayList<entities.App> data = (ArrayList<entities.App>) user.browseCommonApps();
+        ObservableList<String> items = FXCollections.observableArrayList();
+        for (int i=0; i<data.size();i++)
+        {
+            items.add(String.valueOf(data.get(0)));
+        }
+        listcommon.setItems(items);
+    }
+//neo4j
+    public void Followedapps(ActionEvent actionEvent) {
+        AppNeo4jManager user=new AppNeo4jManager();
+        User u=new User();
+        u.setUsername(favtxt.getText().toString());
+        ArrayList<entities.App> data = (ArrayList<entities.App>) user.browseFollowedApps(u);
+        ObservableList<String> items = FXCollections.observableArrayList();
+        for (int i=0; i<data.size();i++)
+        {
+            items.add(String.valueOf(data.get(0)));
+        }
+        listfav11.setItems(items);
+    }
+//neo4j
+    public void app_of_followers(ActionEvent actionEvent) {
+        AppNeo4jManager user=new AppNeo4jManager();
+        User u=new User();
+        u.setUsername(favtxt.getText().toString());
+        ArrayList<entities.App> data = (ArrayList<entities.App>) user.browseAppsOfFollowers(u);
+        ObservableList<String> items = FXCollections.observableArrayList();
+        for (int i=0; i<data.size();i++)
+        {
+            items.add(String.valueOf(data.get(0)));
+        }
+        listfav1.setItems(items);
+    }
+//neo4j
+    public void fav_cat(ActionEvent actionEvent) {
+        AppNeo4jManager user=new AppNeo4jManager();
+        User u=new User();
+        u.setUsername(favtxt.getText().toString());
+        ArrayList<entities.App> data = (ArrayList<entities.App>) user.browseFavoriteCategory(u);
+        ObservableList<String> items = FXCollections.observableArrayList();
+        for (int i=0; i<data.size();i++)
+        {
+            items.add(String.valueOf(data.get(0)));
+        }
+        listfav.setItems(items);
     }
 }
 

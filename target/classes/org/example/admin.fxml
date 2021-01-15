@@ -4,6 +4,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
@@ -11,6 +12,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
 <AnchorPane prefHeight="677.0" prefWidth="1106.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.Admin">
    <children>
@@ -21,7 +23,13 @@
         <tabs>
             <Tab text="Home">
               <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <ListView fx:id="applist" layoutX="33.0" layoutY="62.0" prefHeight="406.0" prefWidth="393.0" />
+                        <Text layoutX="43.0" layoutY="42.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Suggested Applications" wrappingWidth="200.53668212890625" />
+                        <ListView fx:id="userlist" layoutX="477.0" layoutY="62.0" prefHeight="406.0" prefWidth="378.0" />
+                        <Text layoutX="477.0" layoutY="42.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Suggested Users" wrappingWidth="200.53668212890625" />
+                     </children></AnchorPane>
               </content>
             </Tab>
           <Tab fx:id="addtab" text="Add">
@@ -122,7 +130,30 @@
                   </AnchorPane>
               </content>
             </Tab>
+            <Tab text="Followers">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <ListView fx:id="listcommon" layoutX="12.0" layoutY="42.0" prefHeight="200.0" prefWidth="318.0" />
+                        <Text layoutX="14.0" layoutY="30.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Common Apps" wrappingWidth="314.9366912841797" />
+                        <ListView fx:id="listfav" layoutX="12.0" layoutY="301.0" prefHeight="200.0" prefWidth="318.0" />
+                        <Text layoutX="16.0" layoutY="267.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Favourite Category" wrappingWidth="314.9366912841797" />
+                        <TextField fx:id="favtxt" layoutX="16.0" layoutY="271.0" />
+                        <Button layoutX="255.0" layoutY="271.0" mnemonicParsing="false" onAction="#fav_cat" text="Search" />
+                        <ListView fx:id="listfav1" layoutX="378.0" layoutY="310.0" prefHeight="192.0" prefWidth="318.0" />
+                        <Text layoutX="382.0" layoutY="276.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Apps of followers" wrappingWidth="314.9366912841797" />
+                        <TextField fx:id="followertxt" layoutX="382.0" layoutY="280.0" />
+                        <Button layoutX="621.0" layoutY="280.0" mnemonicParsing="false" onAction="#app_of_followers" text="Search" />
+                        <ListView fx:id="listfav11" layoutX="380.0" layoutY="61.0" prefHeight="200.0" prefWidth="318.0" />
+                        <Text layoutX="384.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Followed Apps" wrappingWidth="314.9366912841797" />
+                        <TextField fx:id="followertxt1" layoutX="384.0" layoutY="31.0" />
+                        <Button layoutX="623.0" layoutY="31.0" mnemonicParsing="false" onAction="#Followedapps" text="Search" />
+                     </children></AnchorPane>
+
+              </content>
+            </Tab>
         </tabs>
       </TabPane>
+      <Button fx:id="users1" layoutX="67.0" layoutY="202.0" mnemonicParsing="false" onAction="#usersmainpage" prefHeight="26.0" prefWidth="135.0" text="Statistices" />
    </children>
 </AnchorPane>

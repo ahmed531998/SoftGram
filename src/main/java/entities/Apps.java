@@ -248,7 +248,7 @@ public class Apps {
                                 .append("_id", 1.0)
                                 .append("name", 1.0)
                                 .append("Avg", new Document()
-                                        .append("$avg", "$reviews.score")
+                                      .append("$avg", "$reviews.score")
                                 )
                                 .append("numberOfReviews", new Document()
                                         .append("$cond", new Document()

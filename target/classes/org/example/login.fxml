@@ -21,5 +21,6 @@
          </font>
       </Text>
       <Label fx:id="msg" layoutX="210.0" layoutY="82.0" textFill="#fa0000" />
+      <Label fx:id="appid" disable="true" layoutX="38.0" layoutY="46.0" text="Label" visible="false" />
    </children>
 </AnchorPane>

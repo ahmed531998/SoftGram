@@ -1,6 +1,8 @@
-package it.unipi.softgram.controller.neo4j;
+package controller.neo4j;
 
-import it.unipi.softgram.utilities.drivers.Neo4jDriver;
+
+import controller.mongo.UserMongoManager;
+import entities.User;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
@@ -11,11 +13,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import it.unipi.softgram.utilities.enumerators.Role;
+import utilities.Neo4jDriver;
 
 import static org.neo4j.driver.Values.parameters;
 
-//return lists? (by andrea)
 public class UserNeo4jManager {
     private final Neo4jDriver neo4jDriver;
 
@@ -24,14 +25,22 @@ public class UserNeo4jManager {
     }
 
 
-    public void addUser( final String username, Role.RoleValue roleEnum){
-        String roleString = Role.getRoleString(roleEnum);
-        final String role = roleString.replaceAll("\\s","");
+    public void addUser( User user){
         try ( Session session = neo4jDriver.getSession() ) {
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run( "MERGE (u:User {username: $username})" +
-                        "SET u:" + role,
-                        parameters( "username", username) );
+                        "SET u:NormalUser",
+                        parameters( "username", user.getUsername()) );
+                try {
+                    UserMongoManager mongo = new UserMongoManager();
+                    mongo.addUser(user);
+                }
+                catch (RuntimeException r ) {
+                    if (r.getMessage().equals("add failed")) {
+                        tx.rollback();
+                    }
+                    r.printStackTrace();
+                }
                 return null;
             });
         }
@@ -86,12 +95,12 @@ public class UserNeo4jManager {
 
     public void addFollow(String followerUsername, String followedUsername, boolean request){
         String partOfQuery = "";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String currentDate = sdf.format(new Date());
         if(request)
             partOfQuery = "SET f.accepted = false";
         final String partOfQueryFinal = partOfQuery;
         try ( Session session = neo4jDriver.getSession() ) {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            String currentDate = sdf.format(new Date());
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run( "MATCH (u:User {username: $followerUsername}),(u2:User {username: $followedUsername})" +
                                 "MERGE (u)-[f:FOLLOW]->(u2)" +
@@ -141,9 +150,9 @@ public class UserNeo4jManager {
 
 
 
-    public void browseFollowedUsers(String username){
+    public List<String> browseFollowedUsers(String username){
         try (Session session = neo4jDriver.getSession()){
-            List<String> followedUsernames = session.readTransaction((TransactionWork<List<String>>) tx ->{
+          return session.readTransaction((TransactionWork<List<String>>) tx ->{
                 Result result = tx.run("MATCH (u:User)-[f:FOLLOW]->(f:User) " +
                                             "WHERE u.username = $name AND f.accepted = null " +
                                             "RETURN f.username"+
@@ -156,22 +165,28 @@ public class UserNeo4jManager {
                 }
                 return followedUsers;
             });
-            System.out.println(followedUsernames);
         }
         catch (Exception e){
             e.printStackTrace();
         }
+        return null;
     }
 
-    public void browseFollowers(String username, boolean requests){
+    public List<String> browseActualFollowers(String username){
         String partOfQuery = "AND f.accepted = null";
-        if(requests)
-            partOfQuery = "AND f.accepted = false";
-        final String partOfQueryFinal = partOfQuery;
+        return browseFollowers(username,partOfQuery);
+    }
+
+    public List<String> browseFollowRequests(String username){
+        String partOfQuery = "AND f.accepted = false";
+        return browseFollowers(username, partOfQuery);
+    }
+
+    public List<String> browseFollowers(String username, final String partOfQuery){
         try (Session session = neo4jDriver.getSession()){
-            List<String> followersUsernames = session.readTransaction((TransactionWork<List<String>>) tx ->{
+            return session.readTransaction((TransactionWork<List<String>>) tx ->{
                 Result result = tx.run("MATCH (u:User)-[f:FOLLOW]->(f:User)" +
-                                "WHERE f.username = $name"+ partOfQueryFinal +
+                                "WHERE f.username = $name"+ partOfQuery +
                                 "RETURN u.username" +
                                 "ORDER BY f.date DESC",
                         parameters("name",username));
@@ -182,20 +197,20 @@ public class UserNeo4jManager {
                 }
                 return followers;
             });
-            System.out.println(followersUsernames);
         }
         catch (Exception e){
             e.printStackTrace();
         }
+        return null;
     }
 
-    public void browseUsersWithMostFollowersInYear(String year){
-        browseUsersWithMostFollowersInYear(year, 10);
+    public List<String> browseUsersWithMostFollowersInYear(String year){
+        return browseUsersWithMostFollowersInYear(year, 10);
     }
 
-    public void browseUsersWithMostFollowersInYear(String year, int limit){
+    public List<String> browseUsersWithMostFollowersInYear(String year, int limit){
         try (Session session = neo4jDriver.getSession()){
-            List<String> usernameAndFollowers = session.readTransaction((TransactionWork<List<String>>) tx ->{
+            return session.readTransaction((TransactionWork<List<String>>) tx ->{
                 Result result = tx.run("MATCH (u1:User)-[f:FOLLOW]->(u2:User) " +
                                           "WHERE f.date = date({year: $year}) AND f.accepted = null" +
                                           "RETURN u2.username, count(u1) AS followers " +
@@ -209,16 +224,16 @@ public class UserNeo4jManager {
                 }
                 return followers;
             });
-            System.out.println(usernameAndFollowers);
         }
         catch (Exception e){
             e.printStackTrace();
         }
+        return null;
     }
 
-    public void browseSuggestedUsers(String username, int limit){
+    public List<String> browseSuggestedUsers(String username, int limit){
         try (Session session = neo4jDriver.getSession()){
-            List<String> usernames = session.readTransaction((TransactionWork<List<String>>) tx ->{
+            return session.readTransaction((TransactionWork<List<String>>) tx ->{
                 Result result = tx.run("MATCH (u1:User {username: $username})-[f:FOLLOW]->(u2:User)<-[f:FOLLOW]-(u3:User)" +
                                 "(u1)-[f:FOLLOW]->(a:App)<-[f:FOLLOW]-(u3)" +
                                 "WHERE NOT (u1)-[:FOLLOW]->(u3)" +
@@ -232,11 +247,11 @@ public class UserNeo4jManager {
                 }
                 return users;
             });
-            System.out.println(usernames);
         }
         catch (Exception e){
             e.printStackTrace();
         }
+        return null;
     }
 
 }

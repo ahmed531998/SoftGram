@@ -2,9 +2,7 @@ package entities;
 
 import java.util.*;
 
-import com.mongodb.client.MongoCollection;
 import org.bson.Document;
-import utilities.MongoDriver;
 
 public class User {
     private String username;
@@ -15,26 +13,26 @@ public class User {
     private String role;
     private String website;
 
-    List<Review> reviews;
+    public List<Review> reviews;
 
-    List<String> followersList;
-    List<String> followingList;
+    public List<String> followersList;
+    public List<String> followingList;
 
-    List<String> developedApps;
+    public List<String> developedApps;
 
     public void setUsername(String username) {
         this.username = username;
     }
 
-    private void setBirthday(Date birthday) {
+    public void setBirthday(Date birthday) {
         this.birthday = birthday;
     }
 
-    private void setCountry(String country) {
+    public void setCountry(String country) {
         this.country = country;
     }
 
-    private void setEmail(String email){
+    public void setEmail(String email){
         this.email = email;
     }
 
@@ -68,26 +66,8 @@ public class User {
         return password;
     }
 
-
-    public Document toUserDocument(){
-        List<Document> reviewDocList = new ArrayList<>();
-        for (Review review: this.reviews){
-            Document reviewDoc = new Document("review", new Document("content", review.getContent())
-                    .append("date", review.getDateOfReview())
-                    .append("appId", review.getAppId()))
-                    .append("score", review.getScore())
-                    .append("scoreDate", review.getDateOfScore());
-            reviewDocList.add(reviewDoc);
-        }
-
-        return new Document("_id", this.username)
-                .append("birthday", this.birthday)
-                .append("email", this.email)
-                .append("website", this.website)
-                .append("role", this.role)
-                .append("password", this.password)
-                .append("country", this.country)
-                .append("reviews", reviewDocList);
+    public String getRole(){
+        return role;
     }
 
     public User fromUserDocument(Document r){
@@ -107,28 +87,6 @@ public class User {
         }
         this.reviews = reviews;
         return this;
-    }
-
-    public void addUser(String username, String email, String password, String website, String role, String country) {
-        try {
-            MongoDriver driver = new MongoDriver();
-            MongoCollection<Document> appColl = driver.getCollection("users");
-            Document d1 = new Document("_id", getUsername());
-            d1.append("_id", username);
-            d1.append("email", email);
-            d1.append("password",password);
-            d1.append("website", website);
-            d1.append("role", role);
-            d1.append("country", country);
-            //d1.append("birthdate", birth);
-            appColl.insertOne(d1);
-            System.out.println("added");
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-
-
     }
 
 }

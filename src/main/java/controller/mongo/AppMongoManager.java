@@ -1,9 +1,8 @@
-package it.unipi.softgram.controller.mongo;
+package controller.mongo;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
-import it.unipi.softgram.entities.App;
-import it.unipi.softgram.utilities.drivers.MongoDriver;
+import entities.App;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -11,6 +10,7 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 import com.mongodb.client.model.Filters;
 import org.bson.BsonRegularExpression;
+import utilities.MongoDriver;
 
 import javax.print.Doc;
 import java.util.List;

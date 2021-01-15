@@ -15,7 +15,6 @@
         <TextField fx:id="email" layoutX="37.0" layoutY="70.0" promptText="email" />
         <ComboBox fx:id="country" layoutX="36.0" layoutY="174.0" prefWidth="150.0" promptText="Country" />
         <DatePicker fx:id="birthday" layoutX="36.0" layoutY="212.0" prefHeight="26.0" prefWidth="149.0" promptText="Birthday" />
-        <ComboBox fx:id="role" layoutX="36.0" layoutY="250.0" prefWidth="150.0" promptText="Role" />
         <Button layoutX="263.0" layoutY="140.0" mnemonicParsing="false" onAction="#signup" text="Signup" />
       <PasswordField fx:id="password" layoutX="38.0" layoutY="140.0" promptText="password" />
     </children>
