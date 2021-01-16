@@ -26,15 +26,10 @@ import static com.mongodb.client.model.Updates.set;
 
 
 public class UserMongoManager {
-    private MongoDriver driver;
+    private final MongoDriver driver;
 
     public UserMongoManager(){
-        try{
-            driver = new MongoDriver();
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+        driver = new MongoDriver();
     }
 
 
@@ -141,7 +136,7 @@ public class UserMongoManager {
                 System.out.println("Requested user to update not found");
         }
         catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException("write operation failed");
         }
     }
 
@@ -156,7 +151,7 @@ public class UserMongoManager {
             }
         }
         catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException("write operation failed");
         }
     }
 
@@ -175,7 +170,7 @@ public class UserMongoManager {
     }
 
 //admin
-    //users commented greatest number of apps in Month
+    //users commented greatest number of apps in Month, wrong
     public List<String> Top10UsersReviewersPerMonth(Date monthYear){
         Bson myUnwind = unwind("reviews");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
@@ -185,11 +180,12 @@ public class UserMongoManager {
         Bson myGroup = group("$_id", Accumulators.sum("count",1));
         try{
             MongoCollection<Document> userColl = driver.getCollection("user");
-            userColl.aggregate(Arrays.asList(myMatch, myUnwind, myGroup);
+            userColl.aggregate(Arrays.asList(myMatch, myUnwind, myGroup));
         }
         catch (Exception e){
             e.printStackTrace();
         }
+        return null;
     }
     public void changeUserRole(String username, Role.RoleValue role){
         try {
@@ -202,7 +198,7 @@ public class UserMongoManager {
             }
         }
         catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException("write operation failed");
         }
     }
 
@@ -220,7 +216,7 @@ public class UserMongoManager {
             userColl.insertOne(userDoc);
         }
         catch (Exception e){
-            throw new RuntimeException("add failed");
+            throw new RuntimeException("write operation failed");
         }
     }
 
@@ -233,7 +229,7 @@ public class UserMongoManager {
             }
         }
         catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException("write operation failed");
         }
     }
 

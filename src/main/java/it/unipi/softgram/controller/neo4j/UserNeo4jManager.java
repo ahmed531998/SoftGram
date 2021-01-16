@@ -2,7 +2,6 @@ package it.unipi.softgram.controller.neo4j;
 
 import it.unipi.softgram.controller.mongo.UserMongoManager;
 import it.unipi.softgram.entities.User;
-import it.unipi.softgram.utilities.drivers.MongoDriver;
 import it.unipi.softgram.utilities.drivers.Neo4jDriver;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
@@ -14,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import it.unipi.softgram.utilities.enumerators.Role;
 
 import static org.neo4j.driver.Values.parameters;
 
@@ -25,74 +23,6 @@ public class UserNeo4jManager {
         neo4jDriver = new Neo4jDriver();
     }
 
-
-    public void addUser( User user){
-        try ( Session session = neo4jDriver.getSession() ) {
-            session.writeTransaction((TransactionWork<Void>) tx -> {
-                tx.run( "MERGE (u:User {username: $username})" +
-                        "SET u:NormalUser",
-                        parameters( "username", user.getUsername()) );
-                try {
-                    UserMongoManager mongo = new UserMongoManager();
-                    mongo.addUser(user);
-                }
-                catch (RuntimeException r ) {
-                    if (r.getMessage().equals("add failed")) {
-                        tx.rollback();
-                    }
-                    r.printStackTrace();
-                }
-                return null;
-            });
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    public void removeUser(String username){
-        try ( Session session = neo4jDriver.getSession() ) {
-            session.writeTransaction((TransactionWork<Void>) tx -> {
-                tx.run( "MATCH (u:User {username: $username})" +
-                                "DETACH DELETE u",
-                        parameters( "username", username) );
-                return null;
-            });
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    public void becomeDeveloper(String username){
-        try ( Session session = neo4jDriver.getSession() ) {
-            session.writeTransaction((TransactionWork<Void>) tx -> {
-                tx.run( "MATCH (u:User {username: $username})" +
-                           "REMOVE u:NormalUser" +
-                           "SET u:Developer",
-                        parameters( "username", username) );
-                return null;
-            });
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    public void becomeNormalUser(String username){
-        try ( Session session = neo4jDriver.getSession() ) {
-            session.writeTransaction((TransactionWork<Void>) tx -> {
-                tx.run( "MATCH (u:User {username: $username})" +
-                           "REMOVE u:Developer" +
-                           "SET u:NormalUser",
-                        parameters( "username", username) );
-                return null;
-            });
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 
     public void addFollow(String followerUsername, String followedUsername, boolean request){
         String partOfQuery = "";
