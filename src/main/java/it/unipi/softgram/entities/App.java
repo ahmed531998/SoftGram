@@ -23,7 +23,6 @@ public class App {
     private User developer;
     private boolean inAppPurchase;
 
-    private List<Review> reviews;
     private List<User>followers;
 
     public App() {
@@ -33,7 +32,7 @@ public class App {
     public App(String id, Boolean adSupported, Date released, String name, Double price,
                String category, int ratingCount, int installCount, String size,
                String ageGroup, String currency, Date lastUpdated, User developer,
-               Boolean inAppPurchase, List<Review> reviews){
+               Boolean inAppPurchase){
         this.name = name;
         this.category = category;
         this.adSupported = adSupported;
@@ -48,7 +47,6 @@ public class App {
         this.lastUpdated = lastUpdated;
         this.developer = developer;
         this.inAppPurchase = inAppPurchase;
-        this.reviews = reviews;
     }
     public boolean isInAppPurchase() { return inAppPurchase; }
 
@@ -74,8 +72,6 @@ public class App {
 
     public Date getLastUpdated() { return lastUpdated; }
 
-    public List<Review> getReviews() { return reviews; }
-
     public String getCategory() { return category; }
 
     public User getDeveloper() { return developer; }
@@ -91,8 +87,6 @@ public class App {
     }
 
     public void setInAppPurchase(boolean inAppPurchase) { this.inAppPurchase = inAppPurchase; }
-
-    public void setReviews(List<Review> reviews) { this.reviews = reviews; }
 
     public void setReleased(Date released) { this.released = released; }
 
@@ -113,11 +107,6 @@ public class App {
     public void setDeveloper(User developer) { this.developer = developer; }
 
     public Document toAppDocument(){
-        List<Document> reviewDocList = new ArrayList<>();
-        for (Review review: this.reviews){
-            reviewDocList.add(review.toAppCollDocument());
-        }
-
         return new Document("_id", this.id)
                 .append("adSupported", this.adSupported)
                 .append("released", this.released)
@@ -132,8 +121,7 @@ public class App {
                 .append("developer", new Document("developerId", this.developer.getUsername())
                         .append("developerEmail", this.developer.getEmail())
                         .append("developerWebsite", this.developer.getWebsite()))
-                .append("inAppPurchase", this.inAppPurchase)
-                .append("reviews", reviewDocList);
+                .append("inAppPurchase", this.inAppPurchase);
     }
 
     public App fromAppDocument(Document r){
@@ -152,14 +140,6 @@ public class App {
         User x = new User();
         this.developer = (x.fromUserDocument(d));
         this.inAppPurchase = (Boolean) r.get("inAppPurchase");
-        //watch this warning for some exception (by andrea)
-        List<Document> reviewsDocList = (List<Document>) r.get("reviews");
-        List<Review> reviews = new ArrayList<>();
-        for (Document review: reviewsDocList){
-            Review y = new Review();
-            reviews.add(y.fromAppCollDocument(review, this.id));
-        }
-        this.reviews = reviews;
         return this;
     }
 

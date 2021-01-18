@@ -100,12 +100,11 @@ public class UserMongoManager {
     }
 
 
-    //this function needs to memorize reviews
     public List<User> searchUserBy(Bson query, int skip){
         try{
             MongoCollection<Document> userColl = driver.getCollection("user");
-            List<Document> output = userColl.find(query).skip(skip).limit(10)
-                    .projection(exclude("reviews")).into(new ArrayList<>());
+            List<Document> output = userColl.find(query).skip(skip).limit(20)
+                   .into(new ArrayList<>());
             return convertFromDocument(output);
         }
         catch (Exception e){
@@ -170,23 +169,7 @@ public class UserMongoManager {
     }
 
 //admin
-    //users commented greatest number of apps in Month, wrong
-    public List<String> Top10UsersReviewersPerMonth(Date monthYear){
-        Bson myUnwind = unwind("reviews");
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
-        String monthYearString = sdf.format(monthYear);
-        Pattern pattern = Pattern.compile("^" + monthYearString + ".*$");
-        Bson myMatch = eq(regex("reviews.review.date",pattern));
-        Bson myGroup = group("$_id", Accumulators.sum("count",1));
-        try{
-            MongoCollection<Document> userColl = driver.getCollection("user");
-            userColl.aggregate(Arrays.asList(myMatch, myUnwind, myGroup));
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-        return null;
-    }
+
     public void changeUserRole(String username, Role.RoleValue role){
         try {
             String roleString = Role.getRoleString(role);

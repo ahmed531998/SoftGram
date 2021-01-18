@@ -12,7 +12,6 @@ public class User {
     private String role;
     private String website;
 
-    public List<Review> reviews;
 
     public List<String> followersList;
     public List<String> followingList;
@@ -77,14 +76,6 @@ public class User {
         this.role = (String) r.get("role");
         this.password = (String) r.get("password");
         this.country = (String) r.get("country");
-        //check this warning (by andrea)
-        List<Document> reviewsDocList = (List<Document>) r.get("reviews");
-        List<Review> reviews = new ArrayList<>();
-        for (Document review: reviewsDocList){
-            Review x = new Review();
-            reviews.add(x.fromUserCollDocument(review, this.username));
-        }
-        this.reviews = reviews;
         return this;
     }
 

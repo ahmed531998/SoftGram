@@ -9,10 +9,11 @@ import org.neo4j.driver.TransactionWork;
 
 import static org.neo4j.driver.Values.parameters;
 
+//test this
 
 public class UserMongoNeo4jManager {
     private final Neo4jDriver neo4jDriver;
-    private UserMongoManager userMongoManager;
+    private final UserMongoManager userMongoManager;
 
 
 
@@ -129,7 +130,28 @@ public class UserMongoNeo4jManager {
 
     //Admin
     public void changeUserRole(String username, Role.RoleValue role){
-
+        String roleString = Role.getRoleString(role).replace("\\s","");
+        try ( Session session = neo4jDriver.getSession() ) {
+            session.writeTransaction((TransactionWork<Void>) tx -> {
+                tx.run( "MATCH (u:User {username: $username})" +
+                                "REMOVE u:Developer:NormalUser:Admin" +
+                                "SET u:" + Role.getRoleString(role),
+                        parameters( "username", username) );
+                try {
+                    userMongoManager.changeUserRole(username, role);
+                }
+                catch (RuntimeException r ) {
+                    if (r.getMessage().equals("write operation failed")) {
+                        tx.rollback();
+                    }
+                    r.printStackTrace();
+                }
+                return null;
+            });
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 }
