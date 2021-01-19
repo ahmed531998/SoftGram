@@ -187,14 +187,7 @@ public class UserMongoManager {
 
     public void addUser(User user){
         try {
-            Document userDoc = new Document("_id", user.getUsername());
-            if(user.getBirthday()!=null)
-                userDoc.append("birthday", user.getBirthday());
-            if(user.getEmail()!=null)
-                userDoc.append("email", user.getEmail());
-            userDoc.append("role", "Normal User");
-            if(user.getCountry()!=null)
-                userDoc.append("Country", user.getCountry());
+            Document userDoc = user.toUserDocument();
             MongoCollection<Document> userColl = driver.getCollection("user");
             userColl.insertOne(userDoc);
         }

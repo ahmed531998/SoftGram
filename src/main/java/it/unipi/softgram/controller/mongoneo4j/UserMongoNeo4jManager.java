@@ -9,7 +9,6 @@ import org.neo4j.driver.TransactionWork;
 
 import static org.neo4j.driver.Values.parameters;
 
-//test this
 
 public class UserMongoNeo4jManager {
     private final Neo4jDriver neo4jDriver;
@@ -25,7 +24,7 @@ public class UserMongoNeo4jManager {
     public void addUser( User user){
         try ( Session session = neo4jDriver.getSession() ) {
             session.writeTransaction((TransactionWork<Void>) tx -> {
-                tx.run( "MERGE (u:User {username: $username})" +
+                tx.run( "MERGE (u:User {username: $username}) " +
                                 "SET u:NormalUser",
                         parameters( "username", user.getUsername()) );
                 try {
@@ -45,21 +44,10 @@ public class UserMongoNeo4jManager {
         }
     }
 
-    public static void main(String[] args){
-        User user = new User();
-        user.setUsername("andreagerra");
-        UserMongoNeo4jManager neo = new UserMongoNeo4jManager();
-        neo.addUser(user);
-        //neo.removeUser(user.getUsername());
-        neo.becomeDeveloper(user.getUsername());
-        //neo.becomeNormalUser(user.getUsername());
-        //neo.changeUserRole(user.getUsername(), Role.RoleValue.ADMIN);
-    }
-
     public void removeUser(String username){
         try ( Session session = neo4jDriver.getSession() ) {
             session.writeTransaction((TransactionWork<Void>) tx -> {
-                tx.run( "MATCH (u:User {username: $username})" +
+                tx.run( "MATCH (u:User {username: $username}) " +
                                 "DETACH DELETE u",
                         parameters( "username", username) );
                 try {
@@ -82,9 +70,9 @@ public class UserMongoNeo4jManager {
     public void becomeDeveloper(String username){
         try ( Session session = neo4jDriver.getSession() ) {
             session.writeTransaction((TransactionWork<Void>) tx -> {
-                tx.run( "MATCH (u:User {username: $username})" +
-                                "REMOVE u:NormalUser" +
-                                "SET u:Developer",
+                tx.run( "MATCH (u:User {username: $username}) " +
+                                "REMOVE u:NormalUser " +
+                                "SET u:Developer ",
                         parameters( "username", username) );
                 try {
                     userMongoManager.becomeDeveloper(username);
@@ -107,8 +95,8 @@ public class UserMongoNeo4jManager {
     public void becomeNormalUser(String username){
         try ( Session session = neo4jDriver.getSession() ) {
             session.writeTransaction((TransactionWork<Void>) tx -> {
-                tx.run( "MATCH (u:User {username: $username})" +
-                                "REMOVE u:Developer" +
+                tx.run( "MATCH (u:User {username: $username}) " +
+                                "REMOVE u:Developer " +
                                 "SET u:NormalUser",
                         parameters( "username", username) );
                 try {
@@ -130,12 +118,12 @@ public class UserMongoNeo4jManager {
 
     //Admin
     public void changeUserRole(String username, Role.RoleValue role){
-        String roleString = Role.getRoleString(role).replace("\\s","");
+        String roleString = Role.getRoleString(role).replaceAll("\\s","");
         try ( Session session = neo4jDriver.getSession() ) {
             session.writeTransaction((TransactionWork<Void>) tx -> {
-                tx.run( "MATCH (u:User {username: $username})" +
-                                "REMOVE u:Developer:NormalUser:Admin" +
-                                "SET u:" + Role.getRoleString(role),
+                tx.run( "MATCH (u:User {username: $username}) " +
+                                "REMOVE u:Developer:NormalUser:Admin " +
+                                "SET u:" + roleString,
                         parameters( "username", username) );
                 try {
                     userMongoManager.changeUserRole(username, role);

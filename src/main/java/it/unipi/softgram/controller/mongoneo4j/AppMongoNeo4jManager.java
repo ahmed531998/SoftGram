@@ -4,12 +4,15 @@ import it.unipi.softgram.controller.mongo.AppMongoManager;
 import it.unipi.softgram.controller.neo4j.AppNeo4jManager;
 import it.unipi.softgram.entities.App;
 import it.unipi.softgram.entities.User;
+import it.unipi.softgram.utilities.drivers.MongoDriver;
 import it.unipi.softgram.utilities.drivers.Neo4jDriver;
 import it.unipi.softgram.utilities.enumerators.Relation;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.TransactionWork;
 
 import static org.neo4j.driver.Values.parameters;
+
+//test only the update app but change it
 
 public class AppMongoNeo4jManager {
     private final Neo4jDriver neo4jDriver;
@@ -23,12 +26,21 @@ public class AppMongoNeo4jManager {
     }
 
     public void addApp(App a, User u) {
+        String name, category;
+        if(a.getName() == null)
+            name = "Unknown";
+        else
+            name = a.getName();
+        if(a.getCategory()== null)
+            category = "Unknown";
+        else
+            category = a.getCategory();
         try (Session session = neo4jDriver.getSession()) {
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run("MERGE (a:App {id: $id, app_name: $name, category: $category}) ",
                         parameters("id", a.getId(),
-                                "name", a.getName(),
-                                "category", a.getCategory()));
+                                "name", name,
+                                "category", category));
                 try {
                     appMongoManager.addApp(a);
                 }
@@ -74,16 +86,25 @@ public class AppMongoNeo4jManager {
         }
     }
 
-    // maybe add function for change category or app_name or in the app manager leave
-    // update app and add fields to update
+// maybe separate function (updateName() and updateCategory()) in order to call these only when needed
     public void updateApp(App a){
+        String name, category;
+        if(a.getName() == null)
+            name = "Unknown";
+        else
+            name = a.getName();
+        if(a.getCategory()== null)
+            category = "Unknown";
+        else
+            category = a.getCategory();
+
         try ( Session session = neo4jDriver.getSession() ) {
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run( "MATCH (a:App {id: $id}) " +
                                 "SET a.app_name: $name, a.category: $category",
                         parameters("id", a.getId(),
-                                "name", a.getName(),
-                                "category", a.getCategory()));
+                                "name", name,
+                                "category", category));
                 try {
                     appMongoManager.updateApp(a);
                 }

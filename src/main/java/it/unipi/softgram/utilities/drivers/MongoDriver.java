@@ -35,7 +35,7 @@ public class MongoDriver {
         else throw new RuntimeException("Connection doesn't exist.");
     }
 
-    public void close(){
+    public static void close(){
         if(mongoClient!= null)
             mongoClient.close();
         else throw new RuntimeException("Connection doesn't exist.");

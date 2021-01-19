@@ -10,7 +10,7 @@ public class Review {
     private String username;
     private Date date;
     private String content;
-    private double score;
+    private Integer score;
     private String _id;
 
     public Review(){
@@ -22,11 +22,11 @@ public class Review {
         this.username = username;
         this.date = date;
         this.content = content;
-        this.score = -1;
+        this.score = null;
     }
 
     public Review(String appId, String category, String username, Date date, String content,
-                  double score){
+                  Integer score){
         this.appId = appId;
         this.category = category;
         this.username = username;
@@ -42,7 +42,7 @@ public class Review {
     public void setDate(Date date) {
         this.date = date;
     }
-    public void setScore(double score) {
+    public void setScore(Integer score) {
         this.score = score;
     }
     public void setUsername(String username) {
@@ -70,7 +70,7 @@ public class Review {
                 .append("content", this.content)
                 .append("appId", this.appId)
                 .append("category", this.category);
-        if(this.score != -1)
+        if(this.score != null)
                 review.append("score", this.score);
         return review;
     }
@@ -81,10 +81,7 @@ public class Review {
         this.username = (String) r.get("username");
         this.date = (Date) r.get("date");
         this.content = (String) r.get("content");
-        if(r.get("score")!=null)
-            this.score = (double) r.get("score");
-        else
-            this.score = -1;
+        this.score = (Integer) r.get("score");
         this.category = (String) r.get("category");
         this._id = (String) r.get("_id");
         return this;

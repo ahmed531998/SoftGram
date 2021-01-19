@@ -3,6 +3,7 @@ package it.unipi.softgram.entities;
 
 import org.bson.Document;
 
+import javax.print.Doc;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
@@ -14,14 +15,14 @@ public class App {
     private String name;
     private Double price;
     private String category;
-    private int ratingCount;
-    private int installCount;
+    private Integer ratingCount;
+    private Integer installCount;
     private String size;
     private String ageGroup;
     private String currency;
     private Date lastUpdated;
     private User developer;
-    private boolean inAppPurchase;
+    private Boolean inAppPurchase;
 
     private List<User>followers;
 
@@ -107,21 +108,26 @@ public class App {
     public void setDeveloper(User developer) { this.developer = developer; }
 
     public Document toAppDocument(){
-        return new Document("_id", this.id)
-                .append("adSupported", this.adSupported)
-                .append("released", this.released)
-                .append("name", this.name)
-                .append("price", this.price)
-                .append("ratingCount", this.ratingCount)
-                .append("installCount", this.installCount)
-                .append("size", this.size)
-                .append("ageGroup", this.ageGroup)
-                .append("currency", this.currency)
-                .append("lastUpdated", this.lastUpdated)
-                .append("developer", new Document("developerId", this.developer.getUsername())
-                        .append("developerEmail", this.developer.getEmail())
-                        .append("developerWebsite", this.developer.getWebsite()))
-                .append("inAppPurchase", this.inAppPurchase);
+        Document appDoc = new Document("_id", this.id);
+        if(this.adSupported!= null)
+            appDoc.append("adSupported", this.adSupported);
+        if(this.released!= null)
+            appDoc.append("released", this.released);
+        if(this.name != null)
+            appDoc.append("name", this.name);
+        if(this.price != null)
+            appDoc.append("price", this.price);
+        if(this.size != null)
+            appDoc.append("size", this.size);
+        if(this.ageGroup != null)
+            appDoc.append("ageGroup", this.ageGroup);
+        if(this.currency != null)
+            appDoc.append("currency", this.currency);
+        if(this.lastUpdated != null)
+            appDoc.append("lastUpdated", this.lastUpdated);
+        if(this.inAppPurchase != null)
+            appDoc.append("inAppPurchase", this.inAppPurchase);
+        return appDoc;
     }
 
     public App fromAppDocument(Document r){

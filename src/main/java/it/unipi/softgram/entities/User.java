@@ -68,6 +68,18 @@ public class User {
         return role;
     }
 
+    public Document toUserDocument(){
+        Document userDoc = new Document("_id", this.getUsername());
+        if(this.getBirthday()!=null)
+            userDoc.append("birthday", this.getBirthday());
+        if(this.getEmail()!=null)
+            userDoc.append("email", this.getEmail());
+        userDoc.append("role", "Normal User");
+        if(this.getCountry()!=null)
+            userDoc.append("Country", this.getCountry());
+        return userDoc;
+    }
+
     public User fromUserDocument(Document r){
         this.username = (String) r.get("_id");
         this.birthday = (Date) r.get("birthday");
