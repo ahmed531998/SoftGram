@@ -149,7 +149,7 @@ public class Admin implements Initializable {
                 );
         app_purchase.getItems().addAll(options);
         ad_supported.getItems().addAll(options);
-
+        //commonapps();
         appid.setVisible(false);
 
         applist.setOrientation(Orientation.HORIZONTAL);
@@ -832,7 +832,26 @@ public class Admin implements Initializable {
     }
 
     public void signout_fun(ActionEvent actionEvent) throws IOException {
-        setRoot("login");
+        try {
+            //Load second scene
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
+            Parent root = loader.load();
+
+            //Get controller of scene2
+            login scene2Controller = loader.getController();
+            //Pass whatever data you want. You can have multiple method calls here
+            //scene2Controller.transferMessage("");
+
+            //Show scene 2 in new window
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("login Window");
+            stage.show();
+            ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
+        } catch (IOException ex) {
+            System.err.println(ex);
+        }
+
     }
 //neo4j
     public  void suggestedapps(){

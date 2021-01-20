@@ -86,13 +86,11 @@
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
                         <ListView fx:id="listsuggest" layoutX="13.0" layoutY="79.0" prefHeight="174.0" prefWidth="342.0" />
-                        <Text layoutX="14.0" layoutY="31.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Suggested Users with most followers" wrappingWidth="341.3367462158203" />
+                        <Text layoutX="14.0" layoutY="31.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Common Apps" wrappingWidth="341.3367462158203" />
                         <ListView fx:id="listrequest" layoutX="14.0" layoutY="333.0" prefHeight="174.0" prefWidth="342.0" />
                         <Text layoutX="14.0" layoutY="279.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Follow requests" wrappingWidth="341.3367462158203" />
                         <TextField fx:id="usernametxt" layoutX="14.0" layoutY="300.0" promptText="user ID" />
                         <Button layoutX="292.0" layoutY="300.0" mnemonicParsing="false" onAction="#follow_serch" text="Search" />
-                        <TextField fx:id="yeartxt" layoutX="14.0" layoutY="43.0" promptText="year" />
-                        <Button layoutX="303.0" layoutY="43.0" mnemonicParsing="false" onAction="#suggest_search" text="Search" />
                         <ListView fx:id="listactual" layoutX="411.0" layoutY="333.0" prefHeight="174.0" prefWidth="342.0" />
                         <Text layoutX="411.0" layoutY="279.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Actual Followers" wrappingWidth="341.3367462158203" />
                         <TextField fx:id="actualtxt" layoutX="411.0" layoutY="300.0" promptText="user ID" />

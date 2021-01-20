@@ -9,13 +9,13 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.Signup">
     <children>
-        <Button fx:id="Login" layoutX="520.0" layoutY="24.0" mnemonicParsing="false" onAction="#loginbtn" prefHeight="26.0" prefWidth="51.0" text="Login" />
+        <Button fx:id="Login" layoutX="135.0" layoutY="256.0" mnemonicParsing="false" onAction="#loginbtn" prefHeight="26.0" prefWidth="51.0" text="Login" />
         <TextField fx:id="username" layoutX="37.0" layoutY="37.0" promptText="username" />
         <TextField fx:id="website" layoutX="37.0" layoutY="105.0" promptText="website" />
         <TextField fx:id="email" layoutX="37.0" layoutY="70.0" promptText="email" />
         <ComboBox fx:id="country" layoutX="36.0" layoutY="174.0" prefWidth="150.0" promptText="Country" />
         <DatePicker fx:id="birthday" layoutX="36.0" layoutY="212.0" prefHeight="26.0" prefWidth="149.0" promptText="Birthday" />
-        <Button layoutX="263.0" layoutY="140.0" mnemonicParsing="false" onAction="#signup" text="Signup" />
+        <Button layoutX="36.0" layoutY="257.0" mnemonicParsing="false" onAction="#signup" text="Signup" />
       <PasswordField fx:id="password" layoutX="38.0" layoutY="140.0" promptText="password" />
     </children>
 </AnchorPane>

@@ -23,7 +23,7 @@ public class Signup implements Initializable {
 
     @FXML private TextField username, email, website;
     @FXML private PasswordField password;
-    @FXML private ComboBox country, role;
+    @FXML private ComboBox country;
     @FXML private DatePicker birthday;
 
 
@@ -35,17 +35,13 @@ public class Signup implements Initializable {
                         "Iraq",
                         "UK",
                         "Chine",
-                        "India"
+                        "India",
+                        "Egypt",
+                        "US"
                 );
         country.getItems().addAll(options);
 
-        ObservableList<String> options1 =
-                FXCollections.observableArrayList(
-                        "DEVELOPER",
-                        "NORMAL_USER",
-                        "ADMIN"
-                );
-        role.getItems().addAll(options1);
+
     }
 
     public void loginbtn(ActionEvent actionEvent) throws IOException {
@@ -59,14 +55,18 @@ public class Signup implements Initializable {
         }else{
             UserNeo4jManager user=new UserNeo4jManager();
             User userobj=new User();
-            userobj.setUsername(username.getText().toString());
-            userobj.setWebsite(website.getText().toString());
-            userobj.setPassword(password.getText().toString());
-            userobj.setCountry(country.getItems().toString());
-            userobj.setEmail(email.getText().toString());
-            user.addUser(userobj);
-            JOptionPane.showMessageDialog(null, "Added successfully");
-            setRoot("admin");
+            try {
+                userobj.setUsername(username.getText().toString());
+                userobj.setWebsite(website.getText().toString());
+                userobj.setPassword(password.getText().toString());
+                userobj.setCountry(country.getItems().toString());
+                userobj.setEmail(email.getText().toString());
+                user.addUser(userobj);
+                JOptionPane.showMessageDialog(null, "Added successfully");
+                setRoot("admin");
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
     }
 }
