@@ -1,4 +1,4 @@
-package it.unipi.softgram.entities;
+package entities;
 
 
 import org.bson.Document;

@@ -1,5 +1,6 @@
 package it.unipi.softgram.utilities.drivers;
 
+import com.mongodb.ConnectionString;
 import org.bson.Document;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -17,9 +18,14 @@ public class MongoDriver {
         if(mongoClient==null){
             Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
             mongoLogger.setLevel(Level.WARNING);
-            String uri = "mongodb://localhost:27017";
-            mongoClient = MongoClients.create(uri);
-            mongoDatabase = mongoClient.getDatabase("proj");
+            ConnectionString uri = new ConnectionString("mongodb://localhost:27017");
+            try {
+                mongoClient = MongoClients.create(uri);
+                mongoDatabase = mongoClient.getDatabase("proj");
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
         }
     }
 
@@ -29,7 +35,7 @@ public class MongoDriver {
         else throw new RuntimeException("Connection doesn't exist.");
     }
 
-    public void close(){
+    public static void close(){
         if(mongoClient!= null)
             mongoClient.close();
         else throw new RuntimeException("Connection doesn't exist.");

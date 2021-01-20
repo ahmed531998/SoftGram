@@ -31,7 +31,7 @@ public class Neo4jDriver {
         else throw new RuntimeException("Connection doesn't exist");
     }
 
-    public void close(){
+    public static void close(){
         if(driver!= null)
             driver.close();
         else throw new RuntimeException("Connection doesn't exist.");

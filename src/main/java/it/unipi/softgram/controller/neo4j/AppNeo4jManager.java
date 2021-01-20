@@ -41,36 +41,7 @@ public class AppNeo4jManager {
         return superNodeThreshold;
     }
 
-    public void addApp(App a, User u) {
-        try (Session session = neo.getSession()) {
-            session.writeTransaction((TransactionWork<Void>) tx -> {
-                tx.run("MERGE (a:App {id: $id, app_name: $name, category: $category}) ",
-                        parameters("id", a.getId(),
-                                "name", a.getName(),
-                                "category", a.getCategory()));
-                return null;
-            });
-            if (u != null) {
-                followOrDevelopApp(u, a, Relation.RelationType.DEVELOP);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
-    public void removeApp(App a){
-        try ( Session session = neo.getSession() ) {
-            session.writeTransaction((TransactionWork<Void>) tx -> {
-                tx.run( "MATCH (a:App {id: $id}) " +
-                                "DETACH DELETE a",
-                        parameters( "id", a.getId()) );
-                return null;
-            });
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 
     public void followOrDevelopApp(User u, App a, Relation.RelationType type){
         try (Session session = neo.getSession() ) {

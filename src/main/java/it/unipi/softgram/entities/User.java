@@ -12,12 +12,11 @@ public class User {
     private String role;
     private String website;
 
-    List<Review> reviews;
 
-    List<User> followersList;
-    List<User> followingList;
+    public List<String> followersList;
+    public List<String> followingList;
 
-    List<App> developedApps;
+    public List<String> developedApps;
 
     public void setUsername(String username) {
         this.username = username;
@@ -65,26 +64,20 @@ public class User {
         return password;
     }
 
+    public String getRole(){
+        return role;
+    }
 
     public Document toUserDocument(){
-        List<Document> reviewDocList = new ArrayList<>();
-        for (Review review: this.reviews){
-            Document reviewDoc = new Document("review", new Document("content", review.getContent())
-                    .append("date", review.getDateOfReview())
-                    .append("appId", review.getAppId()))
-                    .append("score", review.getScore())
-                    .append("scoreDate", review.getDateOfScore());
-            reviewDocList.add(reviewDoc);
-        }
-
-        return new Document("_id", this.username)
-                .append("birthday", this.birthday)
-                .append("email", this.email)
-                .append("website", this.website)
-                .append("role", this.role)
-                .append("password", this.password)
-                .append("country", this.country)
-                .append("reviews", reviewDocList);
+        Document userDoc = new Document("_id", this.getUsername());
+        if(this.getBirthday()!=null)
+            userDoc.append("birthday", this.getBirthday());
+        if(this.getEmail()!=null)
+            userDoc.append("email", this.getEmail());
+        userDoc.append("role", "Normal User");
+        if(this.getCountry()!=null)
+            userDoc.append("Country", this.getCountry());
+        return userDoc;
     }
 
     public User fromUserDocument(Document r){
@@ -95,14 +88,6 @@ public class User {
         this.role = (String) r.get("role");
         this.password = (String) r.get("password");
         this.country = (String) r.get("country");
-        //check this warning (by andrea)
-        List<Document> reviewsDocList = (List<Document>) r.get("reviews");
-        List<Review> reviews = new ArrayList<>();
-        for (Document review: reviewsDocList){
-            Review x = new Review();
-            reviews.add(x.fromUserCollDocument(review, this.username));
-        }
-        this.reviews = reviews;
         return this;
     }
 

@@ -6,45 +6,47 @@ import java.util.Date;
 
 public class Review {
     private String appId;
-    private String userId;
-    private Date dateOfScore;
-    private Date dateOfReview;
+    private String category;
+    private String username;
+    private Date date;
     private String content;
-    private double score;
+    private Integer score;
+    private String _id;
 
-    //constructors //why this (by andrea)
     public Review(){
-        this.appId = "";
-        this.userId = "";
-        this.dateOfScore = null;
-        this.dateOfReview = null;
-        this.content = "";
-        this.score = 0;
     }
-    public Review(String appId, String userId, Date dateOfScore, Date dateOfReview, String content,
-                  double score){
+
+    public Review(String appId, String category, String username, Date date, String content){
         this.appId = appId;
-        this.userId = userId;
-        this.dateOfScore = dateOfScore;
-        this.dateOfReview = dateOfReview;
+        this.category = category;
+        this.username = username;
+        this.date = date;
+        this.content = content;
+        this.score = null;
+    }
+
+    public Review(String appId, String category, String username, Date date, String content,
+                  Integer score){
+        this.appId = appId;
+        this.category = category;
+        this.username = username;
+        this.date = date;
         this.content = content;
         this.score = score;
     }
 
     //setters
     public void setAppId(String appId) { this.appId = appId; }
+    public void setCategory(String category){ this.category = category; }
     public void setContent(String content) { this.content = content; }
-    public void setDateOfReview(Date dateOfReview) {
-        this.dateOfReview = dateOfReview;
+    public void setDate(Date date) {
+        this.date = date;
     }
-    public void setDateOfScore(Date dateOfScore) {
-        this.dateOfScore = dateOfScore;
-    }
-    public void setScore(double score) {
+    public void setScore(Integer score) {
         this.score = score;
     }
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     //getters
@@ -52,52 +54,36 @@ public class Review {
     public String getAppId() {
         return appId;
     }
+    public String getCategory() { return category; }
     public String getContent() { return content; }
-    public Date getDateOfReview() {
-        return dateOfReview;
+    public Date getDate() {
+        return date;
     }
-    public Date getDateOfScore() {
-        return dateOfScore;
+    public String getUsername() {
+        return username;
     }
-    public String getUserId() {
-        return userId;
+    public String get_id(){ return  _id;}
+
+    public Document toReviewDocument(){
+        Document review = new Document("username", this.username)
+                .append("date", this.date)
+                .append("content", this.content)
+                .append("appId", this.appId)
+                .append("category", this.category);
+        if(this.score != null)
+                review.append("score", this.score);
+        return review;
     }
 
-    public Document toAppCollDocument(){
-        return new Document("username", this.userId)
-                .append("score", this.score)
-                .append("scoreDate", this.dateOfScore)
-                .append("review", new Document("content", this.content)
-                        .append("date", this.dateOfReview));
-    }
 
-    public Document toUserCollDocument(){
-        return new Document("appId", this.appId)
-                .append("score", this.score)
-                .append("scoreDate", this.dateOfScore)
-                .append("review", new Document("content", this.content)
-                        .append("date", this.dateOfReview));
-    }
-
-    public Review fromUserCollDocument(Document r, String username){
+    public Review fromReviewDocument(Document r){
         this.appId = (String) r.get("appId");
-        this.userId = username;
-        return getReview(r);
-    }
-
-    public Review fromAppCollDocument(Document r, String appId){
-        this.appId = appId;
-        this.userId = (String) r.get("username");
-        return getReview(r);
-    }
-
-    private Review getReview(Document r) {
-        this.dateOfScore = (Date) r.get("scoreDate");
-        Document reviewDoc = (Document) r.get("review");
-        this.dateOfReview = (Date) reviewDoc.get("date");
-        this.content = (String) reviewDoc.get("content");
-        this.score = (double) r.get("score");
+        this.username = (String) r.get("username");
+        this.date = (Date) r.get("date");
+        this.content = (String) r.get("content");
+        this.score = (Integer) r.get("score");
+        this.category = (String) r.get("category");
+        this._id = (String) r.get("_id");
         return this;
     }
-
 }

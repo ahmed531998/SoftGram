@@ -1,6 +1,7 @@
 package it.unipi.softgram.controller.mongo;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -9,110 +10,121 @@ import it.unipi.softgram.utilities.drivers.MongoDriver;
 import it.unipi.softgram.utilities.enumerators.Role;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.bson.json.JsonWriterSettings;
 
-import java.util.Arrays;
-import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Projections.exclude;
-import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Filters.regex;
+import static com.mongodb.client.model.Projections.*;
+import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.set;
 
 
 
 public class UserMongoManager {
-    private MongoDriver driver;
+    private final MongoDriver driver;
 
     public UserMongoManager(){
+        driver = new MongoDriver();
+    }
+
+
+
+    public void saveNewBirthday(User user){
+        try {
+            MongoCollection<Document> userColl = driver.getCollection("user");
+            UpdateResult result = userColl.updateOne(eq("_id",user.getUsername()),
+                    set("birthday",user.getBirthday()));
+            if(result.getModifiedCount()==0)
+                System.out.println("Requested user to update not found");
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void saveNewCountry(User user){
+        try {
+            MongoCollection<Document> userColl = driver.getCollection("user");
+            UpdateResult result = userColl.updateOne(eq("_id",user.getUsername()),
+                    set("Country",user.getCountry()));
+            if(result.getModifiedCount()==0)
+                System.out.println("Requested user to update not found");
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void saveNewEmail(User user){
+        try {
+            MongoCollection<Document> userColl = driver.getCollection("user");
+            UpdateResult result = userColl.updateOne(eq("_id",user.getUsername()),
+                    set("email",user.getEmail()));
+            if(result.getModifiedCount()==0)
+                System.out.println("Requested user to update not found");
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void saveNewPassword(User user){
+        try {
+            MongoCollection<Document> userColl = driver.getCollection("user");
+            UpdateResult result = userColl.updateOne(eq("_id",user.getUsername()),
+                    set("password",user.getPassword()));
+            if(result.getModifiedCount()==0)
+                System.out.println("Requested user to update not found");
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+    public List<User> searchUserByUsername(String username, int skip){
+        Pattern pattern = Pattern.compile("^" + username + ".*$");
+        Bson query = Filters.regex("_id",pattern);
+        return this.searchUserBy(query,skip);
+    }
+
+    public List<User> searchUserByEmail(String email, int skip){
+        Pattern pattern = Pattern.compile("^" + email + ".*$");
+        Bson query = Filters.regex("email",pattern);
+        return this.searchUserBy(query,skip);
+    }
+
+
+    public List<User> searchUserBy(Bson query, int skip){
         try{
-            driver = new MongoDriver();
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-    private static Consumer<Document> printFormattedDocuments() {
-        return doc -> System.out.println(doc.toJson(JsonWriterSettings.builder().indent(true).build())
-                .replace("_id","username"));
-    }
-
-    public void saveNewBirthday(String username, Date birthday){
-        try {
             MongoCollection<Document> userColl = driver.getCollection("user");
-            UpdateResult result = userColl.updateOne(eq("_id",username),
-                    set("birthday",birthday));
-            if(result.getModifiedCount()==0)
-                System.out.println("Requested user to update not found");
+            List<Document> output = userColl.find(query).skip(skip).limit(20)
+                   .into(new ArrayList<>());
+            return convertFromDocument(output);
         }
         catch (Exception e){
             e.printStackTrace();
         }
+        return null;
     }
 
-    public void saveNewCountry(String username, String country){
-        try {
-            MongoCollection<Document> userColl = driver.getCollection("user");
-            UpdateResult result = userColl.updateOne(eq("_id",username),
-                    set("Country",country));
-            if(result.getModifiedCount()==0)
-                System.out.println("Requested user to update not found");
+
+
+    private List<User> convertFromDocument(List<Document> usersDocument){
+        List<User> users = new ArrayList<>();
+        for(Document doc : usersDocument){
+            User user = new User();
+            users.add(user.fromUserDocument(doc));
         }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+        return users;
     }
 
-    public void saveNewEmail(String username, String email){
-        try {
-            MongoCollection<Document> userColl = driver.getCollection("user");
-            UpdateResult result = userColl.updateOne(eq("_id",username),
-                    set("email",email));
-            if(result.getModifiedCount()==0)
-                System.out.println("Requested user to update not found");
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 
-    public void saveNewPassword(String username, String password){
-        try {
-            MongoCollection<Document> userColl = driver.getCollection("user");
-            UpdateResult result = userColl.updateOne(eq("_id",username),
-                    set("password",password));
-            if(result.getModifiedCount()==0)
-                System.out.println("Requested user to update not found");
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    public void searchUser(String username){
-        this.searchUser(username, 10);
-    }
-
-    public void searchUser(String username, int limitNumber){
-        try {
-            MongoCollection<Document> userColl = driver.getCollection("user");
-            Pattern pattern = Pattern.compile("^" + username + ".*$");
-            Bson match = match(Filters.regex("_id", pattern));
-            Bson project = project(fields(exclude("reviews","password")));
-            Bson limit = limit(limitNumber);
-            userColl.aggregate(Arrays.asList(match,project,limit)).forEach(printFormattedDocuments());
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    public void showProfile(String username){
-        searchUser(username,1);
-    }
 
     public void becomeDeveloper(String username){
         try {
@@ -123,7 +135,7 @@ public class UserMongoManager {
                 System.out.println("Requested user to update not found");
         }
         catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException("write operation failed");
         }
     }
 
@@ -138,15 +150,15 @@ public class UserMongoManager {
             }
         }
         catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException("write operation failed");
         }
     }
 
-    public void saveNewWebsite(String username, String website){
+    public void saveNewWebsite(User user){
         try {
             MongoCollection<Document> userColl = driver.getCollection("user");
-            UpdateResult result = userColl.updateOne(eq("_id",username),
-                    set("website",website));
+            UpdateResult result = userColl.updateOne(eq("_id",user.getUsername()),
+                    set("website",user.getWebsite()));
             if(result.getModifiedCount()==0){
                 System.out.println("Requested user to update not found");
             }
@@ -169,25 +181,18 @@ public class UserMongoManager {
             }
         }
         catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException("write operation failed");
         }
     }
 
     public void addUser(User user){
         try {
-            Document userDoc = new Document("_id", user.getUsername());
-            if(user.getBirthday()!=null)
-                userDoc.append("birthday", user.getBirthday());
-            if(user.getEmail()!=null)
-                userDoc.append("email", user.getEmail());
-            userDoc.append("role", "Normal User");
-            if(user.getCountry()!=null)
-                userDoc.append("Country", user.getCountry());
+            Document userDoc = user.toUserDocument();
             MongoCollection<Document> userColl = driver.getCollection("user");
             userColl.insertOne(userDoc);
         }
         catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException("write operation failed");
         }
     }
 
@@ -200,7 +205,7 @@ public class UserMongoManager {
             }
         }
         catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException("write operation failed");
         }
     }
 
