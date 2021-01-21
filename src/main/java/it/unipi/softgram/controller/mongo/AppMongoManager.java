@@ -19,11 +19,11 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import static com.mongodb.client.model.Accumulators.avg;
-import static com.mongodb.client.model.Aggregates.group;
-import static com.mongodb.client.model.Aggregates.project;
+import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.fields;
 import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Sorts.descending;
 
 
 public class AppMongoManager {
@@ -101,147 +101,79 @@ public class AppMongoManager {
     }
 
 
-    public void getMostPopularApps() {
+    public List<Document> getPopularApps(int limit){
+        try{
+            MongoCollection<Document> collection = driver.getCollection("review");
+            Bson myGroup = new Document("$group", new Document("_id", "$appId")
+                    .append("average", new Document()
+                            .append("$avg", "$score"))
+                    .append("count", new Document()
+                            .append("$sum", 1)));
+            Bson mySort = sort(descending("average", "count"));
+            Bson mySkip = skip(0);
+            Bson myLimit = limit(limit);
+
+            List <Document> output = collection.aggregate(
+                    Arrays.asList(myGroup, mySort, mySkip, myLimit))
+                    .into(new ArrayList<>());
+
+            return output;
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    public List<Document> getPopularAppsPerCat(String cat, int limit){
         try {
             MongoCollection<Document> collection = driver.getCollection("review");
 
-            Consumer<Document> processBlock = new Consumer<Document>() {
-                @Override
-                public void accept(Document document) {
-                    System.out.println(document);
-                }
-            };
+            Bson myMatch = match(eq("category",cat));
+            Bson myGroup = new Document("$group", new Document("_id", "$appId")
+                    .append("average", new Document()
+                            .append("$avg", "$score"))
+                    .append("count", new Document()
+                            .append("$sum", 1)));
+            Bson mySort = sort(descending("average", "count"));
+            Bson mySkip = skip(0);
+            Bson myLimit = limit(limit);
+            List <Document> output = collection.aggregate(
+                    Arrays.asList(myMatch, myGroup, mySort, mySkip, myLimit))
+                    .into(new ArrayList<>());
 
-            List<? extends Bson> pipeline = Arrays.asList(
-                    new Document()
-                            .append("$project", new Document()
-                                    .append("appId", 1.0)
-                                    .append("appName", 1.0)
-                                    .append("average", new Document()
-                                            .append("$avg", "$score")
-                                    )
-                                    .append("numberOfReviews", new Document()
-                                            .append("$sum", 1)
-                                    )
-                            ),
-                    new Document()
-                            .append("$sort", new Document()
-                                    .append("average", -1.0)
-                                    .append("numberOfReviews", -1.0)
-                            ),
-                    new Document()
-                            .append("$skip", 0.0),
-                    new Document()
-                            .append("$limit", 100.0)
-            );
-
-            collection.aggregate(pipeline)
-                    .allowDiskUse(false)
-                    .forEach(processBlock);
-
-        }catch (Exception e){
+            return output;
+        }catch(Exception e){
             e.printStackTrace();
         }
+        return null;
     }
 
-    public void getMostPopularAppsInEachCat(String cat){
-        try {
+    public List<Document> getPopularAppsPerYear(int year, int limit){
+        try{
             MongoCollection<Document> collection = driver.getCollection("review");
 
-            Consumer<Document> processBlock = new Consumer<Document>() {
-                @Override
-                public void accept(Document document) {
-                    System.out.println(document);
-                }
-            };
+            Bson myGroup = new Document("$project", new Document("_id", "$appId")
+                    .append("appName", "$appName")
+                    .append("category", "$category")
+                    .append("year", new Document()
+                            .append("$year", "$date"))
+                    .append("average", new Document()
+                            .append("$avg", "$score"))
+                    .append("count", new Document()
+                            .append("$sum", 1)));
+            Bson myMatch = match(eq("year", year));
+            Bson mySort = sort(descending("average", "count"));
+            Bson mySkip = skip(0);
+            Bson myLimit = limit(limit);
+            List <Document> output = collection.aggregate(
+                    Arrays.asList(myGroup, myMatch, mySort, mySkip, myLimit))
+                    .into(new ArrayList<>());
 
-            List<? extends Bson> pipeline = Arrays.asList(
-                    new Document()
-                            .append("$match", new Document()
-                                    .append("category", cat)
-                            ),
-                    new Document()
-                            .append("$project", new Document()
-                                    .append("appId", 1.0)
-                                    .append("appName", 1.0)
-                                    .append("category", 1.0)
-                                    .append("average", new Document()
-                                            .append("$avg", "$score")
-                                    )
-                                    .append("numberOfReviews", new Document()
-                                            .append("$sum", 1)
-                                    )
-                            ),
-                    new Document()
-                            .append("$sort", new Document()
-                                    .append("average", -1.0)
-                                    .append("numberOfReviews", -1.0)
-                            ),
-                    new Document()
-                            .append("$skip", 0.0),
-                    new Document()
-                            .append("$limit", 100.0)
-            );
-
-            collection.aggregate(pipeline)
-                    .allowDiskUse(false)
-                    .forEach(processBlock);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+            return output;
+    }catch(Exception e){
+        e.printStackTrace();
     }
-
-    public void getMostPopularAppsInEachYear(int year){
-        MongoCollection<Document> collection = driver.getCollection("review");
-
-        Consumer<Document> processBlock = new Consumer<Document>() {
-            @Override
-            public void accept(Document document) {
-                System.out.println(document);
-            }
-        };
-
-        List<? extends Bson> pipeline = Arrays.asList(
-                new Document()
-                        .append("$project", new Document()
-                                .append("appId", 1.0)
-                                .append("appName", 1.0)
-                                .append("category", 1.0)
-                                .append("average", new Document()
-                                        .append("$avg", "$score")
-                                )
-                                .append("numberOfReviews", new Document()
-                                        .append("$cond", new Document()
-                                                .append("if", new Document()
-                                                        .append("$isArray", "$reviews")
-                                                )
-                                                .append("then", new Document()
-                                                        .append("$size", "$reviews")
-                                                )
-                                                .append("else", 0.0)
-                                        )
-                                )
-                                .append("year", new Document()
-                                        .append("$year", "$released")
-                                )
-                        ),
-                new Document()
-                        .append("$match", new Document()
-                                .append("year", year)
-                        ),
-                new Document()
-                        .append("$sort", new Document()
-                                .append("Avg", -1.0)
-                                .append("numberOfReviews", -1.0)
-                        ),
-                new Document()
-                        .append("$skip", 0.0),
-                new Document()
-                        .append("$limit", 100.0)
-        );
-
-        collection.aggregate(pipeline)
-                .allowDiskUse(false)
-                .forEach(processBlock);
+        return null;
     }
 }

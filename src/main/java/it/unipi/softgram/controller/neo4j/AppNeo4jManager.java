@@ -19,7 +19,7 @@ import static org.neo4j.driver.Values.parameters;
 public class AppNeo4jManager {
     private final Neo4jDriver neo;
     private int queryLimit = 20;
-    private int superNodeThreshold = 1000;
+    private int superNodeThreshold = 100;
 
     public AppNeo4jManager(){
         neo = new Neo4jDriver();
@@ -85,9 +85,9 @@ public class AppNeo4jManager {
         while (result.hasNext()){
             Record r = result.next();
             App a = new App();
-            a.setId(r.get("id").asString());
-            a.setName(r.get("name").asString());
-            a.setCategory(r.get("category").asString());
+            a.setId(r.get("a").get("id").asString());
+            a.setName(r.get("a").get("app_name").asString());
+            a.setCategory(r.get("a").get("category").asString());
             Apps.add(a);
         }
         return Apps;
@@ -143,10 +143,10 @@ public class AppNeo4jManager {
     public List<App> browseFavoriteCategory(User u){
         try (Session session = neo.getSession()){
             return session.readTransaction(tx ->{
-                Result result = tx.run("MATCH (u:User)-[:FOLLOW]->(a:App) WHERE u.username = $username " +
-                                "With a.category As cat " +
-                                "MATCH (a2:app) WHERE a2.category = cat "+
-                                "Return a2 \n " + "LIMIT $queryLimit ",
+                Result result = tx.run("MATCH (u:User)-[:FOLLOW]->(a2:App) WHERE u.username = $username " +
+                                "With a2.category As cat " +
+                                "MATCH (a:app) WHERE a.category = cat "+
+                                "Return a \n " + "LIMIT $queryLimit ",
                         parameters("username",u.getUsername(), "queryLimit", this.queryLimit));
                 return getApps(result);
             });

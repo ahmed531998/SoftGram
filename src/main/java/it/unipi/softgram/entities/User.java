@@ -12,12 +12,6 @@ public class User {
     private String role;
     private String website;
 
-
-    public List<String> followersList;
-    public List<String> followingList;
-
-    public List<String> developedApps;
-
     public void setUsername(String username) {
         this.username = username;
     }

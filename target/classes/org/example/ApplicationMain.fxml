@@ -7,7 +7,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="677.0" prefWidth="1106.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.ApplicationMain">
+<AnchorPane prefHeight="677.0" prefWidth="1106.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.softgram.org.example.ApplicationMain">
     <children>
       <Button layoutX="29.0" layoutY="14.0" mnemonicParsing="false" onAction="#home_fun" text="home" />
       <Label layoutX="23.0" layoutY="63.0" prefHeight="18.0" prefWidth="386.0" text="Application Data" underline="true" wrapText="true">
