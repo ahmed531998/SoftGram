@@ -22,15 +22,15 @@ public class User {
         this.username = username;
     }
 
-    private void setBirthday(Date birthday) {
+    public void setBirthday(Date birthday) {
         this.birthday = birthday;
     }
 
-    private void setCountry(String country) {
+    public void setCountry(String country) {
         this.country = country;
     }
 
-    private void setEmail(String email){
+    public void setEmail(String email){
         this.email = email;
     }
 

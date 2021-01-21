@@ -1,9 +1,9 @@
-package org.example;
+package it.unipi.softgram.org.example;
 
 import com.mongodb.client.MongoCollection;
-import controller.mongo.UserMongoManager;
-import controller.neo4j.UserNeo4jManager;
-import entities.User;
+import it.unipi.softgram.controller.mongo.UserMongoManager;
+import it.unipi.softgram.controller.neo4j.UserNeo4jManager;
+import it.unipi.softgram.entities.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -21,8 +21,8 @@ import javafx.stage.Stage;
 import org.bson.BsonRegularExpression;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import table_chooser.Userdata;
-import utilities.MongoDriver;
+import it.unipi.softgram.table_chooser.Userdata;
+import it.unipi.softgram.utilities.drivers.MongoDriver;
 
 import javax.swing.*;
 import java.awt.*;
@@ -113,10 +113,10 @@ public class Usermainpage implements Initializable {
 
         MongoDriver driver = new MongoDriver();
         MongoCollection<Document> collection = driver.getCollection("users");
-        String _id = name_tfield.getText().toString();
-        String email = email_tfield.getText().toString();
-        String role = role_tfield.getText().toString();
-        String website = web_tfield.getText().toString();
+        String _id = name_tfield.getText();
+        String email = email_tfield.getText();
+        String role = role_tfield.getText();
+        String website = web_tfield.getText();
 
         Stage newStage = new Stage();
         VBox comp = new VBox();
@@ -133,10 +133,10 @@ public class Usermainpage implements Initializable {
 
                 query.append("_id", user.getUsername());
                 Document setData = new Document();
-                setData.append("_id", username.getText().toString())
-                        .append("role", roletxt.getText().toString())
-                        .append("email", emailtxt.getText().toString())
-                        .append("website", websitetxt.getText().toString())
+                setData.append("_id", username.getText())
+                        .append("role", roletxt.getText())
+                        .append("email", emailtxt.getText())
+                        .append("website", websitetxt.getText())
                 ;
                 Document update = new Document();
                 update.append("$set", setData);
@@ -148,10 +148,10 @@ public class Usermainpage implements Initializable {
                 role_tfield.setText("");
                 email_tfield.setText("");
                 web_tfield.setText("");
-                name_tfield.setText(username.getText().toString());
-                role_tfield.setText(websitetxt.getText().toString());
-                email_tfield.setText(emailtxt.getText().toString());
-                web_tfield.setText(websitetxt.getText().toString());
+                name_tfield.setText(username.getText());
+                role_tfield.setText(websitetxt.getText());
+                email_tfield.setText(emailtxt.getText());
+                web_tfield.setText(websitetxt.getText());
 
             }
         });

@@ -1,4 +1,4 @@
-package table_chooser;
+package it.unipi.softgram.table_chooser;
 
 public class MostPopCat {
     private String _id;

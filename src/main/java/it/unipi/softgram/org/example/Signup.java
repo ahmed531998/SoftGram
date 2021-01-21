@@ -1,8 +1,9 @@
-package org.example;
+package it.unipi.softgram.org.example;
 
-import controller.mongo.UserMongoManager;
-import controller.neo4j.UserNeo4jManager;
-import entities.User;
+import it.unipi.softgram.controller.mongo.UserMongoManager;
+import it.unipi.softgram.controller.mongoneo4j.UserMongoNeo4jManager;
+import it.unipi.softgram.controller.neo4j.UserNeo4jManager;
+import it.unipi.softgram.entities.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -17,7 +18,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import static org.example.App.setRoot;
+import static it.unipi.softgram.org.example.App.setRoot;
 
 public class Signup implements Initializable {
 
@@ -53,7 +54,7 @@ public class Signup implements Initializable {
         if(username.getText().isEmpty() || email.getText().isEmpty() || website.getText().isEmpty() || password.getText().isEmpty()){
             JOptionPane.showMessageDialog(null, "Fields required");
         }else{
-            UserNeo4jManager user=new UserNeo4jManager();
+            UserMongoNeo4jManager user=new UserMongoNeo4jManager();
             User userobj=new User();
             try {
                 userobj.setUsername(username.getText().toString());

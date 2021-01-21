@@ -69,7 +69,7 @@ public class AppMongoNeo4jManager {
                                 "DETACH DELETE a",
                         parameters( "id", a.getId()) );
                 try {
-                    appMongoManager.deleteApp(a.getId());
+                    appMongoManager.deleteApp(a);
                 }
                 catch (RuntimeException r ) {
                     if (r.getMessage().equals("write operation failed")) {

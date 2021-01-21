@@ -1,8 +1,8 @@
-package org.example;
+package it.unipi.softgram.org.example;
 
 import com.mongodb.client.MongoCollection;
-import entities.Apps;
-import entities.Review;
+import it.unipi.softgram.entities.App;
+import it.unipi.softgram.entities.Review;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -21,9 +21,9 @@ import org.bson.conversions.Bson;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import table_chooser.AppData;
-import table_chooser.MostPopCat;
-import utilities.MongoDriver;
+import it.unipi.softgram.table_chooser.AppData;
+import it.unipi.softgram.table_chooser.MostPopCat;
+import it.unipi.softgram.utilities.drivers.MongoDriver;
 
 
 import javax.swing.*;
@@ -68,7 +68,7 @@ public class ApplicationMain  implements Initializable {
         // do what you have to do
         stage.close();
         try {
-            App.setRoot("admin");
+            it.unipi.softgram.org.example.App.setRoot("admin");
         } catch (IOException e) {
             e.printStackTrace();
         }

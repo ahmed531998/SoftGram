@@ -1,12 +1,13 @@
-package org.example;
+package it.unipi.softgram.org.example;
 
 import com.mongodb.client.MongoCollection;
-import controller.mongo.UserMongoManager;
-import controller.neo4j.UserNeo4jManager;
-import entities.Apps;
-import entities.Review;
-import entities.User;
-import enumerators.Role;
+import it.unipi.softgram.controller.mongo.UserMongoManager;
+import it.unipi.softgram.controller.mongoneo4j.UserMongoNeo4jManager;
+import it.unipi.softgram.controller.neo4j.UserNeo4jManager;
+import it.unipi.softgram.entities.App;
+import it.unipi.softgram.entities.Review;
+import it.unipi.softgram.entities.User;
+import it.unipi.softgram.utilities.enumerators.Role;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -26,10 +27,10 @@ import javafx.util.Callback;
 import org.bson.BsonRegularExpression;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import table_chooser.AppData;
-import table_chooser.MostPopCat;
-import table_chooser.Userdata;
-import utilities.MongoDriver;
+import it.unipi.softgram.table_chooser.AppData;
+import it.unipi.softgram.table_chooser.MostPopCat;
+import it.unipi.softgram.table_chooser.Userdata;
+import it.unipi.softgram.utilities.drivers.MongoDriver;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -37,7 +38,8 @@ import java.net.URL;
 import java.util.*;
 import java.util.function.Consumer;
 
-import static org.example.App.setRoot;
+import static it.unipi.softgram.org.example.App.setRoot;
+import static java.lang.Integer.parseInt;
 
 public class Users implements Initializable {
 
@@ -229,7 +231,7 @@ public class Users implements Initializable {
         if(username.getText().isEmpty()){
             JOptionPane.showMessageDialog(null, "Field required");
         }else {
-            UserNeo4jManager user = new UserNeo4jManager();
+            UserMongoNeo4jManager user = new UserMongoNeo4jManager();
             User userobj=new User();
             userobj.setUsername(usernametxt);
             user.addUser(userobj);
@@ -238,7 +240,7 @@ public class Users implements Initializable {
     }
 
     public void remove_user(ActionEvent actionEvent) {
-        UserNeo4jManager user = new UserNeo4jManager();
+        UserMongoNeo4jManager user = new UserMongoNeo4jManager();
         if (username_re.getText().isEmpty()){
             JOptionPane.showMessageDialog(null, "Field required");
         }else {
@@ -248,7 +250,7 @@ public class Users implements Initializable {
     }
 
     public void becomedeveloper(ActionEvent actionEvent) {
-        UserNeo4jManager user = new UserNeo4jManager();
+        UserMongoNeo4jManager user = new UserMongoNeo4jManager();
         if (username_re.getText().isEmpty()){
             JOptionPane.showMessageDialog(null, "Field required");
         }else {
@@ -258,7 +260,7 @@ public class Users implements Initializable {
     }
 
     public void becomenormal(ActionEvent actionEvent) {
-        UserNeo4jManager user = new UserNeo4jManager();
+        UserMongoNeo4jManager user = new UserMongoNeo4jManager();
         if (username_re.getText().isEmpty()){
             JOptionPane.showMessageDialog(null, "Field required");
         }else {
@@ -282,7 +284,8 @@ public class Users implements Initializable {
         if (followedUsername.getText().isEmpty() || followerUsername.getText().isEmpty()){
             JOptionPane.showMessageDialog(null, "Field required");
         }else {
-            user.acceptFollow(followerUsername.getText().toString(),followedUsername.getText().toString());
+            //ahmed
+            user.addFollow(followerUsername.getText().toString(), followedUsername.getText().toString(), false);
             JOptionPane.showMessageDialog(null, "Accepted");
         }
     }
@@ -590,7 +593,7 @@ public class Users implements Initializable {
     public void suggest_search(ActionEvent actionEvent) {
         UserNeo4jManager user=new UserNeo4jManager();
         ArrayList<String> data=
-                (ArrayList<String>) user.browseUsersWithMostFollowersInYear(yeartxt.getText().toString());
+                (ArrayList<String>) user.browseUsersWithMostFollowersInYear(parseInt(yeartxt.getText().toString()), 100);
         ObservableList<String> items = FXCollections.observableArrayList();
         for (int i=0; i<data.size();i++)
         {

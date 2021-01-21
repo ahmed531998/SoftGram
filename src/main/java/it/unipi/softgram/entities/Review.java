@@ -6,6 +6,7 @@ import java.util.Date;
 
 public class Review {
     private String appId;
+    private String appName;
     private String category;
     private String username;
     private Date date;
@@ -48,6 +49,7 @@ public class Review {
     public void setUsername(String username) {
         this.username = username;
     }
+    public void setAppName(String appName) { this.appName = appName;    }
 
     //getters
     public double getScore() { return score; }
@@ -63,13 +65,15 @@ public class Review {
         return username;
     }
     public String get_id(){ return  _id;}
+    public String getAppName() {return appName; }
 
     public Document toReviewDocument(){
         Document review = new Document("username", this.username)
                 .append("date", this.date)
                 .append("content", this.content)
                 .append("appId", this.appId)
-                .append("category", this.category);
+                .append("category", this.category)
+                .append("appName", this.appName);
         if(this.score != null)
                 review.append("score", this.score);
         return review;
@@ -83,6 +87,7 @@ public class Review {
         this.content = (String) r.get("content");
         this.score = (Integer) r.get("score");
         this.category = (String) r.get("category");
+        this.appName = (String) r.get("appName");
         this._id = (String) r.get("_id");
         return this;
     }

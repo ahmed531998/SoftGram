@@ -1,11 +1,11 @@
-package table_chooser;
+package it.unipi.softgram.table_chooser;
 
 
 import com.mongodb.client.MongoCollection;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableView;
 import org.bson.Document;
-import utilities.MongoDriver;
+import it.unipi.softgram.utilities.drivers.MongoDriver;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,10 +1,10 @@
-package org.example;
+package it.unipi.softgram.org.example;
 
 import com.mongodb.client.MongoCollection;
-import controller.neo4j.AppNeo4jManager;
-import controller.neo4j.UserNeo4jManager;
-import entities.Apps;
-import entities.User;
+import it.unipi.softgram.controller.neo4j.AppNeo4jManager;
+import it.unipi.softgram.controller.neo4j.UserNeo4jManager;
+import it.unipi.softgram.entities.App;
+import it.unipi.softgram.entities.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -31,10 +31,10 @@ import javafx.util.Callback;
 import org.bson.BsonRegularExpression;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import table_chooser.AppData;
-import table_chooser.MostPopCat;
-import table_chooser.Mostpopyear;
-import utilities.MongoDriver;
+import it.unipi.softgram.table_chooser.AppData;
+import it.unipi.softgram.table_chooser.MostPopCat;
+import it.unipi.softgram.table_chooser.Mostpopyear;
+import it.unipi.softgram.utilities.drivers.MongoDriver;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -44,7 +44,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 import static com.mongodb.client.model.Filters.eq;
-import static org.example.App.setRoot;
+import static it.unipi.softgram.org.example.App.setRoot;
 
 public class Admin implements Initializable {
 
@@ -108,7 +108,7 @@ public class Admin implements Initializable {
     int page = 0;
     int p = 0;
     int p1=0;
-    ObservableList<Apps> app_data = FXCollections.observableArrayList();
+    ObservableList<App> app_data = FXCollections.observableArrayList();
 
 
     public void Add_apps(ActionEvent actionEvent) {
@@ -116,14 +116,14 @@ public class Admin implements Initializable {
         if (_id.getText().isEmpty() || appname.getText().isEmpty() || price.getText().isEmpty()) {
             JOptionPane.showMessageDialog(null, "Fields required");
         } else {
-            Apps app = new Apps();
+            App app = new App();
             //neo4j
             /*entities.App app1 = new entities.App();
             AppNeo4jManager appneo=new AppNeo4jManager();
             User user=new User();
             user.setUsername(appid.getText().toString());
             */
-            app.set_id(_id.getText().toString());
+            app.setId(_id.getText().toString());
             app.setCategory(category.getText().toString());
             app.setAdSupported(Boolean.parseBoolean(ad_supported.getItems().toString()));
             app.setInAppPurchase(Boolean.parseBoolean(app_purchase.getItems().toString()));
@@ -190,7 +190,7 @@ public class Admin implements Initializable {
             @Override
             public void handle(MouseEvent event){
                 if(event.getClickCount() == 2){
-                    Apps app=new Apps();
+                    App app=new App();
                     try {
                         //Load second scene
                         FXMLLoader loader = new FXMLLoader(getClass().getResource("ApplicationMain.fxml"));
@@ -218,7 +218,7 @@ public class Admin implements Initializable {
             @Override
             public void handle(MouseEvent event){
                 if(event.getClickCount() == 2){
-                    Apps app=new Apps();
+                    App app=new App();
                     try {
                         //Load second scene
                         FXMLLoader loader = new FXMLLoader(getClass().getResource("ApplicationMain.fxml"));
@@ -246,7 +246,7 @@ public class Admin implements Initializable {
             @Override
             public void handle(MouseEvent event){
                 if(event.getClickCount() == 2){
-                    Apps app=new Apps();
+                    App app=new App();
                     try {
                         //Load second scene
                         FXMLLoader loader = new FXMLLoader(getClass().getResource("ApplicationMain.fxml"));
@@ -856,12 +856,12 @@ public class Admin implements Initializable {
 //neo4j
     public  void suggestedapps(){
         AppNeo4jManager user=new AppNeo4jManager();
-        ArrayList<String> data=
-                (ArrayList<String>) user.browseSuggestedapps("",10);
+        ArrayList<App> data=
+                (ArrayList<App>) user.browseCommonApps();
         ObservableList<String> items = FXCollections.observableArrayList();
         for (int i=0; i<data.size();i++)
         {
-            items.add(data.get(0));
+            items.add(data.get(0).getName());
         }
         applist.setItems(items);
     }
@@ -883,7 +883,7 @@ public class Admin implements Initializable {
         AppNeo4jManager user=new AppNeo4jManager();
         User u=new User();
         u.setUsername(favtxt.getText().toString());
-        ArrayList<entities.App> data = (ArrayList<entities.App>) user.browseCommonApps();
+        ArrayList<App> data = (ArrayList<App>) user.browseCommonApps();
         ObservableList<String> items = FXCollections.observableArrayList();
         for (int i=0; i<data.size();i++)
         {
@@ -896,7 +896,7 @@ public class Admin implements Initializable {
         AppNeo4jManager user=new AppNeo4jManager();
         User u=new User();
         u.setUsername(favtxt.getText().toString());
-        ArrayList<entities.App> data = (ArrayList<entities.App>) user.browseFollowedApps(u);
+        ArrayList<App> data = (ArrayList<App>) user.browseFollowedApps(u);
         ObservableList<String> items = FXCollections.observableArrayList();
         for (int i=0; i<data.size();i++)
         {
@@ -909,7 +909,7 @@ public class Admin implements Initializable {
         AppNeo4jManager user=new AppNeo4jManager();
         User u=new User();
         u.setUsername(favtxt.getText().toString());
-        ArrayList<entities.App> data = (ArrayList<entities.App>) user.browseAppsOfFollowers(u);
+        ArrayList<App> data = (ArrayList<App>) user.browseAppsOfFollowers(u);
         ObservableList<String> items = FXCollections.observableArrayList();
         for (int i=0; i<data.size();i++)
         {
@@ -922,7 +922,7 @@ public class Admin implements Initializable {
         AppNeo4jManager user=new AppNeo4jManager();
         User u=new User();
         u.setUsername(favtxt.getText().toString());
-        ArrayList<entities.App> data = (ArrayList<entities.App>) user.browseFavoriteCategory(u);
+        ArrayList<App> data = (ArrayList<App>) user.browseFavoriteCategory(u);
         ObservableList<String> items = FXCollections.observableArrayList();
         for (int i=0; i<data.size();i++)
         {

@@ -1,7 +1,7 @@
-package org.example;
+package it.unipi.softgram.org.example;
 
 import com.mongodb.client.MongoCollection;
-import entities.Apps;
+import it.unipi.softgram.entities.App;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,14 +13,14 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.bson.Document;
-import utilities.MongoDriver;
+import it.unipi.softgram.utilities.drivers.MongoDriver;
 
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 import javax.swing.*;
 import java.io.IOException;
 
-import static org.example.App.setRoot;
+import static it.unipi.softgram.org.example.App.setRoot;
 
 public class login {
 
@@ -45,7 +45,7 @@ public class login {
 
 
             if(collection.find(query).iterator().hasNext()){
-                Apps app=new Apps();
+                App app=new App();
                 try {
                     //Load second scene
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("admin.fxml"));

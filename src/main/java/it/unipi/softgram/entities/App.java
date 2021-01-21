@@ -1,4 +1,4 @@
-package entities;
+package it.unipi.softgram.entities;
 
 
 import org.bson.Document;
@@ -114,9 +114,9 @@ public class App {
 
     public Document toAppDocument(){
         List<Document> reviewDocList = new ArrayList<>();
-        for (Review review: this.reviews){
+        /*for (Review review: this.reviews){
             reviewDocList.add(review.toAppCollDocument());
-        }
+        }*/
 
         return new Document("_id", this.id)
                 .append("adSupported", this.adSupported)
@@ -155,10 +155,10 @@ public class App {
         //watch this warning for some exception (by andrea)
         List<Document> reviewsDocList = (List<Document>) r.get("reviews");
         List<Review> reviews = new ArrayList<>();
-        for (Document review: reviewsDocList){
+        /*for (Document review: reviewsDocList){
             Review y = new Review();
             reviews.add(y.fromAppCollDocument(review, this.id));
-        }
+        }*/
         this.reviews = reviews;
         return this;
     }
