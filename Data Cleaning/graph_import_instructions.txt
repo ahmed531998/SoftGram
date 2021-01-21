@@ -34,6 +34,10 @@ load csv with headers from 'file:///developrelation.csv' AS row
 match(user:User {username: row.username}),(app:App {id: row.appId})
 merge (user)-[:DEVELOP]->(app);
 
+load csv with headers from 'file:///userfollows.csv' AS row
+match(user1:User {username: row.user1}),(user2:User {username: row.user2})
+merge (user1)-[:FOLLOW]->(user2);
+
 MATCH(u:NORMALUSER)SET u:NormalUser REMOVE u:NORMALUSER
 
 MATCH(u:DEVELOPER)SET u:Developer REMOVE u:DEVELOPER
