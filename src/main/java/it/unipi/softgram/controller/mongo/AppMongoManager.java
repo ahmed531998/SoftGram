@@ -2,6 +2,7 @@ package it.unipi.softgram.controller.mongo;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.result.UpdateResult;
 import it.unipi.softgram.entities.App;
 import it.unipi.softgram.entities.Review;
 import it.unipi.softgram.utilities.drivers.MongoDriver;
@@ -24,6 +25,7 @@ import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.fields;
 import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Sorts.descending;
+import static com.mongodb.client.model.Updates.set;
 
 
 public class AppMongoManager {
@@ -50,24 +52,58 @@ public class AppMongoManager {
         }
     }
 
+    //size, price, last updated, currency, ad supported, age group, in app purchases, released
     public void updateApp(App a){
         try {
             MongoCollection<Document> appColl = driver.getCollection("app");
             BasicDBObject searchQuery = new BasicDBObject("_id", a.getId());
             BasicDBObject updateFields = new BasicDBObject();
             updateFields.append("name", a.getName());
-            updateFields.append("category", a.getCategory());
-            updateFields.append("installCount", a.getInstallCount());
+            updateFields.append("size", a.getSize());
+            updateFields.append("lastUpdated", a.getLastUpdated());
+            updateFields.append("currency", a.getCurrency());
+            updateFields.append("adSupported", a.getAdSupported());
+            updateFields.append("ageGroup", a.getAgeGroup());
+            updateFields.append("inAppPurchases", a.getInAppPurchase());
+            updateFields.append("released", a.getReleased());
+            updateFields.append("price", a.getPrice());
             BasicDBObject setQuery = new BasicDBObject();
             setQuery.append("$set", updateFields);
             appColl.updateOne(searchQuery, setQuery);
             System.out.println("updated");
         }
         catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void updateCategory(App a){
+        try {
+            MongoCollection<Document> userColl = driver.getCollection("app");
+            UpdateResult result = userColl.updateOne(eq("_id", a.getId()),
+                    set("category",a.getCategory()));
+            if(result.getModifiedCount()==0){
+                System.out.println("Requested app to update not found");
+            }
+        }
+        catch (Exception e){
             throw new RuntimeException("write operation failed");
         }
     }
 
+    public void updateName(App a){
+    try {
+        MongoCollection<Document> userColl = driver.getCollection("app");
+        UpdateResult result = userColl.updateOne(eq("_id", a.getId()),
+                set("name",a.getName()));
+        if(result.getModifiedCount()==0){
+            System.out.println("Requested app to update not found");
+        }
+    }
+        catch (Exception e){
+        throw new RuntimeException("write operation failed");
+    }
+}
     public void deleteApp(App a){
         try {
             MongoCollection<Document> appColl = driver.getCollection("app");

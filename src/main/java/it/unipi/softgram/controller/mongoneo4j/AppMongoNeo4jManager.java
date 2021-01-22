@@ -12,12 +12,10 @@ import org.neo4j.driver.TransactionWork;
 
 import static org.neo4j.driver.Values.parameters;
 
-//test only the update app but change it
 
 public class AppMongoNeo4jManager {
     private final Neo4jDriver neo4jDriver;
     private final AppMongoManager appMongoManager;
-
 
 
     public AppMongoNeo4jManager(){
@@ -87,26 +85,40 @@ public class AppMongoNeo4jManager {
     }
 
 // maybe separate function (updateName() and updateCategory()) in order to call these only when needed
-    public void updateApp(App a){
-        String name, category;
-        if(a.getName() == null)
-            name = "Unknown";
-        else
-            name = a.getName();
-        if(a.getCategory()== null)
-            category = "Unknown";
-        else
-            category = a.getCategory();
-
+    public void updateName(App a){
         try ( Session session = neo4jDriver.getSession() ) {
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run( "MATCH (a:App {id: $id}) " +
-                                "SET a.app_name: $name, a.category: $category",
+                                "SET a.app_name = $name",
                         parameters("id", a.getId(),
-                                "name", name,
-                                "category", category));
+                                "name", a.getName()));
                 try {
-                    appMongoManager.updateApp(a);
+                    appMongoManager.updateName(a);
+                }
+                catch (RuntimeException r ) {
+                    if (r.getMessage().equals("write operation failed")) {
+                        tx.rollback();
+                    }
+                    r.printStackTrace();
+                    return null;
+                }
+                return null;
+            });
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void updateCategory(App a){
+        try ( Session session = neo4jDriver.getSession() ) {
+            session.writeTransaction((TransactionWork<Void>) tx -> {
+                tx.run( "MATCH (a:App {id: $id}) " +
+                                "SET a.category = $category",
+                        parameters("id", a.getId(),
+                                "category", a.getCategory()));
+                try {
+                    appMongoManager.updateCategory(a);
                 }
                 catch (RuntimeException r ) {
                     if (r.getMessage().equals("write operation failed")) {

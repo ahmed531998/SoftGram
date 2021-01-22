@@ -46,7 +46,7 @@ public class App {
         this.developer = developer;
         this.inAppPurchase = inAppPurchase;
     }
-    public boolean isInAppPurchase() { return inAppPurchase; }
+    public boolean getInAppPurchase() { return inAppPurchase; }
 
     public Boolean getAdSupported() { return adSupported; }
 
