@@ -46,6 +46,7 @@ public class login {
 
             if(collection.find(query).iterator().hasNext()){
                 Apps app=new Apps();
+
                 try {
                     //Load second scene
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("admin.fxml"));
@@ -79,6 +80,24 @@ public class login {
     }
 
     public void signup(ActionEvent actionEvent) throws IOException {
-        setRoot("signup");
+        try {
+            //Load second scene
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("signup.fxml"));
+            Parent root = loader.load();
+
+            //Get controller of scene2
+            Signup scene2Controller = loader.getController();
+            //Pass whatever data you want. You can have multiple method calls here
+            //scene2Controller.transferMessage("");
+
+            //Show scene 2 in new window
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("signup Window");
+            stage.show();
+            ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
+        } catch (IOException ex) {
+            System.err.println(ex);
+        }
     }
 }

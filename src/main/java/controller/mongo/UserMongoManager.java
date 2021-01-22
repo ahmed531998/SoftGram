@@ -1,8 +1,6 @@
 package controller.mongo;
 
-import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -12,37 +10,23 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import utilities.MongoDriver;
 
-import javax.swing.*;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
-import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.regex;
-import static com.mongodb.client.model.Projections.*;
-import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.set;
 
 
-
 public class UserMongoManager {
-    private MongoDriver driver;
+    private final MongoDriver driver;
 
     public UserMongoManager(){
-        try{
-            driver = new MongoDriver();
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+        driver = new MongoDriver();
     }
 
 
 
-    public  void updateuser(String username){
-
-    }
     public void saveNewBirthday(User user){
         try {
             MongoCollection<Document> userColl = driver.getCollection("user");
@@ -109,12 +93,11 @@ public class UserMongoManager {
     }
 
 
-    //this function needs to memorize reviews
     public List<User> searchUserBy(Bson query, int skip){
         try{
             MongoCollection<Document> userColl = driver.getCollection("user");
-            List<Document> output = userColl.find(query).skip(skip).limit(10)
-                    .projection(exclude("reviews")).into(new ArrayList<>());
+            List<Document> output = userColl.find(query).skip(skip).limit(20)
+                   .into(new ArrayList<>());
             return convertFromDocument(output);
         }
         catch (Exception e){
@@ -138,29 +121,29 @@ public class UserMongoManager {
 
     public void becomeDeveloper(String username){
         try {
-            MongoCollection<Document> userColl = driver.getCollection("users");
+            MongoCollection<Document> userColl = driver.getCollection("user");
             UpdateResult result = userColl.updateOne(eq("_id",username),
                     set("role","Developer"));
             if(result.getModifiedCount()==0)
-                JOptionPane.showMessageDialog(null, "Requested user to update not found");
+                System.out.println("Requested user to update not found");
         }
         catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException("write operation failed");
         }
     }
 
 //developer
     public void becomeNormalUser(String username){
         try {
-            MongoCollection<Document> userColl = driver.getCollection("users");
+            MongoCollection<Document> userColl = driver.getCollection("user");
             UpdateResult result = userColl.updateOne(eq("_id", username),
                     set("role","Normal User"));
             if(result.getModifiedCount()==0){
-                JOptionPane.showMessageDialog(null,"Requested user to update not found");
+                System.out.println("Requested user to update not found");
             }
         }
         catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException("write operation failed");
         }
     }
 
@@ -179,26 +162,7 @@ public class UserMongoManager {
     }
 
 //admin
-    //users commented greatest number of apps in Month
-    public AggregateIterable<Document> Top10UsersReviewersPerMonth(Date monthYear){
-        Bson myUnwind = unwind("reviews");
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
-        String monthYearString = sdf.format(monthYear);
-        Pattern pattern = Pattern.compile("^" + monthYearString + ".*$");
-        Bson myMatch = eq(regex("reviews.review.date",pattern));
-        Bson myGroup = group("$_id", Accumulators.sum("count",1));
-        AggregateIterable<Document> top10 = null;
-        try{
-            MongoCollection<Document> userColl = driver.getCollection("user");
-            userColl.aggregate(Arrays.asList(myMatch, myUnwind, myGroup));
 
-            top10=userColl.aggregate(Arrays.asList(myMatch, myUnwind, myGroup));
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-       return top10;
-    }
     public void changeUserRole(String username, Role.RoleValue role){
         try {
             String roleString = Role.getRoleString(role);
@@ -210,25 +174,18 @@ public class UserMongoManager {
             }
         }
         catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException("write operation failed");
         }
     }
 
     public void addUser(User user){
         try {
-            Document userDoc = new Document("_id", user.getUsername());
-            if(user.getBirthday()!=null)
-                userDoc.append("birthday", user.getBirthday());
-            if(user.getEmail()!=null)
-                userDoc.append("email", user.getEmail());
-            userDoc.append("role", "Normal User");
-            if(user.getCountry()!=null)
-                userDoc.append("Country", user.getCountry());
+            Document userDoc = user.toUserDocument();
             MongoCollection<Document> userColl = driver.getCollection("user");
             userColl.insertOne(userDoc);
         }
         catch (Exception e){
-            throw new RuntimeException("add failed");
+            throw new RuntimeException("write operation failed");
         }
     }
 
@@ -238,6 +195,29 @@ public class UserMongoManager {
             DeleteResult result = userColl.deleteOne(eq("_id",username));
             if(result.getDeletedCount()==0){
                 System.out.println("User to delete not found");
+            }
+        }
+        catch (Exception e){
+            throw new RuntimeException("write operation failed");
+        }
+    }
+    public void updateuser(User user){
+        try {
+            MongoDriver driver = new MongoDriver();
+            MongoCollection<Document> collection = driver.getCollection("users");
+            Document query = new Document();
+            query.append("_id", user.getUsername().toString());
+            Document setData = new Document();
+            setData.append("_id", user.getUsername().toString())
+                    .append("role", user.getRole().toString())
+                    .append("email", user.getEmail().toString())
+            ;
+            Document update = new Document();
+            update.append("$set", setData);
+            //To update single Document
+            UpdateResult result= collection.updateOne(query, update);
+            if(result.getModifiedCount()==0){
+                System.out.println("Requested user to update not found");
             }
         }
         catch (Exception e){

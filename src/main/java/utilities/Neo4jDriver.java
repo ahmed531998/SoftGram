@@ -12,7 +12,7 @@ public class Neo4jDriver {
 
     public Neo4jDriver(){
         if(driver==null) {
-            String uri = "bolt://localhost:7687";
+            String uri = "bolt://192.168.0.115:7687";
             String user = "neo4j";
             String password = "root";
             Config config = Config.builder().withLogging(new JULogging(Level.WARNING)).build();

@@ -1,6 +1,8 @@
 package org.example;
 
 import com.mongodb.client.MongoCollection;
+import controller.mongo.AppMongoManager;
+import controller.mongoneo4j.AppMongoNeo4jManager;
 import controller.neo4j.AppNeo4jManager;
 import controller.neo4j.UserNeo4jManager;
 import entities.Apps;
@@ -57,7 +59,7 @@ public class Admin implements Initializable {
     @FXML
     private DatePicker released, last_update;
     @FXML
-    TextField _id, favtxt,appname, price, category, ratingcount, installscount, size, age_group, currency, searchtxt, text_pop, text_year;
+    TextField dev_email, dev_web, _id, favtxt,appname, price, category, ratingcount, installscount, size, age_group, currency, searchtxt, text_pop, text_year;
     ObservableList<AppData> app_data_array = FXCollections.observableArrayList();
     ObservableList<AppData> app_data_array2 = FXCollections.observableArrayList();
     ObservableList<MostPopCat> app_data_array1 = FXCollections.observableArrayList();
@@ -113,17 +115,23 @@ public class Admin implements Initializable {
 
     public void Add_apps(ActionEvent actionEvent) {
 
-        if (_id.getText().isEmpty() || appname.getText().isEmpty() || price.getText().isEmpty()) {
+        if (_id.getText().isEmpty() || appname.getText().isEmpty() || price.getText().isEmpty() || dev_email.getText().isEmpty() || dev_web.getText().isEmpty()) {
             JOptionPane.showMessageDialog(null, "Fields required");
         } else {
-            Apps app = new Apps();
+           // Apps app = new Apps();
+            entities.App app=new entities.App();
             //neo4j
             /*entities.App app1 = new entities.App();
             AppNeo4jManager appneo=new AppNeo4jManager();
             User user=new User();
             user.setUsername(appid.getText().toString());
             */
-            app.set_id(_id.getText().toString());
+            User user=new User();
+            user.setUsername(appid.getText().toString());
+            user.setEmail(dev_email.getText().toString());
+            user.setWebsite(dev_web.getText().toString());
+
+            app.setId(_id.getText().toString());
             app.setCategory(category.getText().toString());
             app.setAdSupported(Boolean.parseBoolean(ad_supported.getItems().toString()));
             app.setInAppPurchase(Boolean.parseBoolean(app_purchase.getItems().toString()));
@@ -133,9 +141,13 @@ public class Admin implements Initializable {
             app.setCurrency(currency.getText().toString());
             app.setPrice(Double.parseDouble(price.getText().toString()));
             app.setRatingCount(Integer.parseInt(ratingcount.getText().toString()));
+            app.setDeveloper(user);
             /*neo4j
             appneo.addApp(app1,user);
             */
+
+            AppMongoNeo4jManager app1=new AppMongoNeo4jManager();
+            app1.addApp(app, user);
             JOptionPane.showMessageDialog(null, "Added Successfully");
         }
     }
@@ -411,9 +423,13 @@ public class Admin implements Initializable {
 
                             if (dialogResult == JOptionPane.YES_OPTION) {
                                 // Saving code here
-                                Document query = new Document();
+                                AppMongoNeo4jManager app=new AppMongoNeo4jManager();
+                                entities.App app_id=new entities.App();
+                                app_id.setId(getTableView().getItems().get(getIndex()).get_id());
+                                app.removeApp(app_id);
+                               /* Document query = new Document();
                                 query.append("_id", getTableView().getItems().get(getIndex()).get_id());
-                                collection.deleteOne(query);
+                                collection.deleteOne(query);*/
                                 JOptionPane.showMessageDialog(null, "Removed Successfully");
                                 ClearTable(search_table);
                                 findApp("");
@@ -486,7 +502,15 @@ public class Admin implements Initializable {
                                 @Override
                                 public void handle(ActionEvent event) {
 
-                                    Document query = new Document();
+                                    AppMongoNeo4jManager app=new AppMongoNeo4jManager();
+                                    entities.App app1=new entities.App();
+                                    app1.setId(getTableView().getItems().get(getIndex()).get_id());
+                                    app1.setName(appname.getText().toString());
+                                    app1.setCategory(category1.getText().toString());
+                                    app1.setPrice(Double.parseDouble(price1.getText().toString()));
+                                    app1.setAgeGroup(agegroup.getText().toString());
+                                    app.updateApp(app1);
+                                    /*Document query = new Document();
                                     query.append("_id", getTableView().getItems().get(getIndex()).get_id());
                                     Document setData = new Document();
                                     setData.append("name", appname.getText().toString())
@@ -497,7 +521,7 @@ public class Admin implements Initializable {
                                     Document update = new Document();
                                     update.append("$set", setData);
                                     //To update single Document
-                                    collection.updateOne(query, update);
+                                    collection.updateOne(query, update);*/
                                     JOptionPane.showMessageDialog(null, "Updated Successfully");
                                     ClearTable(search_table);
                                     findApp("");
@@ -853,7 +877,7 @@ public class Admin implements Initializable {
         }
 
     }
-//neo4j
+/*neo4j
     public  void suggestedapps(){
         AppNeo4jManager user=new AppNeo4jManager();
         ArrayList<String> data=
@@ -865,7 +889,7 @@ public class Admin implements Initializable {
         }
         applist.setItems(items);
     }
-    //neo4j
+    */
     public void suggestedusers(){
         UserNeo4jManager user=new UserNeo4jManager();
         ArrayList<String> data=
@@ -929,6 +953,29 @@ public class Admin implements Initializable {
             items.add(String.valueOf(data.get(0)));
         }
         listfav.setItems(items);
+    }
+
+    public void statismainpage(ActionEvent actionEvent) {
+        try {
+            //Load second scene
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("statistices.fxml"));
+            Parent root = loader.load();
+
+            //Get controller of scene2
+
+            Statistices scene2Controller = loader.getController();
+            //Pass whatever data you want. You can have multiple method calls here
+            scene2Controller.transferMessage(appid.getText());
+
+            //Show scene 2 in new window
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Statistices Window");
+            stage.show();
+            ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
+        } catch (IOException ex) {
+            System.err.println(ex);
+        }
     }
 }
 

@@ -15,8 +15,8 @@
 
 <AnchorPane prefHeight="677.0" prefWidth="1106.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.Users">
     <children>
-        <Button fx:id="applications" layoutX="67.0" layoutY="104.0" mnemonicParsing="false" onAction="#appmainpage" prefHeight="26.0" prefWidth="135.0" text="Applications" />
-        <Button fx:id="users" layoutX="67.0" layoutY="160.0" mnemonicParsing="false" onAction="#usersmainpage" prefHeight="26.0" prefWidth="135.0" text="Users" />
+        <Button fx:id="applications" layoutX="67.0" layoutY="84.0" mnemonicParsing="false" onAction="#appmainpage" prefHeight="26.0" prefWidth="135.0" text="Applications" />
+        <Button fx:id="users" layoutX="67.0" layoutY="122.0" mnemonicParsing="false" onAction="#usersmainpage" prefHeight="26.0" prefWidth="135.0" text="Users" />
         <Button fx:id="signout" layoutX="894.0" layoutY="28.0" mnemonicParsing="false" onAction="#signout_fun" text="Signout" />
         <TabPane fx:id="applicationstab" layoutX="214.0" layoutY="84.0" prefHeight="538.0" prefWidth="870.0" tabClosingPolicy="UNAVAILABLE">
             <tabs>
@@ -106,6 +106,6 @@
             </tabs>
         </TabPane>
       <Label fx:id="appid" layoutX="284.0" layoutY="45.0" text="Label" visible="false" />
-      <Button fx:id="users1" layoutX="67.0" layoutY="204.0" mnemonicParsing="false" onAction="#usersmainpage" prefHeight="26.0" prefWidth="135.0" text="Statistices" />
+        <Button fx:id="users1" layoutX="67.0" layoutY="158.0" mnemonicParsing="false" onAction="#statismainpage" prefHeight="26.0" prefWidth="135.0" text="Statistices" />
     </children>
 </AnchorPane>

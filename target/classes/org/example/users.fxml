@@ -15,8 +15,8 @@
 
 <AnchorPane prefHeight="677.0" prefWidth="1106.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.Users">
     <children>
-        <Button fx:id="applications" layoutX="67.0" layoutY="104.0" mnemonicParsing="false" onAction="#appmainpage" prefHeight="26.0" prefWidth="135.0" text="Applications" />
-        <Button fx:id="users" layoutX="67.0" layoutY="160.0" mnemonicParsing="false" onAction="#usersmainpage" prefHeight="26.0" prefWidth="135.0" text="Users" />
+        <Button fx:id="applications" layoutX="67.0" layoutY="84.0" mnemonicParsing="false" onAction="#appmainpage" prefHeight="26.0" prefWidth="135.0" text="Applications" />
+        <Button fx:id="users" layoutX="67.0" layoutY="122.0" mnemonicParsing="false" onAction="#usersmainpage" prefHeight="26.0" prefWidth="135.0" text="Users" />
         <Button fx:id="signout" layoutX="894.0" layoutY="28.0" mnemonicParsing="false" onAction="#signout_fun" text="Signout" />
         <TabPane fx:id="applicationstab" layoutX="214.0" layoutY="84.0" prefHeight="538.0" prefWidth="870.0" tabClosingPolicy="UNAVAILABLE">
             <tabs>
@@ -86,13 +86,11 @@
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
                         <ListView fx:id="listsuggest" layoutX="13.0" layoutY="79.0" prefHeight="174.0" prefWidth="342.0" />
-                        <Text layoutX="14.0" layoutY="31.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Suggested Users with most followers" wrappingWidth="341.3367462158203" />
+                        <Text layoutX="14.0" layoutY="31.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Common Apps" wrappingWidth="341.3367462158203" />
                         <ListView fx:id="listrequest" layoutX="14.0" layoutY="333.0" prefHeight="174.0" prefWidth="342.0" />
                         <Text layoutX="14.0" layoutY="279.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Follow requests" wrappingWidth="341.3367462158203" />
                         <TextField fx:id="usernametxt" layoutX="14.0" layoutY="300.0" promptText="user ID" />
                         <Button layoutX="292.0" layoutY="300.0" mnemonicParsing="false" onAction="#follow_serch" text="Search" />
-                        <TextField fx:id="yeartxt" layoutX="14.0" layoutY="43.0" promptText="year" />
-                        <Button layoutX="303.0" layoutY="43.0" mnemonicParsing="false" onAction="#suggest_search" text="Search" />
                         <ListView fx:id="listactual" layoutX="411.0" layoutY="333.0" prefHeight="174.0" prefWidth="342.0" />
                         <Text layoutX="411.0" layoutY="279.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Actual Followers" wrappingWidth="341.3367462158203" />
                         <TextField fx:id="actualtxt" layoutX="411.0" layoutY="300.0" promptText="user ID" />
@@ -108,6 +106,6 @@
             </tabs>
         </TabPane>
       <Label fx:id="appid" layoutX="284.0" layoutY="45.0" text="Label" visible="false" />
-      <Button fx:id="users1" layoutX="67.0" layoutY="204.0" mnemonicParsing="false" onAction="#usersmainpage" prefHeight="26.0" prefWidth="135.0" text="Statistices" />
+        <Button fx:id="users1" layoutX="67.0" layoutY="158.0" mnemonicParsing="false" onAction="#statismainpage" prefHeight="26.0" prefWidth="135.0" text="Statistices" />
     </children>
 </AnchorPane>

@@ -1,15 +1,21 @@
 package org.example;
 
 import controller.mongo.UserMongoManager;
+import controller.mongoneo4j.UserMongoNeo4jManager;
 import controller.neo4j.UserNeo4jManager;
 import entities.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,7 +51,25 @@ public class Signup implements Initializable {
     }
 
     public void loginbtn(ActionEvent actionEvent) throws IOException {
-        setRoot("login");
+        try {
+            //Load second scene
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
+            Parent root = loader.load();
+
+            //Get controller of scene2
+            login scene2Controller = loader.getController();
+            //Pass whatever data you want. You can have multiple method calls here
+            //scene2Controller.transferMessage("");
+
+            //Show scene 2 in new window
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("login Window");
+            stage.show();
+            ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
+        } catch (IOException ex) {
+            System.err.println(ex);
+        }
     }
 
     public void signup(ActionEvent actionEvent) throws IOException {
@@ -53,7 +77,7 @@ public class Signup implements Initializable {
         if(username.getText().isEmpty() || email.getText().isEmpty() || website.getText().isEmpty() || password.getText().isEmpty()){
             JOptionPane.showMessageDialog(null, "Fields required");
         }else{
-            UserNeo4jManager user=new UserNeo4jManager();
+            UserMongoNeo4jManager user=new UserMongoNeo4jManager();
             User userobj=new User();
             try {
                 userobj.setUsername(username.getText().toString());

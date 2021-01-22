@@ -1,8 +1,8 @@
 package entities;
 
-import java.util.*;
-
 import org.bson.Document;
+
+import java.util.Date;
 
 public class User {
     private String username;
@@ -13,12 +13,9 @@ public class User {
     private String role;
     private String website;
 
-    public List<Review> reviews;
-
-    public List<String> followersList;
-    public List<String> followingList;
-
-    public List<String> developedApps;
+    public void setRole(String role) {
+        this.role = role;
+    }
 
     public void setUsername(String username) {
         this.username = username;
@@ -70,6 +67,18 @@ public class User {
         return role;
     }
 
+    public Document toUserDocument(){
+        Document userDoc = new Document("_id", this.getUsername());
+        if(this.getBirthday()!=null)
+            userDoc.append("birthday", this.getBirthday());
+        if(this.getEmail()!=null)
+            userDoc.append("email", this.getEmail());
+        userDoc.append("role", "Normal User");
+        if(this.getCountry()!=null)
+            userDoc.append("Country", this.getCountry());
+        return userDoc;
+    }
+
     public User fromUserDocument(Document r){
         this.username = (String) r.get("_id");
         this.birthday = (Date) r.get("birthday");
@@ -78,14 +87,6 @@ public class User {
         this.role = (String) r.get("role");
         this.password = (String) r.get("password");
         this.country = (String) r.get("country");
-        //check this warning (by andrea)
-        List<Document> reviewsDocList = (List<Document>) r.get("reviews");
-        List<Review> reviews = new ArrayList<>();
-        for (Document review: reviewsDocList){
-            Review x = new Review();
-            reviews.add(x.fromUserCollDocument(review, this.username));
-        }
-        this.reviews = reviews;
         return this;
     }
 

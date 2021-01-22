@@ -7,7 +7,7 @@ public class Relation {
     }
 
 
-    public static String getRelationString(Relation.RelationType type){
+    public static String getRelationString(RelationType type){
         String relationString;
         switch (type){
             case FOLLOW:

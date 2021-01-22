@@ -4,8 +4,6 @@ package entities;
 import org.bson.Document;
 
 import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
 
 public class App {
     private String id;
@@ -23,9 +21,6 @@ public class App {
     private User developer;
     private boolean inAppPurchase;
 
-    private List<Review> reviews;
-    private List<User>followers;
-
     public App() {
 
     }
@@ -33,7 +28,7 @@ public class App {
     public App(String id, Boolean adSupported, Date released, String name, Double price,
                String category, int ratingCount, int installCount, String size,
                String ageGroup, String currency, Date lastUpdated, User developer,
-               Boolean inAppPurchase, List<Review> reviews){
+               Boolean inAppPurchase){
         this.name = name;
         this.category = category;
         this.adSupported = adSupported;
@@ -48,7 +43,6 @@ public class App {
         this.lastUpdated = lastUpdated;
         this.developer = developer;
         this.inAppPurchase = inAppPurchase;
-        this.reviews = reviews;
     }
     public boolean isInAppPurchase() { return inAppPurchase; }
 
@@ -74,8 +68,6 @@ public class App {
 
     public Date getLastUpdated() { return lastUpdated; }
 
-    public List<Review> getReviews() { return reviews; }
-
     public String getCategory() { return category; }
 
     public User getDeveloper() { return developer; }
@@ -91,8 +83,6 @@ public class App {
     }
 
     public void setInAppPurchase(boolean inAppPurchase) { this.inAppPurchase = inAppPurchase; }
-
-    public void setReviews(List<Review> reviews) { this.reviews = reviews; }
 
     public void setReleased(Date released) { this.released = released; }
 
@@ -113,27 +103,40 @@ public class App {
     public void setDeveloper(User developer) { this.developer = developer; }
 
     public Document toAppDocument(){
-        List<Document> reviewDocList = new ArrayList<>();
-        for (Review review: this.reviews){
-            reviewDocList.add(review.toAppCollDocument());
-        }
+        Document appDoc = new Document("_id", this.getId());
+        if(this.adSupported!=null)
+            appDoc.append("adSupported", this.adSupported);
+        if(this.released!=null)
+            appDoc.append("released", this.released);
+        if(this.name!=null)
+            appDoc.append("name", this.name);
+        if(this.price!=null)
+            appDoc.append("price", this.price);
+        appDoc.append("ratingCount", this.ratingCount);
+        appDoc.append("installCount", this.installCount);
+        if(this.size!=null)
+            appDoc.append("size", this.size);
+        if(this.ageGroup!=null)
+            appDoc.append("ageGroup", this.ageGroup);
+        if(this.currency!=null)
+            appDoc.append("currency", this.currency);
+        if(this.lastUpdated!=null)
+            appDoc.append("lastUpdated", this.lastUpdated);
 
-        return new Document("_id", this.id)
-                .append("adSupported", this.adSupported)
-                .append("released", this.released)
-                .append("name", this.name)
-                .append("price", this.price)
-                .append("ratingCount", this.ratingCount)
-                .append("installCount", this.installCount)
-                .append("size", this.size)
-                .append("ageGroup", this.ageGroup)
-                .append("currency", this.currency)
-                .append("lastUpdated", this.lastUpdated)
-                .append("developer", new Document("developerId", this.developer.getUsername())
-                        .append("developerEmail", this.developer.getEmail())
-                        .append("developerWebsite", this.developer.getWebsite()))
-                .append("inAppPurchase", this.inAppPurchase)
-                .append("reviews", reviewDocList);
+        Document devDoc;
+        if(this.developer!=null) {
+            devDoc = new Document("developerId", this.getDeveloper().getUsername());
+            if (this.developer.getEmail() != null)
+                devDoc.append("developerEmail", this.developer.getEmail());
+            if (this.developer.getWebsite() != null)
+                devDoc.append("developerWebsite", this.developer.getWebsite());
+            appDoc.append("developer", devDoc);
+        }
+        if (this.category!=null)
+            appDoc.append("category", this.category);
+        appDoc.append("inAppPurchase", this.inAppPurchase);
+
+        return appDoc;
     }
 
     public App fromAppDocument(Document r){
@@ -152,14 +155,6 @@ public class App {
         User x = new User();
         this.developer = (x.fromUserDocument(d));
         this.inAppPurchase = (Boolean) r.get("inAppPurchase");
-        //watch this warning for some exception (by andrea)
-        List<Document> reviewsDocList = (List<Document>) r.get("reviews");
-        List<Review> reviews = new ArrayList<>();
-        for (Document review: reviewsDocList){
-            Review y = new Review();
-            reviews.add(y.fromAppCollDocument(review, this.id));
-        }
-        this.reviews = reviews;
         return this;
     }
 

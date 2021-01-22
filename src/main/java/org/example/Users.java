@@ -2,6 +2,7 @@ package org.example;
 
 import com.mongodb.client.MongoCollection;
 import controller.mongo.UserMongoManager;
+import controller.mongoneo4j.UserMongoNeo4jManager;
 import controller.neo4j.UserNeo4jManager;
 import entities.Apps;
 import entities.Review;
@@ -229,7 +230,7 @@ public class Users implements Initializable {
         if(username.getText().isEmpty()){
             JOptionPane.showMessageDialog(null, "Field required");
         }else {
-            UserNeo4jManager user = new UserNeo4jManager();
+            UserMongoNeo4jManager user = new UserMongoNeo4jManager();
             User userobj=new User();
             userobj.setUsername(usernametxt);
             user.addUser(userobj);
@@ -238,7 +239,7 @@ public class Users implements Initializable {
     }
 
     public void remove_user(ActionEvent actionEvent) {
-        UserNeo4jManager user = new UserNeo4jManager();
+        UserMongoNeo4jManager user = new UserMongoNeo4jManager();
         if (username_re.getText().isEmpty()){
             JOptionPane.showMessageDialog(null, "Field required");
         }else {
@@ -248,7 +249,7 @@ public class Users implements Initializable {
     }
 
     public void becomedeveloper(ActionEvent actionEvent) {
-        UserNeo4jManager user = new UserNeo4jManager();
+        UserMongoNeo4jManager user = new UserMongoNeo4jManager();
         if (username_re.getText().isEmpty()){
             JOptionPane.showMessageDialog(null, "Field required");
         }else {
@@ -258,7 +259,7 @@ public class Users implements Initializable {
     }
 
     public void becomenormal(ActionEvent actionEvent) {
-        UserNeo4jManager user = new UserNeo4jManager();
+        UserMongoNeo4jManager user = new UserMongoNeo4jManager();
         if (username_re.getText().isEmpty()){
             JOptionPane.showMessageDialog(null, "Field required");
         }else {
@@ -278,13 +279,13 @@ public class Users implements Initializable {
     }
 
     public void acceptfollow(ActionEvent actionEvent) {
-        UserNeo4jManager user = new UserNeo4jManager();
+       /* UserNeo4jManager user = new UserNeo4jManager();
         if (followedUsername.getText().isEmpty() || followerUsername.getText().isEmpty()){
             JOptionPane.showMessageDialog(null, "Field required");
         }else {
             user.acceptFollow(followerUsername.getText().toString(),followedUsername.getText().toString());
             JOptionPane.showMessageDialog(null, "Accepted");
-        }
+        }*/
     }
 
     public void removedfollow(ActionEvent actionEvent) {
@@ -297,7 +298,25 @@ public class Users implements Initializable {
         }
     }
     public void signout_fun(ActionEvent actionEvent) throws IOException {
-        setRoot("login");
+        try {
+            //Load second scene
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
+            Parent root = loader.load();
+
+            //Get controller of scene2
+            login scene2Controller = loader.getController();
+            //Pass whatever data you want. You can have multiple method calls here
+            //scene2Controller.transferMessage("");
+
+            //Show scene 2 in new window
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("login Window");
+            stage.show();
+            ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
+        } catch (IOException ex) {
+            System.err.println(ex);
+        }
     }
 
     public void searchfun(ActionEvent actionEvent) {
@@ -345,7 +364,7 @@ public class Users implements Initializable {
                                 @Override
                                 public void handle(ActionEvent event) {
 
-                                    Document query = new Document();
+                                   /* Document query = new Document();
                                     query.append("_id", getTableView().getItems().get(getIndex()).getUsername());
                                     Document setData = new Document();
                                     setData.append("_id", username.getText().toString())
@@ -355,7 +374,13 @@ public class Users implements Initializable {
                                     Document update = new Document();
                                     update.append("$set", setData);
                                     //To update single Document
-                                    collection.updateOne(query, update);
+                                    collection.updateOne(query, update);*/
+                                    UserMongoManager user=new UserMongoManager();
+                                    User user1=new User();
+                                    user1.setUsername( username.getText().toString());
+                                    user1.setEmail(emailtxt.getText().toString());
+                                    user1.setRole(roletxt.getText().toString());
+                                    user.updateuser(user1);
                                     JOptionPane.showMessageDialog(null, "Updated Successfully");
                                     ClearTable(user_table);
                                     findUsers("");
@@ -404,7 +429,7 @@ public class Users implements Initializable {
                      {
                         btn.setOnAction((ActionEvent event) -> {
                             Userdata data = getTableView().getItems().get(getIndex());
-                            UserMongoManager usermongo=new UserMongoManager();
+                            UserMongoNeo4jManager usermongo=new UserMongoNeo4jManager();
                             /*neo4j
                             UserNeo4jManager userneo=new UserNeo4jManager();
                             userneo.becomeDeveloper(getTableView().getItems().get(getIndex()).getUsername());*/
@@ -448,7 +473,7 @@ public class Users implements Initializable {
                     {
                         btn.setOnAction((ActionEvent event) -> {
                             Userdata data = getTableView().getItems().get(getIndex());
-                            UserMongoManager usermongo=new UserMongoManager();
+                            UserMongoNeo4jManager usermongo=new UserMongoNeo4jManager();
                             usermongo.becomeNormalUser(getTableView().getItems().get(getIndex()).getUsername());
                             JOptionPane.showMessageDialog(null, "this user become normal user");
                             ClearTable(user_table);
@@ -590,7 +615,7 @@ public class Users implements Initializable {
     public void suggest_search(ActionEvent actionEvent) {
         UserNeo4jManager user=new UserNeo4jManager();
         ArrayList<String> data=
-                (ArrayList<String>) user.browseUsersWithMostFollowersInYear(yeartxt.getText().toString());
+                (ArrayList<String>) user.browseUsersWithMostFollowersInYear(Integer.parseInt(yeartxt.getText().toString()),10);
         ObservableList<String> items = FXCollections.observableArrayList();
         for (int i=0; i<data.size();i++)
         {
@@ -623,5 +648,28 @@ public class Users implements Initializable {
             items.add(data.get(0));
         }
         listfollowed.setItems(items);
+    }
+
+    public void statismainpage(ActionEvent actionEvent) {
+        try {
+            //Load second scene
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("statistices.fxml"));
+            Parent root = loader.load();
+
+            //Get controller of scene2
+
+            Statistices scene2Controller = loader.getController();
+            //Pass whatever data you want. You can have multiple method calls here
+            scene2Controller.transferMessage(appid.getText());
+
+            //Show scene 2 in new window
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Statistices Window");
+            stage.show();
+            ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
+        } catch (IOException ex) {
+            System.err.println(ex);
+        }
     }
 }

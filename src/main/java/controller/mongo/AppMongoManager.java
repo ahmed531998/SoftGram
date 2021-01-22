@@ -2,18 +2,20 @@ package controller.mongo;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
-import entities.App;
+import com.mongodb.client.model.Filters;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-
-import java.util.Arrays;
-import java.util.function.Consumer;
-import com.mongodb.client.model.Filters;
-import org.bson.BsonRegularExpression;
 import utilities.MongoDriver;
 
-import javax.print.Doc;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
+import entities.App;
+import static com.mongodb.client.model.Aggregates.*;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.or;
+import static com.mongodb.client.model.Sorts.descending;
 
 
 public class AppMongoManager {
@@ -30,20 +32,19 @@ public class AppMongoManager {
 
     public void addApp(App a) {
         try {
-            MongoCollection<Document> appColl = driver.getCollection("apps");
+            MongoCollection<Document> appColl = driver.getCollection("app");
             Document d1 = a.toAppDocument();
             appColl.insertOne(d1);
             System.out.println("added");
         }
         catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException("write operation failed");
         }
-
-
     }
+
     public void updateApp(App a){
         try {
-            MongoCollection<Document> appColl = driver.getCollection("apps");
+            MongoCollection<Document> appColl = driver.getCollection("app");
             BasicDBObject searchQuery = new BasicDBObject("_id", a.getId());
             BasicDBObject updateFields = new BasicDBObject();
             updateFields.append("name", a.getName());
@@ -55,218 +56,116 @@ public class AppMongoManager {
             System.out.println("updated");
         }
         catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException("write operation failed");
         }
-
     }
 
-
-
-    public void deleteApp(String id){
+    public void deleteApp(App a){
         try {
-            MongoDriver driver = new MongoDriver();
-            MongoCollection<Document> appColl = driver.getCollection("apps");
-            appColl.deleteOne(Filters.eq("_id", id));
+            MongoCollection<Document> appColl = driver.getCollection("app");
+            appColl.deleteOne(Filters.eq("_id", a.getId()));
             System.out.println("deleted");
         }
         catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException("write operation failed");
         }
     }
 
-
-
-
-    public void findApp(String text){
-        //misses the try catch (by andrea)
-        MongoCollection<Document> collection = driver.getCollection("apps");
-
-        // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
-//maybe replaced with lambda (by andrea)
-        Consumer<Document> processBlock = new Consumer<Document>() {
-            @Override
-            public void accept(Document document) {
-                System.out.println(document);
+    public List<App> findApp(String text){
+        try {
+            MongoCollection<Document> collection = driver.getCollection("app");
+            Pattern pattern = Pattern.compile("^" + text + ".*$");
+            Bson filter1 = Filters.regex("_id", pattern);
+            Bson filter2 = Filters.regex("name", pattern);
+            List<Document> output = collection.find(or(filter1,filter2))
+                    .limit(100)
+                    .into(new ArrayList<>());
+            List<App> apps = new ArrayList<>();
+            App app = new App();
+            for (Document d: output){
+                apps.add(app.fromAppDocument(d));
             }
-        };
-        //watch the warning at Arrays.asList() (by andrea)
-        List<? extends Bson> pipeline = Arrays.asList(
-                new Document()
-                        .append("$match", new Document()
-                                .append("$or", Arrays.asList(
-                                        new Document()
-                                                .append("_id", new Document()
-                                                        .append("$regex", new BsonRegularExpression(text))
-                                                ),
-                                        new Document()
-                                                .append("name", new Document()
-                                                        .append("$regex", new BsonRegularExpression(text))
-                                                )
-                                        )
-                                )
-                        )
-        );
-
-        collection.aggregate(pipeline)
-                .allowDiskUse(false)
-                .forEach(processBlock);
+            return apps;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
-    public void MostPopularApps(){
-        // misses the try catch (by andrea)
-        MongoCollection<Document> collection = driver.getCollection("apps");
 
-        // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
 
-        Consumer<Document> processBlock = new Consumer<Document>() {
-            @Override
-            public void accept(Document document) {
-                System.out.println(document);
-            }
-        };
+    public List<Document> getPopularApps(int limit){
+        try{
+            MongoCollection<Document> collection = driver.getCollection("review");
+            Bson myGroup = new Document("$group", new Document("_id", "$appId")
+                    .append("average", new Document()
+                            .append("$avg", "$score"))
+                    .append("count", new Document()
+                            .append("$sum", 1)));
+            Bson mySort = sort(descending("average", "count"));
+            Bson mySkip = skip(0);
+            Bson myLimit = limit(limit);
 
-        List<? extends Bson> pipeline = Arrays.asList(
-                new Document()
-                        .append("$project", new Document()
-                                .append("_id", 1.0)
-                                .append("name", 1.0)
-                                .append("Avg", new Document()
-                                        .append("$avg", "$reviews.score")
-                                )
-                                .append("numberOfReviews", new Document()
-                                        .append("$cond", new Document()
-                                                .append("if", new Document()
-                                                        .append("$isArray", "$reviews")
-                                                )
-                                                .append("then", new Document()
-                                                        .append("$size", "$reviews")
-                                                )
-                                                .append("else", 0.0)
-                                        )
-                                )
-                        ),
-                new Document()
-                        .append("$sort", new Document()
-                                .append("Avg", -1.0)
-                                .append("numberOfReviews", -1.0)
-                        ),
-                new Document()
-                        .append("$skip", 0.0),
-                new Document()
-                        .append("$limit", 100.0)
-        );
+            List <Document> output = collection.aggregate(
+                    Arrays.asList(myGroup, mySort, mySkip, myLimit))
+                    .into(new ArrayList<>());
 
-        collection.aggregate(pipeline)
-                .allowDiskUse(false)
-                .forEach(processBlock);
+            return output;
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
-    public void MostPopularAppsInEachCat(String cat){
-        // misses the try catch (by andrea)
-        MongoCollection<Document> collection = driver.getCollection("apps");
 
-        // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
-        //maybe replace with lambda (by andrea)
-        Consumer<Document> processBlock = new Consumer<Document>() {
-            @Override
-            public void accept(Document document) {
-                System.out.println(document);
-            }
-        };
 
-        List<? extends Bson> pipeline = Arrays.asList(
-                new Document()
-                        .append("$match", new Document()
-                                .append("category", cat)
-                        ),
-                new Document()
-                        .append("$project", new Document()
-                                .append("_id", 1.0)
-                                .append("name", 1.0)
-                                .append("category", 1.0)
-                                .append("Avg", new Document()
-                                        .append("$avg", "$reviews.score")
-                                )
-                                .append("numberOfReviews", new Document()
-                                        .append("$cond", new Document()
-                                                .append("if", new Document()
-                                                        .append("$isArray", "$reviews")
-                                                )
-                                                .append("then", new Document()
-                                                        .append("$size", "$reviews")
-                                                )
-                                                .append("else", 0.0)
-                                        )
-                                )
-                        ),
-                new Document()
-                        .append("$sort", new Document()
-                                .append("Avg", -1.0)
-                                .append("numberOfReviews", -1.0)
-                        ),
-                new Document()
-                        .append("$skip", 0.0),
-                new Document()
-                        .append("$limit", 100.0)
-        );
+    public List<Document> getPopularAppsPerCat(String cat, int limit){
+        try {
+            MongoCollection<Document> collection = driver.getCollection("review");
 
-        collection.aggregate(pipeline)
-                .allowDiskUse(false)
-                .forEach(processBlock);
+            Bson myMatch = match(eq("category",cat));
+            Bson myGroup = new Document("$group", new Document("_id", "$appId")
+                    .append("average", new Document()
+                            .append("$avg", "$score"))
+                    .append("count", new Document()
+                            .append("$sum", 1)));
+            Bson mySort = sort(descending("average", "count"));
+            Bson mySkip = skip(0);
+            Bson myLimit = limit(limit);
+            List <Document> output = collection.aggregate(
+                    Arrays.asList(myMatch, myGroup, mySort, mySkip, myLimit))
+                    .into(new ArrayList<>());
+
+            return output;
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
-    public void MostPopularAppsInEachYear(int year){
-        // misses the try catch (by andrea)
-        MongoCollection<Document> collection = driver.getCollection("apps");
 
-        // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
-        //maybe replace with lambda (by andrea)
-        Consumer<Document> processBlock = new Consumer<Document>() {
-            @Override
-            public void accept(Document document) {
-                System.out.println(document);
-            }
-        };
+    public List<Document> getPopularAppsPerYear(int year, int limit){
+        try{
+            MongoCollection<Document> collection = driver.getCollection("review");
 
-        List<? extends Bson> pipeline = Arrays.asList(
-                new Document()
-                        .append("$project", new Document()
-                                .append("_id", 1.0)
-                                .append("name", 1.0)
-                                .append("category", 1.0)
-                                .append("released", 1.0)
-                                .append("Avg", new Document()
-                                        .append("$avg", "$reviews.score")
-                                )
-                                .append("numberOfReviews", new Document()
-                                        .append("$cond", new Document()
-                                                .append("if", new Document()
-                                                        .append("$isArray", "$reviews")
-                                                )
-                                                .append("then", new Document()
-                                                        .append("$size", "$reviews")
-                                                )
-                                                .append("else", 0.0)
-                                        )
-                                )
-                                .append("year", new Document()
-                                        .append("$year", "$released")
-                                )
-                        ),
-                new Document()
-                        .append("$match", new Document()
-                                .append("year", year)
-                        ),
-                new Document()
-                        .append("$sort", new Document()
-                                .append("Avg", -1.0)
-                                .append("numberOfReviews", -1.0)
-                        ),
-                new Document()
-                        .append("$skip", 0.0),
-                new Document()
-                        .append("$limit", 100.0)
-        );
+            Bson myGroup = new Document("$project", new Document("_id", "$appId")
+                    .append("appName", "$appName")
+                    .append("category", "$category")
+                    .append("year", new Document()
+                            .append("$year", "$date"))
+                    .append("average", new Document()
+                            .append("$avg", "$score"))
+                    .append("count", new Document()
+                            .append("$sum", 1)));
+            Bson myMatch = match(eq("year", year));
+            Bson mySort = sort(descending("average", "count"));
+            Bson mySkip = skip(0);
+            Bson myLimit = limit(limit);
+            List <Document> output = collection.aggregate(
+                    Arrays.asList(myGroup, myMatch, mySort, mySkip, myLimit))
+                    .into(new ArrayList<>());
 
-        collection.aggregate(pipeline)
-                .allowDiskUse(false)
-                .forEach(processBlock);
+            return output;
+    }catch(Exception e){
+        e.printStackTrace();
+    }
+        return null;
     }
 }

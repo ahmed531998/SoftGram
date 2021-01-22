@@ -16,8 +16,8 @@
 
 <AnchorPane prefHeight="677.0" prefWidth="1106.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.Admin">
    <children>
-      <Button fx:id="applications" layoutX="67.0" layoutY="104.0" mnemonicParsing="false" onAction="#appmainpage" prefHeight="26.0" prefWidth="135.0" text="Applications" />
-      <Button fx:id="users" layoutX="67.0" layoutY="160.0" mnemonicParsing="false" onAction="#usersmainpage" prefHeight="26.0" prefWidth="135.0" text="Users" />
+      <Button fx:id="applications" layoutX="67.0" layoutY="84.0" mnemonicParsing="false" onAction="#appmainpage" prefHeight="26.0" prefWidth="135.0" text="Applications" />
+      <Button fx:id="users" layoutX="67.0" layoutY="122.0" mnemonicParsing="false" onAction="#usersmainpage" prefHeight="26.0" prefWidth="135.0" text="Users" />
       <Button fx:id="signout" layoutX="894.0" layoutY="28.0" mnemonicParsing="false" onAction="#signout_fun" text="Signout" />
       <TabPane fx:id="applicationstab" layoutX="214.0" layoutY="84.0" prefHeight="538.0" prefWidth="870.0" tabClosingPolicy="UNAVAILABLE">
         <tabs>
@@ -45,8 +45,8 @@
                         <TextField fx:id="currency" layoutX="341.0" layoutY="71.0" promptText="currency" />
                         <DatePicker fx:id="released" layoutX="575.0" layoutY="74.0" prefHeight="25.0" prefWidth="150.0" promptText="Released" />
                         <DatePicker fx:id="last_update" layoutX="340.0" layoutY="178.0" prefHeight="25.0" prefWidth="150.0" promptText="Last updated" />
-                        <Button fx:id="addbtn" layoutX="341.0" layoutY="316.0" mnemonicParsing="false" onAction="#Add_apps" prefHeight="26.0" prefWidth="147.0" text="Add " />
-                        <TextField fx:id="ratingcount" layoutX="341.0" layoutY="281.0" promptText="rating count" />
+                        <Button fx:id="addbtn" layoutX="341.0" layoutY="319.0" mnemonicParsing="false" onAction="#Add_apps" prefHeight="26.0" prefWidth="147.0" text="Add " />
+                        <TextField fx:id="ratingcount" layoutX="128.0" layoutY="220.0" promptText="rating count" />
                         <TextField fx:id="age_group" layoutX="576.0" layoutY="108.0" promptText="Age group" />
                         <ComboBox fx:id="app_purchase" layoutX="575.0" layoutY="175.0" prefWidth="150.0" promptText="App purchases" />
                         <ComboBox fx:id="ad_supported" layoutX="575.0" layoutY="142.0" prefWidth="150.0" promptText="Ad supported" />
@@ -55,6 +55,8 @@
                               <Font size="27.0" />
                            </font>
                         </Label>
+                        <TextField fx:id="dev_email" layoutX="340.0" layoutY="220.0" promptText="Developer Email" />
+                        <TextField fx:id="dev_web" layoutX="576.0" layoutY="220.0" promptText="Developer Website" />
                      </children>
                   </AnchorPane>
             </content>
@@ -130,7 +132,7 @@
                   </AnchorPane>
               </content>
             </Tab>
-            <Tab text="Followers">
+            <Tab fx:id="followers_tabID" text="Followers">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -154,6 +156,6 @@
             </Tab>
         </tabs>
       </TabPane>
-      <Button fx:id="users1" layoutX="67.0" layoutY="202.0" mnemonicParsing="false" onAction="#usersmainpage" prefHeight="26.0" prefWidth="135.0" text="Statistices" />
+      <Button fx:id="users1" layoutX="67.0" layoutY="158.0" mnemonicParsing="false" onAction="#statismainpage" prefHeight="26.0" prefWidth="135.0" text="Statistices" />
    </children>
 </AnchorPane>
