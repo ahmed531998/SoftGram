@@ -161,7 +161,8 @@ public class Admin implements Initializable {
                 );
         app_purchase.getItems().addAll(options);
         ad_supported.getItems().addAll(options);
-        //commonapps();
+        commonapps();
+        suggestedusers();
         appid.setVisible(false);
 
         applist.setOrientation(Orientation.HORIZONTAL);
@@ -877,11 +878,11 @@ public class Admin implements Initializable {
         }
 
     }
-/*neo4j
+  /*
     public  void suggestedapps(){
-        AppNeo4jManager user=new AppNeo4jManager();
+        AppNeo4jManager app=new AppNeo4jManager();
         ArrayList<String> data=
-                (ArrayList<String>) user.browseSuggestedapps("",10);
+                (ArrayList<String>) app.browseCommonApps();
         ObservableList<String> items = FXCollections.observableArrayList();
         for (int i=0; i<data.size();i++)
         {
