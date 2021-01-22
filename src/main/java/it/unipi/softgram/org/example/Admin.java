@@ -1,6 +1,7 @@
 package it.unipi.softgram.org.example;
 
 import com.mongodb.client.MongoCollection;
+import it.unipi.softgram.controller.mongoneo4j.AppMongoNeo4jManager;
 import it.unipi.softgram.controller.neo4j.AppNeo4jManager;
 import it.unipi.softgram.controller.neo4j.UserNeo4jManager;
 import it.unipi.softgram.entities.App;
@@ -57,7 +58,7 @@ public class Admin implements Initializable {
     @FXML
     private DatePicker released, last_update;
     @FXML
-    TextField _id, favtxt,appname, price, category, ratingcount, installscount, size, age_group, currency, searchtxt, text_pop, text_year;
+    TextField dev_email, dev_web, _id, favtxt,appname, price, category, ratingcount, installscount, size, age_group, currency, searchtxt, text_pop, text_year;
     ObservableList<AppData> app_data_array = FXCollections.observableArrayList();
     ObservableList<AppData> app_data_array2 = FXCollections.observableArrayList();
     ObservableList<MostPopCat> app_data_array1 = FXCollections.observableArrayList();
@@ -113,16 +114,22 @@ public class Admin implements Initializable {
 
     public void Add_apps(ActionEvent actionEvent) {
 
-        if (_id.getText().isEmpty() || appname.getText().isEmpty() || price.getText().isEmpty()) {
+        if (_id.getText().isEmpty() || appname.getText().isEmpty() || price.getText().isEmpty() || dev_email.getText().isEmpty() || dev_web.getText().isEmpty()) {
             JOptionPane.showMessageDialog(null, "Fields required");
         } else {
-            App app = new App();
+            // Apps app = new Apps();
+            it.unipi.softgram.entities.App app=new it.unipi.softgram.entities.App();
             //neo4j
             /*entities.App app1 = new entities.App();
             AppNeo4jManager appneo=new AppNeo4jManager();
             User user=new User();
             user.setUsername(appid.getText().toString());
             */
+            User user=new User();
+            user.setUsername(appid.getText().toString());
+            user.setEmail(dev_email.getText().toString());
+            user.setWebsite(dev_web.getText().toString());
+
             app.setId(_id.getText().toString());
             app.setCategory(category.getText().toString());
             app.setAdSupported(Boolean.parseBoolean(ad_supported.getItems().toString()));
@@ -133,9 +140,13 @@ public class Admin implements Initializable {
             app.setCurrency(currency.getText().toString());
             app.setPrice(Double.parseDouble(price.getText().toString()));
             app.setRatingCount(Integer.parseInt(ratingcount.getText().toString()));
+            app.setDeveloper(user);
             /*neo4j
             appneo.addApp(app1,user);
             */
+
+            AppMongoNeo4jManager app1=new AppMongoNeo4jManager();
+            app1.addApp(app, user);
             JOptionPane.showMessageDialog(null, "Added Successfully");
         }
     }
@@ -149,7 +160,8 @@ public class Admin implements Initializable {
                 );
         app_purchase.getItems().addAll(options);
         ad_supported.getItems().addAll(options);
-        //commonapps();
+        commonapps();
+        suggestedusers();
         appid.setVisible(false);
 
         applist.setOrientation(Orientation.HORIZONTAL);
@@ -329,7 +341,7 @@ public class Admin implements Initializable {
 
     public void findApp(String text) {
         MongoDriver driver = new MongoDriver();
-        MongoCollection<Document> collection = driver.getCollection("apps");
+        MongoCollection<Document> collection = driver.getCollection("app");
 
         // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
 
@@ -407,13 +419,17 @@ public class Admin implements Initializable {
                             int dialogButton = JOptionPane.YES_NO_OPTION;
                             int dialogResult = JOptionPane.showConfirmDialog(null, "Would You Like to remove this application?", "Removing", dialogButton);
                             MongoDriver driver = new MongoDriver();
-                            MongoCollection<Document> collection = driver.getCollection("apps");
+                            MongoCollection<Document> collection = driver.getCollection("app");
 
                             if (dialogResult == JOptionPane.YES_OPTION) {
                                 // Saving code here
-                                Document query = new Document();
+                                AppMongoNeo4jManager app=new AppMongoNeo4jManager();
+                                it.unipi.softgram.entities.App app_id=new it.unipi.softgram.entities.App();
+                                app_id.setId(getTableView().getItems().get(getIndex()).get_id());
+                                app.removeApp(app_id);
+                               /* Document query = new Document();
                                 query.append("_id", getTableView().getItems().get(getIndex()).get_id());
-                                collection.deleteOne(query);
+                                collection.deleteOne(query);*/
                                 JOptionPane.showMessageDialog(null, "Removed Successfully");
                                 ClearTable(search_table);
                                 findApp("");
@@ -469,7 +485,7 @@ public class Admin implements Initializable {
                             System.out.println("selectedData: " + data);
 
                             MongoDriver driver = new MongoDriver();
-                            MongoCollection<Document> collection = driver.getCollection("apps");
+                            MongoCollection<Document> collection = driver.getCollection("app");
 
                             double price = getTableView().getItems().get(getIndex()).getPrice();
                             String name = getTableView().getItems().get(getIndex()).getName();
@@ -486,7 +502,19 @@ public class Admin implements Initializable {
                                 @Override
                                 public void handle(ActionEvent event) {
 
-                                    Document query = new Document();
+                                    AppMongoNeo4jManager app=new AppMongoNeo4jManager();
+                                    it.unipi.softgram.entities.App app1=new it.unipi.softgram.entities.App();
+                                    app1.setId(getTableView().getItems().get(getIndex()).get_id());
+                                    app1.setName(appname.getText().toString());
+                                    app1.setCategory(category1.getText().toString());
+                                    app1.setPrice(Double.parseDouble(price1.getText().toString()));
+                                    app1.setAgeGroup(agegroup.getText().toString());
+                                    if (app1.getCategory() != null)
+                                        app.updateCategory(app1);
+                                    if(app1.getName() != null)
+                                        app.updateName(app1);
+
+                                    /*Document query = new Document();
                                     query.append("_id", getTableView().getItems().get(getIndex()).get_id());
                                     Document setData = new Document();
                                     setData.append("name", appname.getText().toString())
@@ -497,7 +525,7 @@ public class Admin implements Initializable {
                                     Document update = new Document();
                                     update.append("$set", setData);
                                     //To update single Document
-                                    collection.updateOne(query, update);
+                                    collection.updateOne(query, update);*/
                                     JOptionPane.showMessageDialog(null, "Updated Successfully");
                                     ClearTable(search_table);
                                     findApp("");
@@ -541,7 +569,7 @@ public class Admin implements Initializable {
 
     public void MostPopularApps() {
         MongoDriver driver = new MongoDriver();
-        MongoCollection<Document> collection = driver.getCollection("apps");
+        MongoCollection<Document> collection = driver.getCollection("app");
 
         // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
 
@@ -626,7 +654,7 @@ public class Admin implements Initializable {
         } else {
             ClearTable(search_table3);
             MongoDriver driver = new MongoDriver();
-            MongoCollection<Document> collection = driver.getCollection("apps");
+            MongoCollection<Document> collection = driver.getCollection("app");
 
             // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
 
@@ -698,7 +726,7 @@ public class Admin implements Initializable {
         } else {
             ClearTable(search_table3);
             MongoDriver driver = new MongoDriver();
-            MongoCollection<Document> collection = driver.getCollection("apps");
+            MongoCollection<Document> collection = driver.getCollection("app");
 
             // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
 
@@ -822,7 +850,7 @@ public class Admin implements Initializable {
     public void nextfun(ActionEvent actionEvent) {
         ClearTable(search_table3);
         p++;
-       // findApp("");
+        // findApp("");
     }
 
     public void backfun(ActionEvent actionEvent) {
@@ -853,19 +881,19 @@ public class Admin implements Initializable {
         }
 
     }
-//neo4j
-    public  void suggestedapps(){
-        AppNeo4jManager user=new AppNeo4jManager();
-        ArrayList<App> data=
-                (ArrayList<App>) user.browseCommonApps();
-        ObservableList<String> items = FXCollections.observableArrayList();
-        for (int i=0; i<data.size();i++)
-        {
-            items.add(data.get(0).getName());
-        }
-        applist.setItems(items);
-    }
-    //neo4j
+    /*
+      public  void suggestedapps(){
+          AppNeo4jManager app=new AppNeo4jManager();
+          ArrayList<String> data=
+                  (ArrayList<String>) app.browseCommonApps();
+          ObservableList<String> items = FXCollections.observableArrayList();
+          for (int i=0; i<data.size();i++)
+          {
+              items.add(data.get(0));
+          }
+          applist.setItems(items);
+      }
+      */
     public void suggestedusers(){
         UserNeo4jManager user=new UserNeo4jManager();
         ArrayList<String> data=
@@ -883,7 +911,7 @@ public class Admin implements Initializable {
         AppNeo4jManager user=new AppNeo4jManager();
         User u=new User();
         u.setUsername(favtxt.getText().toString());
-        ArrayList<App> data = (ArrayList<App>) user.browseCommonApps();
+        ArrayList<it.unipi.softgram.entities.App> data = (ArrayList<it.unipi.softgram.entities.App>) user.browseCommonApps();
         ObservableList<String> items = FXCollections.observableArrayList();
         for (int i=0; i<data.size();i++)
         {
@@ -891,12 +919,12 @@ public class Admin implements Initializable {
         }
         listcommon.setItems(items);
     }
-//neo4j
+    //neo4j
     public void Followedapps(ActionEvent actionEvent) {
         AppNeo4jManager user=new AppNeo4jManager();
         User u=new User();
         u.setUsername(favtxt.getText().toString());
-        ArrayList<App> data = (ArrayList<App>) user.browseFollowedApps(u);
+        ArrayList<it.unipi.softgram.entities.App> data = (ArrayList<it.unipi.softgram.entities.App>) user.browseFollowedApps(u);
         ObservableList<String> items = FXCollections.observableArrayList();
         for (int i=0; i<data.size();i++)
         {
@@ -904,12 +932,12 @@ public class Admin implements Initializable {
         }
         listfav11.setItems(items);
     }
-//neo4j
+    //neo4j
     public void app_of_followers(ActionEvent actionEvent) {
         AppNeo4jManager user=new AppNeo4jManager();
         User u=new User();
         u.setUsername(favtxt.getText().toString());
-        ArrayList<App> data = (ArrayList<App>) user.browseAppsOfFollowers(u);
+        ArrayList<it.unipi.softgram.entities.App> data = (ArrayList<it.unipi.softgram.entities.App>) user.browseAppsOfFollowers(u);
         ObservableList<String> items = FXCollections.observableArrayList();
         for (int i=0; i<data.size();i++)
         {
@@ -917,18 +945,41 @@ public class Admin implements Initializable {
         }
         listfav1.setItems(items);
     }
-//neo4j
+    //neo4j
     public void fav_cat(ActionEvent actionEvent) {
         AppNeo4jManager user=new AppNeo4jManager();
         User u=new User();
         u.setUsername(favtxt.getText().toString());
-        ArrayList<App> data = (ArrayList<App>) user.browseFavoriteCategory(u);
+        ArrayList<it.unipi.softgram.entities.App> data = (ArrayList<it.unipi.softgram.entities.App>) user.browseFavoriteCategory(u);
         ObservableList<String> items = FXCollections.observableArrayList();
         for (int i=0; i<data.size();i++)
         {
             items.add(String.valueOf(data.get(0)));
         }
         listfav.setItems(items);
+    }
+
+    public void statismainpage(ActionEvent actionEvent) {
+        try {
+            //Load second scene
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("statistices.fxml"));
+            Parent root = loader.load();
+
+            //Get controller of scene2
+
+            Statistices scene2Controller = loader.getController();
+            //Pass whatever data you want. You can have multiple method calls here
+            scene2Controller.transferMessage(appid.getText());
+
+            //Show scene 2 in new window
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Statistices Window");
+            stage.show();
+            ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
+        } catch (IOException ex) {
+            System.err.println(ex);
+        }
     }
 }
 

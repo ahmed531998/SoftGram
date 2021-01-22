@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="677.0" prefWidth="1106.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.softgram.org.example.Statistices">
+    <children>
+        <Button fx:id="applications" layoutX="67.0" layoutY="104.0" mnemonicParsing="false" onAction="#appmainpage" prefHeight="26.0" prefWidth="135.0" text="Applications" />
+        <Button fx:id="users" layoutX="67.0" layoutY="160.0" mnemonicParsing="false" onAction="#usersmainpage" prefHeight="26.0" prefWidth="135.0" text="Users" />
+        <Button fx:id="signout" layoutX="894.0" layoutY="28.0" mnemonicParsing="false" onAction="#signout_fun" text="Signout" />
+        <TabPane fx:id="applicationstab" layoutX="214.0" layoutY="84.0" prefHeight="538.0" prefWidth="870.0" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab fx:id="addtab" text="Home">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #bab7b6;">
+                     <children>
+                        <PieChart fx:id="piechart" layoutX="28.0" layoutY="108.0" prefHeight="324.0" prefWidth="386.0" />
+                        <BarChart fx:id="barchart" layoutX="454.0" layoutY="118.0" prefHeight="334.0" prefWidth="396.0">
+                          <xAxis>
+                            <CategoryAxis side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis side="LEFT" />
+                          </yAxis>
+                        </BarChart>
+                     </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+        <Label fx:id="appid" layoutX="284.0" layoutY="45.0" text="Label" visible="false" />
+        <Button fx:id="users1" layoutX="67.0" layoutY="204.0" mnemonicParsing="false" onAction="#statismainpage" prefHeight="26.0" prefWidth="135.0" text="Statistices" />
+    </children>
+
+</AnchorPane>

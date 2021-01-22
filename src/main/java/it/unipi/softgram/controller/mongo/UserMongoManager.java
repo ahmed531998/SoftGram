@@ -209,6 +209,30 @@ public class UserMongoManager {
         }
     }
 
+    public void updateUser(User user){
+        try {
+            MongoDriver driver = new MongoDriver();
+            MongoCollection<Document> collection = driver.getCollection("users");
+            Document query = new Document();
+            query.append("_id", user.getUsername());
+            Document setData = new Document();
+            setData.append("_id", user.getUsername())
+                    .append("role", user.getRole())
+                    .append("email", user.getEmail())
+            ;
+            Document update = new Document();
+            update.append("$set", setData);
+            //To update single Document
+            UpdateResult result= collection.updateOne(query, update);
+            if(result.getModifiedCount()==0){
+                System.out.println("Requested user to update not found");
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
 }
 
 

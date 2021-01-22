@@ -12,6 +12,10 @@ public class User {
     private String role;
     private String website;
 
+    public void setRole(String role) {
+        this.role = role;
+    }
+
     public void setUsername(String username) {
         this.username = username;
     }
