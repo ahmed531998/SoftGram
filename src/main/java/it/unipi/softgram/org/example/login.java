@@ -49,7 +49,7 @@ public class login {
 
                 try {
                     //Load second scene
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("admin.fxml"));
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/admin.fxml"));
                     Parent root = loader.load();
 
                     //Get controller of scene2
@@ -82,7 +82,7 @@ public class login {
     public void signup(ActionEvent actionEvent) throws IOException {
         try {
             //Load second scene
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("signup.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/signup.fxml"));
             Parent root = loader.load();
 
             //Get controller of scene2

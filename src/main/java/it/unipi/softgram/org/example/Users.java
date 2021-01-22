@@ -97,7 +97,7 @@ public class Users implements Initializable {
 
                         try {
                             //Load second scene
-                            FXMLLoader loader = new FXMLLoader(getClass().getResource("usermainpage.fxml"));
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/usermainpage.fxml"));
                             Parent root = loader.load();
 
                             //Get controller of scene2
@@ -128,7 +128,7 @@ public class Users implements Initializable {
         public void usersmainpage(ActionEvent actionEvent) throws IOException {
             try {
                 //Load second scene
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("users.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/users.fxml"));
                 Parent root = loader.load();
 
                 //Get controller of scene2
@@ -151,7 +151,7 @@ public class Users implements Initializable {
         public void appmainpage(ActionEvent actionEvent) throws IOException {
             try {
                 //Load second scene
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("admin.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/admin.fxml"));
                 Parent root = loader.load();
 
                 //Get controller of scene2
@@ -300,7 +300,7 @@ public class Users implements Initializable {
         public void signout_fun(ActionEvent actionEvent) throws IOException {
             try {
                 //Load second scene
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/login.fxml"));
                 Parent root = loader.load();
 
                 //Get controller of scene2
@@ -653,7 +653,7 @@ public class Users implements Initializable {
         public void statismainpage(ActionEvent actionEvent) {
             try {
                 //Load second scene
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("statistices.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/statistices.fxml"));
                 Parent root = loader.load();
 
                 //Get controller of scene2

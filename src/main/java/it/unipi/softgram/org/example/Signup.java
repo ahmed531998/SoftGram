@@ -59,7 +59,7 @@ public class Signup implements Initializable {
     public void loginbtn(ActionEvent actionEvent) throws IOException {
         try {
             //Load second scene
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/login.fxml"));
             Parent root = loader.load();
 
             //Get controller of scene2
