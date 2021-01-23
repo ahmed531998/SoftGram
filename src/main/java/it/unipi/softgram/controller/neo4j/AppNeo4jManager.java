@@ -18,7 +18,7 @@ import static org.neo4j.driver.Values.parameters;
 
 public class AppNeo4jManager {
     private final Neo4jDriver neo;
-    private int queryLimit = 20;
+    private int queryLimit = 10;
     private int superNodeThreshold = 100;
 
     public AppNeo4jManager(){
@@ -167,12 +167,42 @@ public class AppNeo4jManager {
                                 "queryLimit", this.queryLimit));
                 return getApps(result);
             });
+
         }
         catch (Exception e){
             e.printStackTrace();
 
         }
         return null;
+    }
+    public boolean relationDevelopUserAppExists(User u, App a){
+        try (Session session = neo.getSession()){
+            return session.readTransaction(tx ->{
+                Result result = tx.run("MATCH (u:User), (a:App) WHERE u.username = $username AND a.id = $id " +
+                                "RETURN EXISTS ((u)-[:DEVELOP]->(a)) ",
+                        parameters("username",u.getUsername(), "id", a.getId()));
+                return result.next().get("EXISTS ((u)-[:DEVELOP]->(a))").asBoolean();
+            });
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean relationFollowUserAppExists(User u, App a){
+        try (Session session = neo.getSession()){
+            return session.readTransaction(tx ->{
+                Result result = tx.run("MATCH (u:User), (a:App) WHERE u.username = $username AND a.id = $id " +
+                                "RETURN EXISTS ((u)-[:FOLLOW]->(a)) ",
+                        parameters("username",u.getUsername(), "id", a.getId()));
+                return result.next().get("EXISTS ((u)-[:FOLLOW]->(a))").asBoolean();
+            });
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }

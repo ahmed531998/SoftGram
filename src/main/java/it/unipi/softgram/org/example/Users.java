@@ -341,10 +341,6 @@ public class Users implements Initializable {
                         {
                             btn.setOnAction((ActionEvent event) -> {
                                 Userdata data = getTableView().getItems().get(getIndex());
-
-
-                                MongoDriver driver = new MongoDriver();
-                                MongoCollection<Document> collection = driver.getCollection("users");
                                 String _id = getTableView().getItems().get(getIndex()).getUsername();
                                 String email = getTableView().getItems().get(getIndex()).getEmail();
                                 String role = getTableView().getItems().get(getIndex()).getRole();
@@ -358,17 +354,6 @@ public class Users implements Initializable {
                                     @Override
                                     public void handle(ActionEvent event) {
 
-                                   /* Document query = new Document();
-                                    query.append("_id", getTableView().getItems().get(getIndex()).getUsername());
-                                    Document setData = new Document();
-                                    setData.append("_id", username.getText().toString())
-                                            .append("role", roletxt.getText().toString())
-                                            .append("email", emailtxt.getText().toString())
-                                    ;
-                                    Document update = new Document();
-                                    update.append("$set", setData);
-                                    //To update single Document
-                                    collection.updateOne(query, update);*/
                                         UserMongoManager user=new UserMongoManager();
                                         User user1=new User();
                                         user1.setUsername(username.getText());
@@ -555,7 +540,6 @@ public class Users implements Initializable {
                         {
                             btn.setOnAction((ActionEvent event) -> {
                                 Userdata data = getTableView().getItems().get(getIndex());
-                                System.out.println("selectedData: " + data);
                                 UserNeo4jManager useneo=new UserNeo4jManager();
                                 useneo.addFollow(appid.getText(), getTableView().getItems().get(getIndex()).getUsername(), false);
                                 JOptionPane.showMessageDialog(null, "You followed this user");

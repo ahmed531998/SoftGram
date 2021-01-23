@@ -21,7 +21,7 @@ public class MongoDriver {
             ConnectionString uri = new ConnectionString("mongodb://localhost:27017");
             try {
                 mongoClient = MongoClients.create(uri);
-                mongoDatabase = mongoClient.getDatabase("proj");
+                mongoDatabase = mongoClient.getDatabase("softgram");
             }
             catch (Exception e){
                 e.printStackTrace();

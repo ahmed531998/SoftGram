@@ -31,7 +31,7 @@ public class login {
         }else {
             msg.setText("");
             MongoDriver driver = new MongoDriver();
-            MongoCollection<Document> collection = driver.getCollection("user");
+            MongoCollection<Document> collection = driver.getCollection("users");
 
             // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
 

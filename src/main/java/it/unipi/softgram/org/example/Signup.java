@@ -11,10 +11,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import javax.swing.*;
@@ -29,8 +26,7 @@ public class Signup implements Initializable {
     @FXML private TextField username, email, website;
     @FXML private PasswordField password;
     @FXML private ComboBox country;
-    @FXML private DatePicker birthday;
-
+    @FXML private Label appid;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -86,7 +82,26 @@ public class Signup implements Initializable {
                 userobj.setEmail(email.getText());
                 user.addUser(userobj);
                 JOptionPane.showMessageDialog(null, "Added successfully");
-                setRoot("admin");
+                try {
+                    //Load second scene
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("admin.fxml"));
+                    Parent root = loader.load();
+
+                    //Get controller of scene2
+                    appid.setText(username.getText());
+                    Admin scene2Controller = loader.getController();
+                    //Pass whatever data you want. You can have multiple method calls here
+                    scene2Controller.transferMessage(appid.getText());
+
+                    //Show scene 2 in new window
+                    Stage stage = new Stage();
+                    stage.setScene(new Scene(root));
+                    stage.setTitle("Admin Window");
+                    stage.show();
+                    ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }catch (Exception e){
                 e.printStackTrace();
             }

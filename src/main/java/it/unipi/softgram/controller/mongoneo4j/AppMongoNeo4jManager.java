@@ -49,8 +49,8 @@ public class AppMongoNeo4jManager {
                     return null;
                 }
                 if (u != null) {
-                    AppNeo4jManager neo = new AppNeo4jManager();
-                    neo.followOrDevelopApp(u, a, Relation.RelationType.DEVELOP);
+                    /*AppNeo4jManager neo = new AppNeo4jManager();
+                    neo.followOrDevelopApp(u, a, Relation.RelationType.DEVELOP);*/
                 }
                 return null;
             });

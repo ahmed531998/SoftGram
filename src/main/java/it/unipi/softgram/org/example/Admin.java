@@ -8,7 +8,9 @@ import it.unipi.softgram.entities.App;
 import it.unipi.softgram.entities.User;
 import it.unipi.softgram.table_chooser.AppData;
 import it.unipi.softgram.table_chooser.MostPopCat;
+import it.unipi.softgram.table_chooser.Userdata;
 import it.unipi.softgram.utilities.drivers.MongoDriver;
+import it.unipi.softgram.utilities.enumerators.Relation;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -41,7 +43,8 @@ public class Admin implements Initializable {
 
     String app_id;
 
-    @FXML ListView userlist,applist, listcommon,listfav,listfav11,listfav1;
+    @FXML TextField followertxt1,followertxt;
+    @FXML ListView userlist, listcommon,listfav,listfav11,listfav1;
     public Button search_btn_pop;
     @FXML
     private ComboBox app_purchase, ad_supported;
@@ -54,17 +57,23 @@ public class Admin implements Initializable {
     ObservableList<MostPopCat> app_data_array1 = FXCollections.observableArrayList();
     ObservableList<MostPopCat> app_data_array3 = FXCollections.observableArrayList();
 
+    ObservableList<AppData> suggestedapp = FXCollections.observableArrayList();
+    ObservableList<AppData> commonapp = FXCollections.observableArrayList();
+    ObservableList<Userdata> suggestedusers = FXCollections.observableArrayList();
+
+    @FXML TableView<Userdata> suggesteduser_table;
+    @FXML private TableColumn<Userdata, String> username_col;
 
     @FXML
-    TableView<AppData> search_table;
+    TableView<AppData> search_table,suggestedapps_table,commonapp_table;
     @FXML
     TableView<AppData> search_table2;
     @FXML
     TableView<MostPopCat> search_table3;
     @FXML
-    private TableColumn<AppData, String> app_id_col, app_id_col2;
+    private TableColumn<AppData, String> app_id_col, app_id_col2,appid_col,appid_com_col;
     @FXML
-    private TableColumn<AppData, String> appname_col, appname_col2,name_col2;
+    private TableColumn<AppData, String> appname_col, appname_col2,name_col2,apppname_col,appname_com_col;
     @FXML
     private TableColumn<AppData, Boolean> adsupported_col;
     @FXML
@@ -72,7 +81,7 @@ public class Admin implements Initializable {
     @FXML
     private TableColumn<AppData, Date> released_col;
     @FXML
-    private TableColumn<AppData, String> cat_col;
+    private TableColumn<AppData, String> cat_col,category_col;
     @FXML
     private TableColumn<MostPopCat, String> cate_col3;
     @FXML
@@ -92,9 +101,6 @@ public class Admin implements Initializable {
     @FXML
     private TableColumn<MostPopCat, String> name_col3;
 
-
-    UserNeo4jManager userneo=new UserNeo4jManager();
-    AppNeo4jManager appneo=new AppNeo4jManager();
     @FXML private Label appid;
     int page = 0;
     int p = 0;
@@ -108,13 +114,7 @@ public class Admin implements Initializable {
             JOptionPane.showMessageDialog(null, "Fields required");
         } else {
             // Apps app = new Apps();
-            it.unipi.softgram.entities.App app=new it.unipi.softgram.entities.App();
-            //neo4j
-            /*entities.App app1 = new entities.App();
-            AppNeo4jManager appneo=new AppNeo4jManager();
-            User user=new User();
-            user.setUsername(appid.getText().toString());
-            */
+            App app=new App();
             User user=new User();
             user.setUsername(appid.getText());
             user.setEmail(dev_email.getText());
@@ -131,12 +131,12 @@ public class Admin implements Initializable {
             app.setPrice(Double.parseDouble(price.getText()));
             app.setRatingCount(Integer.parseInt(ratingcount.getText()));
             app.setDeveloper(user);
-            /*neo4j
-            appneo.addApp(app1,user);
-            */
-
             AppMongoNeo4jManager app1=new AppMongoNeo4jManager();
             app1.addApp(app, user);
+            //this function
+            AppNeo4jManager neo = new AppNeo4jManager();
+            neo.followOrDevelopApp(user, app, Relation.RelationType.DEVELOP);
+
             JOptionPane.showMessageDialog(null, "Added Successfully");
         }
     }
@@ -150,12 +150,18 @@ public class Admin implements Initializable {
                 );
         app_purchase.getItems().addAll(options);
         ad_supported.getItems().addAll(options);
-        commonapps();
+       // commonapps();
         suggestedusers();
+        suggestedapps();
+        commonapps();
+        fav_catfun();
+        appoffollowers();
         appid.setVisible(false);
+        FollowAppButtonToTable();
+        FollowUserButtonToTable();
+        followerappsfun();
 
-        applist.setOrientation(Orientation.HORIZONTAL);
-        userlist.setOrientation(Orientation.HORIZONTAL);
+
         app_id_col.setCellValueFactory(new PropertyValueFactory<>("_id"));
         appname_col.setCellValueFactory(new PropertyValueFactory<>("name"));
         adsupported_col.setCellValueFactory(new PropertyValueFactory<>("adSupported"));
@@ -168,6 +174,17 @@ public class Admin implements Initializable {
 
         is_purchasesCol.setCellValueFactory(new PropertyValueFactory<>("inAppPurchase"));
 
+        //suggested apps (Common)
+        appid_col.setCellValueFactory(new PropertyValueFactory<>("_id"));
+        apppname_col.setCellValueFactory(new PropertyValueFactory<>("name"));
+        category_col.setCellValueFactory(new PropertyValueFactory<>("category"));
+
+        //common
+        appid_com_col.setCellValueFactory(new PropertyValueFactory<>("_id"));
+        appname_com_col.setCellValueFactory(new PropertyValueFactory<>("name"));
+
+        //suggested users
+        username_col.setCellValueFactory(new PropertyValueFactory<>("username"));
 
         app_id_col2.setCellValueFactory(new PropertyValueFactory<>("_id"));
         appname_col2.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -186,7 +203,7 @@ public class Admin implements Initializable {
         findApp("");
         deleteButtonToTable();
         updateButtonToTable();
-        //MostPopularApps();
+        MostPopularApps();
 
         search_table.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -200,6 +217,7 @@ public class Admin implements Initializable {
 
                         //Get controller of scene2
                         appid.setText(search_table.getSelectionModel().getSelectedItem().get_id());
+                        System.out.println(appid.getText());
                         ApplicationMain scene2Controller = loader.getController();
                         //Pass whatever data you want. You can have multiple method calls here
                         scene2Controller.transferMessage(appid.getText());
@@ -282,22 +300,7 @@ public class Admin implements Initializable {
         appid.setText(message);
         app_id=message;
 
-       /*ObservableList<String> useritems = FXCollections.observableArrayList();
-       ObservableList<String> appitems = FXCollections.observableArrayList();
-        ArrayList suggesteduser= (ArrayList) userneo.browseSuggestedUsers(app_id,10);
-        ArrayList suggestedapp= (ArrayList) userneo.browseSuggestedUsers(app_id,10);
-        for (int i=0; i<suggesteduser.size();i++)
-        {
-            useritems.get(0);
-            useritems.add((String) suggesteduser.get(0));
-        }
-        userlist.setItems(useritems);
-        for (int i=0; i<suggestedapp.size();i++)
-        {
-            appitems.get(0);
-            appitems.add((String) suggestedapp.get(0));
-        }
-        applist.setItems(appitems);*/
+       System.out.println(appid.getText());
     }
 
     public void add_function(ActionEvent actionEvent) {
@@ -341,7 +344,7 @@ public class Admin implements Initializable {
                 // System.out.println(document);
                 String name = (String) document.get("name");
                 String _id = (String) document.get("_id");
-                double adsupported = (double) document.get("adSupported");
+               // double adsupported = (double) document.get("adSupported");
                 String lastupdated = (String) document.get("name");
                 Double price = (Double) document.get("price");
                 String category = (String) document.get("category");
@@ -351,7 +354,7 @@ public class Admin implements Initializable {
                 app_data_array.add(new AppData(
                         name,
                         _id,
-                        adsupported,
+                        0.0,
                         lastupdated1,
                         price,
                         category,
@@ -408,18 +411,12 @@ public class Admin implements Initializable {
 
                             int dialogButton = JOptionPane.YES_NO_OPTION;
                             int dialogResult = JOptionPane.showConfirmDialog(null, "Would You Like to remove this application?", "Removing", dialogButton);
-                            MongoDriver driver = new MongoDriver();
-                            MongoCollection<Document> collection = driver.getCollection("app");
-
                             if (dialogResult == JOptionPane.YES_OPTION) {
                                 // Saving code here
                                 AppMongoNeo4jManager app=new AppMongoNeo4jManager();
                                 it.unipi.softgram.entities.App app_id=new it.unipi.softgram.entities.App();
                                 app_id.setId(getTableView().getItems().get(getIndex()).get_id());
                                 app.removeApp(app_id);
-                               /* Document query = new Document();
-                                query.append("_id", getTableView().getItems().get(getIndex()).get_id());
-                                collection.deleteOne(query);*/
                                 JOptionPane.showMessageDialog(null, "Removed Successfully");
                                 ClearTable(search_table);
                                 findApp("");
@@ -493,7 +490,7 @@ public class Admin implements Initializable {
                                 public void handle(ActionEvent event) {
 
                                     AppMongoNeo4jManager app=new AppMongoNeo4jManager();
-                                    it.unipi.softgram.entities.App app1=new it.unipi.softgram.entities.App();
+                                    App app1=new App();
                                     app1.setId(getTableView().getItems().get(getIndex()).get_id());
                                     app1.setName(appname.getText().toString());
                                     app1.setCategory(category1.getText().toString());
@@ -576,7 +573,7 @@ public class Admin implements Initializable {
                 app_data_array2.add(new AppData(
                         name,
                         _id,
-                        0.0,
+                        1.0,
                         "",
                         0,
                         "",
@@ -657,6 +654,9 @@ public class Admin implements Initializable {
                     String category = (String) document.get("category");
                     double avg = (Double) document.get("Avg");
 
+                    if(avg == 0){
+                        avg=0.0;
+                    }
 
                     boolean apppurchases = true;
                     app_data_array1.add(new MostPopCat(
@@ -871,80 +871,179 @@ public class Admin implements Initializable {
         }
 
     }
-    /*
+
       public  void suggestedapps(){
           AppNeo4jManager app=new AppNeo4jManager();
-          ArrayList<String> data=
-                  (ArrayList<String>) app.browseCommonApps();
+          List<App> data= app.browseCommonApps();
           ObservableList<String> items = FXCollections.observableArrayList();
-          for (int i=0; i<data.size();i++)
-          {
-              items.add(data.get(0));
+          String _id="";
+          String name = "";
+          String category="";
+          for (App a: data){
+              items.add(a.toAppDocument().get("_id") +" "+ a.toAppDocument().get("name"));
+               _id= (String) a.toAppDocument().get("_id");
+               name= (String) a.toAppDocument().get("name");
+               category= (String) a.toAppDocument().get("category");
+              suggestedapp.add(new AppData(
+                      name,
+                      _id,
+                      0.0,
+                      "",
+                      0.0,
+                      category,
+                      "",
+                      "",
+                      true, 0, 0.0));
           }
-          applist.setItems(items);
-      }
-      */
+
+
+
+          suggestedapps_table.setItems(null);
+          suggestedapps_table.setItems(suggestedapp);
+    }
+
     public void suggestedusers(){
         UserNeo4jManager user=new UserNeo4jManager();
-        ArrayList<String> data=
-                (ArrayList<String>) user.browseSuggestedUsers("",10);
+
+        List<String> data= user.browseSuggestedUsers("Young Kim",10);
         ObservableList<String> items = FXCollections.observableArrayList();
         for (int i=0; i<data.size();i++)
         {
-            items.add(data.get(0));
+            items.add(data.get(i));
+            suggestedusers.add(new Userdata(
+                    data.get(i),"","","","",""
+                    ));
         }
-        userlist.setItems(items);
+        suggesteduser_table.setItems(null);
+        suggesteduser_table.setItems(suggestedusers);
+
     }
 
 
     public void commonapps(){
-        AppNeo4jManager user=new AppNeo4jManager();
-        User u=new User();
-        u.setUsername(favtxt.getText());
-        ArrayList<it.unipi.softgram.entities.App> data = (ArrayList<it.unipi.softgram.entities.App>) user.browseCommonApps();
+        AppNeo4jManager app=new AppNeo4jManager();
+        List<App> data= app.browseCommonApps();
         ObservableList<String> items = FXCollections.observableArrayList();
-        for (int i=0; i<data.size();i++)
-        {
-            items.add(String.valueOf(data.get(0)));
+        String _id="";
+        String name = "";
+        String category="";
+        for (App a: data){
+            items.add(a.toAppDocument().get("_id") +" "+ a.toAppDocument().get("name"));
+            _id= (String) a.toAppDocument().get("_id");
+            name= (String) a.toAppDocument().get("name");
+            category= (String) a.toAppDocument().get("category");
+            commonapp.add(new AppData(
+                    name,
+                    _id,
+                    0.0,
+                    "",
+                    0.0,
+                    category,
+                    "",
+                    "",
+                    true, 0, 0.0));
         }
-        listcommon.setItems(items);
+
+
+
+        commonapp_table.setItems(null);
+        commonapp_table.setItems(commonapp);
     }
     //neo4j
     public void Followedapps(ActionEvent actionEvent) {
-        AppNeo4jManager user=new AppNeo4jManager();
+
+        AppNeo4jManager app=new AppNeo4jManager();
         User u=new User();
-        u.setUsername(favtxt.getText());
-        ArrayList<it.unipi.softgram.entities.App> data = (ArrayList<it.unipi.softgram.entities.App>) user.browseFollowedApps(u);
+        u.setUsername(followertxt1.getText().toString());
+        List<App> data= app.browseFollowedApps(u);
         ObservableList<String> items = FXCollections.observableArrayList();
-        for (int i=0; i<data.size();i++)
-        {
-            items.add(String.valueOf(data.get(0)));
+        if(data.isEmpty()){
+            items.add("No data");
         }
+        for (App a: data){
+            items.add((String) a.toAppDocument().get("_id"));
+
+        }
+
         listfav11.setItems(items);
     }
-    //neo4j
-    public void app_of_followers(ActionEvent actionEvent) {
-        AppNeo4jManager user=new AppNeo4jManager();
+    public void followerappsfun(){
+        AppNeo4jManager app=new AppNeo4jManager();
         User u=new User();
-        u.setUsername(favtxt.getText());
-        ArrayList<it.unipi.softgram.entities.App> data = (ArrayList<it.unipi.softgram.entities.App>) user.browseAppsOfFollowers(u);
+        u.setUsername(appid.getText().toString());
+        List<App> data= app.browseFollowedApps(u);
         ObservableList<String> items = FXCollections.observableArrayList();
-        for (int i=0; i<data.size();i++)
-        {
-            items.add(String.valueOf(data.get(0)));
+        if(data.isEmpty()){
+            items.add("No data");
+        }
+        for (App a: data){
+            items.add((String) a.toAppDocument().get("_id"));
+
+        }
+
+        listfav11.setItems(items);
+    }
+            //neo4j
+    public void app_of_followers(ActionEvent actionEvent) {
+
+        AppNeo4jManager app=new AppNeo4jManager();
+        User u=new User();
+        u.setUsername(followertxt.getText().toString());
+        List<App> data= app.browseAppsOfFollowers(u);
+        ObservableList<String> items = FXCollections.observableArrayList();
+        if(data.isEmpty()){
+            items.add("No data");
+        }
+        for (App a: data){
+            items.add((String) a.toAppDocument().get("_id"));
+
+        }
+        listfav1.setItems(items);
+    }
+    public void appoffollowers(){
+        AppNeo4jManager app=new AppNeo4jManager();
+        User u=new User();
+        u.setUsername(appid.getText().toString());
+        List<App> data= app.browseAppsOfFollowers(u);
+        ObservableList<String> items = FXCollections.observableArrayList();
+        if(data.isEmpty()){
+            items.add("No data");
+        }
+        for (App a: data){
+            items.add((String) a.toAppDocument().get("_id"));
+
         }
         listfav1.setItems(items);
     }
     //neo4j
     public void fav_cat(ActionEvent actionEvent) {
-        AppNeo4jManager user=new AppNeo4jManager();
+        AppNeo4jManager app=new AppNeo4jManager();
         User u=new User();
-        u.setUsername(favtxt.getText());
-        ArrayList<it.unipi.softgram.entities.App> data = (ArrayList<it.unipi.softgram.entities.App>) user.browseFavoriteCategory(u);
+        u.setUsername(favtxt.getText().toString());
+        List<App> data= app.browseFavoriteCategory(u);
         ObservableList<String> items = FXCollections.observableArrayList();
-        for (int i=0; i<data.size();i++)
-        {
+        if(data.isEmpty()){
+            items.add("No data");
+        }
+        for (App a: data){
+            items.add((String) a.toAppDocument().get("_id"));
+
+        }
+
+        listfav.setItems(items);
+    }
+    public void fav_catfun(){
+        AppNeo4jManager app=new AppNeo4jManager();
+        User u=new User();
+        u.setUsername(appid.getText());
+        List<App> data= app.browseFavoriteCategory(u);
+        ObservableList<String> items = FXCollections.observableArrayList();
+        if(data.isEmpty()){
+            items.add("No data");
+        }
+        for (App a: data){
             items.add(String.valueOf(data.get(0)));
+
         }
         listfav.setItems(items);
     }
@@ -971,5 +1070,116 @@ public class Admin implements Initializable {
             ex.printStackTrace();
         }
     }
+    private void FollowAppButtonToTable() {
+        TableColumn<AppData, Void> colBtn = new TableColumn("Follow");
+
+        Callback<TableColumn<AppData, Void>, TableCell<AppData, Void>> cellFactory = new Callback<TableColumn<AppData, Void>, TableCell<AppData, Void>>() {
+            @Override
+            public TableCell<AppData, Void> call(final TableColumn<AppData, Void> param) {
+                final TableCell<AppData, Void> cell = new TableCell<AppData, Void>() {
+
+                    private final Button btn = new Button("Follow");
+
+                    {
+                        btn.setOnAction((ActionEvent event) -> {
+                            AppNeo4jManager app=new AppNeo4jManager();
+                            User user=new User();
+                            App app1=new App();
+                            user.setUsername(appid.getText().toString());
+                            app1.setId(getTableView().getItems().get(getIndex()).get_id());
+                            if(btn.getText().equals("Follow")){
+                            app.followOrDevelopApp(user,app1, Relation.RelationType.FOLLOW);
+                            JOptionPane.showMessageDialog(null, "You followed this app");
+                            btn.setText("Unfollow");
+                            ClearTable(suggestedapps_table);
+                            suggestedapps();}else{
+                                app.unfollowApp(user,app1);
+                                JOptionPane.showMessageDialog(null, "You unfollowed this app");
+                                btn.setText("Follow");
+                                ClearTable(suggestedapps_table);
+                                suggestedapps();
+                            }
+
+                        });
+                    }
+
+                    @Override
+                    public void updateItem(Void item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty) {
+                            setGraphic(null);
+                        } else {
+                            setGraphic(btn);
+                        }
+                    }
+                };
+                return cell;
+            }
+        };
+
+        colBtn.setCellFactory(cellFactory);
+
+        suggestedapps_table.getColumns().add(colBtn);
+
+    }
+
+
+
+    private void FollowUserButtonToTable() {
+        TableColumn<Userdata, Void> colBtn = new TableColumn("Follow");
+
+        Callback<TableColumn<Userdata, Void>, TableCell<Userdata, Void>> cellFactory = new Callback<TableColumn<Userdata, Void>, TableCell<Userdata, Void>>() {
+            @Override
+            public TableCell<Userdata, Void> call(final TableColumn<Userdata, Void> param) {
+                final TableCell<Userdata, Void> cell = new TableCell<Userdata, Void>() {
+
+                    private final Button btn = new Button("Follow");
+
+                    {
+                        btn.setOnAction((ActionEvent event) -> {
+                            AppNeo4jManager app=new AppNeo4jManager();
+                            User user=new User();
+                            App app1=new App();
+                            user.setUsername(appid.getText().toString());
+                            app1.setId(getTableView().getItems().get(getIndex()).getUsername());
+                            if(btn.getText().equals("Follow")){
+                                app.followOrDevelopApp(user,app1, Relation.RelationType.FOLLOW);
+                                JOptionPane.showMessageDialog(null, "You followed this app");
+                                btn.setText("Unfollow");
+                                ClearTable(suggestedapps_table);
+                                suggestedapps();}else{
+                                app.unfollowApp(user,app1);
+                                JOptionPane.showMessageDialog(null, "You unfollowed this app");
+                                btn.setText("Follow");
+                                ClearTable(suggestedapps_table);
+                                suggestedapps();
+                            }
+
+                        });
+                    }
+
+                    @Override
+                    public void updateItem(Void item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty) {
+                            setGraphic(null);
+                        } else {
+                            setGraphic(btn);
+                        }
+                    }
+                };
+                return cell;
+            }
+        };
+
+        colBtn.setCellFactory(cellFactory);
+
+        suggesteduser_table.getColumns().add(colBtn);
+
+    }
+
+
+
+
 }
 

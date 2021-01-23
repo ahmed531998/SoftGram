@@ -2,6 +2,7 @@ package it.unipi.softgram.org.example;
 
 import com.mongodb.client.MongoCollection;
 import it.unipi.softgram.controller.mongo.UserMongoManager;
+import it.unipi.softgram.controller.neo4j.UserNeo4jManager;
 import it.unipi.softgram.entities.User;
 import it.unipi.softgram.utilities.drivers.MongoDriver;
 import javafx.event.ActionEvent;
@@ -101,8 +102,7 @@ public class Usermainpage implements Initializable {
     public void updatefun(ActionEvent actionEvent) {
 
 
-        MongoDriver driver = new MongoDriver();
-        MongoCollection<Document> collection = driver.getCollection("users");
+
         String _id = name_tfield.getText();
         String email = email_tfield.getText();
         String role = role_tfield.getText();
@@ -116,21 +116,15 @@ public class Usermainpage implements Initializable {
         javafx.scene.control.TextField websitetxt = new javafx.scene.control.TextField(website);
         javafx.scene.control.Button update = new Button("Update");
         update.setOnAction(event -> {
-
-            Document query = new Document();
-
-            query.append("_id", user.getUsername());
-            Document setData = new Document();
-            setData.append("_id", username.getText())
-                    .append("role", roletxt.getText())
-                    .append("email", emailtxt.getText())
-                    .append("website", websitetxt.getText())
-            ;
-            Document update1 = new Document();
-            update1.append("$set", setData);
-            //To update single Document
-            collection.updateOne(query, update1);
+            UserMongoManager user=new UserMongoManager();
+            User user1=new User();
+            user1.setUsername(username.getText());
+            user1.setEmail(emailtxt.getText());
+            user1.setRole(roletxt.getText());
+            user1.setRole(websitetxt.getText());
+            user.updateUser(user1);
             JOptionPane.showMessageDialog(null, "Updated Successfully");
+
 
             name_tfield.setText("");
             role_tfield.setText("");
@@ -172,9 +166,9 @@ public class Usermainpage implements Initializable {
     public void followfun(ActionEvent actionEvent) {
         System.out.println(user.getUsername());
         //neo4j
-        /*UserNeo4jManager useneo=new UserNeo4jManager();
-        useneo.addFollow(user.getUsername(), user.getUsername(), false);
-        JOptionPane.showMessageDialog(null, "You followed this user");*/
+        UserNeo4jManager useneo=new UserNeo4jManager();
+        useneo.addFollow(app_id, user.getUsername(), false);
+        JOptionPane.showMessageDialog(null, "You followed this user");
     }
 
     @Override

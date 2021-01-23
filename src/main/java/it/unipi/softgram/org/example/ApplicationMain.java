@@ -1,15 +1,23 @@
 package it.unipi.softgram.org.example;
 
 import com.mongodb.client.MongoCollection;
+import it.unipi.softgram.controller.mongo.AppMongoManager;
+import it.unipi.softgram.controller.mongoneo4j.AppMongoNeo4jManager;
+import it.unipi.softgram.controller.neo4j.AppNeo4jManager;
+import it.unipi.softgram.entities.App;
 import it.unipi.softgram.entities.Review;
+import it.unipi.softgram.entities.User;
 import it.unipi.softgram.utilities.drivers.MongoDriver;
+import it.unipi.softgram.utilities.enumerators.Relation;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
@@ -32,6 +40,7 @@ public class ApplicationMain  implements Initializable {
     @FXML
     private Text appname,appid,released, price, currency,agegroup,currency1,size;
 
+    @FXML Button follow;
     @FXML private Text developerid;
     @FXML
     private Text name_txt,released_txt,last_txt,developeremail,developerweb;
@@ -59,23 +68,35 @@ public class ApplicationMain  implements Initializable {
         findApp(message);
     }
     public void home_fun(ActionEvent actionEvent) {
-        Stage stage = (Stage) home.getScene().getWindow();
-        // do what you have to do
-        stage.close();
         try {
-            it.unipi.softgram.org.example.App.setRoot("admin");
-        } catch (IOException e) {
-            e.printStackTrace();
+            //Load second scene
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("Admin.fxml"));
+            Parent root = loader.load();
+
+            //Get controller of scene2
+
+            Admin scene2Controller = loader.getController();
+            //Pass whatever data you want. You can have multiple method calls here
+            scene2Controller.transferMessage(appid.getText());
+
+            //Show scene 2 in new window
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Admin Window");
+            stage.show();
+            ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
     public void findApp(String text){
         MongoDriver driver = new MongoDriver();
-        MongoCollection<Document> collection = driver.getCollection("apps");
+        MongoCollection<Document> collection = driver.getCollection("app");
 
         // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
 
         Consumer<Document> processBlock = document -> {
-            //System.out.println(document);
+            System.out.println(document);
             String name = (String) document.get("name");
             System.out.println(name);
             Double price1 = (Double) document.get("price");
@@ -163,9 +184,6 @@ public class ApplicationMain  implements Initializable {
     }
 
     public void updateApp(ActionEvent actionEvent) {
-        MongoDriver driver = new MongoDriver();
-        MongoCollection<Document> collection = driver.getCollection("apps");
-
         double price1 = Double.parseDouble(price.getText());
         String name = name_txt.getText();
         String category1 = currency1.getText();
@@ -180,22 +198,15 @@ public class ApplicationMain  implements Initializable {
         update.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-
-                Document query = new Document();
-                query.append("_id", app_id);
-                Document setData = new Document();
-                setData.append("name", appname.getText())
-                        .append("price", Double.parseDouble(price11.getText()))
-                        .append("category", category11.getText())
-                        .append("ageGroup", agegroup.getText())
-                ;
-                Document update = new Document();
-                update.append("$set", setData);
-                //To update single Document
-                collection.updateOne(query, update);
+                AppMongoManager app=new AppMongoManager();
+                App app1=new App();
+                app1.setId(app_id);
+                app1.setName(appname.getText());
+                app1.setPrice(Double.parseDouble(price11.getText()));
+                app1.setCategory(category11.getText());
+                app1.setAgeGroup(agegroup.getText());
+                app.updateApp(app1);
                 JOptionPane.showMessageDialog(null, "Updated Successfully");
-
-
             }
         });
 
@@ -215,17 +226,36 @@ public class ApplicationMain  implements Initializable {
 
         int dialogButton = JOptionPane.YES_NO_OPTION;
         int dialogResult = JOptionPane.showConfirmDialog(null, "Would You Like to remove this application?", "Removing", dialogButton);
-        MongoDriver driver = new MongoDriver();
-        MongoCollection<Document> collection = driver.getCollection("apps");
+        ;
 
         if (dialogResult == JOptionPane.YES_OPTION) {
             // Saving code here
-            Document query = new Document();
-            query.append("_id", app_id);
-            collection.deleteOne(query);
+            AppMongoNeo4jManager app=new AppMongoNeo4jManager();
+            App app_idd=new App();
+            app_idd.setId(app_id);
+            app.removeApp(app_idd);
             JOptionPane.showMessageDialog(null, "Removed Successfully");
             ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
 
         }
+    }
+
+    public void FollowApp(ActionEvent actionEvent) {
+        AppNeo4jManager app=new AppNeo4jManager();
+        User user=new User();
+        App app1=new App();
+        user.setUsername(appid.getText().toString());
+        app1.setId(app_id);
+
+           if(follow.getText().equals("Follow")) {
+               app.followOrDevelopApp(user, app1, Relation.RelationType.FOLLOW);
+               JOptionPane.showMessageDialog(null, "You followed this app");
+               follow.setText("Unfollow");
+           }else {
+               app.unfollowApp(user,app1);
+               JOptionPane.showMessageDialog(null, "You unfollowed this app");
+               follow.setText("Follow");
+           }
+
     }
 }

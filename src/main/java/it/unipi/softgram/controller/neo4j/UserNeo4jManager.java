@@ -1,5 +1,6 @@
 package it.unipi.softgram.controller.neo4j;
 
+import it.unipi.softgram.entities.User;
 import it.unipi.softgram.utilities.drivers.Neo4jDriver;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
@@ -172,6 +173,21 @@ public class UserNeo4jManager {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public boolean relationUserUserExists(User u1, User u2){
+        try (Session session = neo4jDriver.getSession()){
+            return session.readTransaction(tx ->{
+                Result result = tx.run("MATCH (u1:User), (u2:User) WHERE u1.username = $username1 AND u2.username = $username2 " +
+                                "RETURN EXISTS ((u1)-[:FOLLOW]->(u2)) ",
+                        parameters("username1",u1.getUsername(), "username2", u2.getUsername()));
+                return result.next().get("EXISTS ((u1)-[:FOLLOW]->(u2))").asBoolean();
+            });
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }
