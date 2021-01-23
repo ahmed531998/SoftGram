@@ -2,6 +2,7 @@ package it.unipi.softgram.org.example;
 
 import com.mongodb.client.MongoCollection;
 import it.unipi.softgram.controller.mongo.AppMongoManager;
+import it.unipi.softgram.controller.mongo.ReviewMongoManager;
 import it.unipi.softgram.controller.mongoneo4j.AppMongoNeo4jManager;
 import it.unipi.softgram.controller.neo4j.AppNeo4jManager;
 import it.unipi.softgram.entities.App;
@@ -20,6 +21,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -28,6 +30,7 @@ import javafx.stage.Stage;
 import org.bson.BsonRegularExpression;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.neo4j.driver.exceptions.NoSuchRecordException;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -45,7 +48,10 @@ public class ApplicationMain  implements Initializable {
     @FXML
     private Text name_txt,released_txt,last_txt,developeremail,developerweb;
     @FXML private Button home;
+    @FXML
+    Label userid;
     String app_id;
+    AppNeo4jManager app=new AppNeo4jManager();
     @FXML
     ListView<String> list = new ListView<>();
     ObservableList<Review> Reviews = FXCollections.observableArrayList();
@@ -56,7 +62,22 @@ public class ApplicationMain  implements Initializable {
 
        // findApp(app_id);
 
+        App app1=new App();
+        User user=new User();
+        app1.setId(appid.getText());
+        user.setUsername(userid.getText());
+        try {
+            boolean result = app.relationFollowUserAppExists(user, app1);
 
+            if (result == false) {
+                follow.setText("Follow");
+            } else {
+                follow.setText("UnFollow");
+            }
+        }catch (NoSuchRecordException e){
+
+        }
+       showReviews();
 
 
     }
@@ -66,6 +87,13 @@ public class ApplicationMain  implements Initializable {
         appid.setText(message);
         app_id=message;
         findApp(message);
+
+
+    }
+    public void transferMessage1(String message) {
+        //Display the message
+        userid.setText(message);
+
     }
     public void home_fun(ActionEvent actionEvent) {
         try {
@@ -96,7 +124,7 @@ public class ApplicationMain  implements Initializable {
         // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
 
         Consumer<Document> processBlock = document -> {
-            System.out.println(document);
+
             String name = (String) document.get("name");
             System.out.println(name);
             Double price1 = (Double) document.get("price");
@@ -123,41 +151,7 @@ public class ApplicationMain  implements Initializable {
             developerweb.setText(developerWeb1);
             developerid.setText(developerID);
 
-            ArrayList review= (ArrayList) document.get("reviews");
-            try {
-                ObservableList<String> items = FXCollections.observableArrayList();
-                if(review.isEmpty()) {
-                    items.add("No Review");
-                    list.setItems(items);
-                }else{
-                    int j=0;
 
-                    for (int i=0; i<review.size();i++)
-                    {
-                        review.get(0);
-                        Document reviewdata= (Document)  review.get(0);
-                        Document content= (Document) reviewdata.get("review");
-
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                        String review_date = sdf.format((Date) content.get("date"));
-
-                        items.add(reviewdata.get("score") +"\n"+ content.get("content") +"\n" + review_date +"\n" + reviewdata.get("username") );
-                        if(j >10)  {
-                            break;
-                        }
-                        j++;
-                    }
-                    list.setItems(items);
-
-
-                  System.out.println("here");
-                }
-            }catch (NullPointerException e){
-                ObservableList<String> items = FXCollections.observableArrayList(
-                        "No review");
-                list.setItems(items);
-                e.printStackTrace();
-            }
 
         };
 
@@ -257,5 +251,37 @@ public class ApplicationMain  implements Initializable {
                follow.setText("Follow");
            }
 
+    }
+    public  void showReviews(){
+        ReviewMongoManager review=new ReviewMongoManager();
+      //  List<Review> data= review.showReviewsOfApp(appid.getText().toString(), 0);
+        ObservableList<String> items = FXCollections.observableArrayList();
+        MongoDriver driver = new MongoDriver();
+        MongoCollection<Document> collection = driver.getCollection("review");
+        // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
+
+        Consumer<Document> processBlock = new Consumer<Document>() {
+            @Override
+            public void accept(Document document) {
+                System.out.println(document);
+                items.add((String) document.get("content"));
+                list.setItems(items);
+            }
+        };
+
+        List<? extends Bson> pipeline = Arrays.asList(
+                new Document()
+                        .append("$match", new Document()
+                                .append("appId", "com.com2us.golfstarworldtour.normal.freefull.google.global.android.common")
+                        ),
+                new Document()
+                        .append("$skip", 0.0),
+                new Document()
+                        .append("$limit", 10.0)
+        );
+
+        collection.aggregate(pipeline)
+                .allowDiskUse(false)
+                .forEach(processBlock);
     }
 }

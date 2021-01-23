@@ -117,11 +117,11 @@ public class ReviewMongoManager {
     }
 
     public List<Review> showReviews(Bson entityFilter, int skip) {
-        Bson sort = sort(descending("date"));
+        Bson sort = sort(descending("_id"));
         try {
             MongoCollection<Document> reviewCollection = driver.getCollection("review");
             List<Document> output = reviewCollection.find(and(entityFilter))
-                    .sort(sort).skip(skip).limit(50)
+                    .skip(skip).limit(10)
                     .into(new ArrayList<>());
             List<Review> reviews = new ArrayList<>();
             Review review = new Review();

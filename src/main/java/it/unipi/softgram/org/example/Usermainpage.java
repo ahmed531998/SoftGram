@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 import org.bson.BsonRegularExpression;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.neo4j.driver.exceptions.NoSuchRecordException;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -31,16 +32,23 @@ public class Usermainpage implements Initializable {
 
     //@FXML private Label AppID;
     @FXML private Text name_tfield, email_tfield, web_tfield, role_tfield;
-    String app_id;
+
     @FXML Button followbtn,home;
     User user=new User();
+    User user2=new User();
+    String username1="";
 
     public void transferMessage(String message) {
        // AppID.setText(message);
 
         user.setUsername(message);
-        app_id=message;
+
         findUsers(message);
+    }
+    public void transferMessage1(String message) {
+        // AppID.setText(message);
+        user2.setUsername(message);
+        username1=message;
     }
     public void findUsers(String text){
         MongoDriver driver = new MongoDriver();
@@ -167,12 +175,25 @@ public class Usermainpage implements Initializable {
         System.out.println(user.getUsername());
         //neo4j
         UserNeo4jManager useneo=new UserNeo4jManager();
-        useneo.addFollow(app_id, user.getUsername(), false);
+
+        useneo.addFollow(username1, user.getUsername(), false);
         JOptionPane.showMessageDialog(null, "You followed this user");
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
+        UserNeo4jManager userr=new UserNeo4jManager();
+        try {
+            boolean result = userr.relationUserUserExists(user, user2);
+
+            if (result == false) {
+                followbtn.setText("Follow");
+            } else {
+                followbtn.setText("UnFollow");
+            }
+        }catch (NoSuchRecordException e){
+
+        }
     }
 }

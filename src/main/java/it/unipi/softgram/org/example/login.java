@@ -23,7 +23,7 @@ public class login {
     @FXML private TextField username;
     @FXML private PasswordField passwordField;
     @FXML private Label msg;
-    @FXML private Label appid;
+    @FXML private Label userid;
 
     public void loginbtn(ActionEvent actionEvent) {
         if(username.getText().isEmpty() || passwordField.getText().isEmpty()){
@@ -49,10 +49,10 @@ public class login {
                     Parent root = loader.load();
 
                     //Get controller of scene2
-                    appid.setText(username.getText());
+                    userid.setText(username.getText());
                     Admin scene2Controller = loader.getController();
                     //Pass whatever data you want. You can have multiple method calls here
-                    scene2Controller.transferMessage(appid.getText());
+                    scene2Controller.transferMessage(userid.getText());
 
                     //Show scene 2 in new window
                     Stage stage = new Stage();

@@ -3,12 +3,15 @@ package it.unipi.softgram.org.example;
 import com.mongodb.client.MongoCollection;
 import it.unipi.softgram.controller.mongo.UserMongoManager;
 import it.unipi.softgram.controller.mongoneo4j.UserMongoNeo4jManager;
+import it.unipi.softgram.controller.neo4j.AppNeo4jManager;
 import it.unipi.softgram.controller.neo4j.UserNeo4jManager;
+import it.unipi.softgram.entities.App;
 import it.unipi.softgram.entities.Review;
 import it.unipi.softgram.entities.User;
 import it.unipi.softgram.table_chooser.AppData;
 import it.unipi.softgram.table_chooser.Userdata;
 import it.unipi.softgram.utilities.drivers.MongoDriver;
+import it.unipi.softgram.utilities.enumerators.Relation;
 import it.unipi.softgram.utilities.enumerators.Role;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -29,6 +32,7 @@ import javafx.util.Callback;
 import org.bson.BsonRegularExpression;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.neo4j.driver.exceptions.NoSuchRecordException;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -57,9 +61,11 @@ public class Users implements Initializable {
         private DatePicker birth;
         @FXML
         private ComboBox request;
-        @FXML private Label appid;
+        @FXML private Label userid,userid1;
         ObservableList<Userdata> userdata = FXCollections.observableArrayList();
-        @FXML
+        ObservableList<Userdata> suggestedusers = FXCollections.observableArrayList();
+
+    @FXML
         TableView<Userdata> user_table;
         @FXML
         private TableColumn<AppData, String> userid_col;
@@ -68,7 +74,10 @@ public class Users implements Initializable {
         @FXML
         private TableColumn<AppData, String> email_col;
 
-        String app_id;
+        @FXML TableView<Userdata> suggesteduser_table;
+        @FXML private TableColumn<Userdata, String> username_col;
+
+    String app_id;
         @Override
         public void initialize(URL url, ResourceBundle resourceBundle) {
             ObservableList<String> options =
@@ -82,6 +91,17 @@ public class Users implements Initializable {
             email_col.setCellValueFactory(new PropertyValueFactory<>("email"));
 
 
+            //suggested users
+
+            username_col.setCellValueFactory(new PropertyValueFactory<>("username"));
+
+            suggestedusers();
+            FollowUserButtonToTable();
+            followedSearch();
+            actualSearch();
+            followrequestfun();
+            folowcommon();
+            followrequest();
             BecomeDeveloperButtonToTable();
             BecomeNormalButtonToTable();
             RemoveButtonToTable();
@@ -99,10 +119,11 @@ public class Users implements Initializable {
                             Parent root = loader.load();
 
                             //Get controller of scene2
-                            appid.setText(user_table.getSelectionModel().getSelectedItem().getUsername());
+                            userid1.setText(user_table.getSelectionModel().getSelectedItem().getUsername());
                             Usermainpage scene2Controller = loader.getController();
                             //Pass whatever data you want. You can have multiple method calls here
-                            scene2Controller.transferMessage(appid.getText());
+                            scene2Controller.transferMessage(userid.getText());
+                            scene2Controller.transferMessage1(userid1.getText());
 
                             //Show scene 2 in new window
                             Stage stage = new Stage();
@@ -117,13 +138,31 @@ public class Users implements Initializable {
                 }
             });
         }
+
         public void transferMessage(String message) {
             //Display the message
-            appid.setText(message);
-            app_id=message;
+            userid.setText(message);
 
         }
-        public void usersmainpage(ActionEvent actionEvent) {
+
+    public void suggestedusers(){
+        UserNeo4jManager user=new UserNeo4jManager();
+
+        List<String> data= user.browseSuggestedUsers("Young Kim",10);
+        ObservableList<String> items = FXCollections.observableArrayList();
+        for (int i=0; i<data.size();i++)
+        {
+            items.add(data.get(i));
+            suggestedusers.add(new Userdata(
+                    data.get(i),"","","","",""
+            ));
+        }
+        suggesteduser_table.setItems(null);
+        suggesteduser_table.setItems(suggestedusers);
+
+    }
+
+    public void usersmainpage(ActionEvent actionEvent) {
             try {
                 //Load second scene
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("users.fxml"));
@@ -133,7 +172,7 @@ public class Users implements Initializable {
 
                 Users scene2Controller = loader.getController();
                 //Pass whatever data you want. You can have multiple method calls here
-                scene2Controller.transferMessage(appid.getText());
+                scene2Controller.transferMessage(userid.getText());
 
                 //Show scene 2 in new window
                 Stage stage = new Stage();
@@ -156,7 +195,7 @@ public class Users implements Initializable {
 
                 Admin scene2Controller = loader.getController();
                 //Pass whatever data you want. You can have multiple method calls here
-                scene2Controller.transferMessage(appid.getText());
+                scene2Controller.transferMessage(userid.getText());
 
                 //Show scene 2 in new window
                 Stage stage = new Stage();
@@ -541,7 +580,7 @@ public class Users implements Initializable {
                             btn.setOnAction((ActionEvent event) -> {
                                 Userdata data = getTableView().getItems().get(getIndex());
                                 UserNeo4jManager useneo=new UserNeo4jManager();
-                                useneo.addFollow(appid.getText(), getTableView().getItems().get(getIndex()).getUsername(), false);
+                                useneo.addFollow(userid.getText(), getTableView().getItems().get(getIndex()).getUsername(), false);
                                 JOptionPane.showMessageDialog(null, "You followed this user");
                             });
                         }
@@ -579,14 +618,58 @@ public class Users implements Initializable {
 
         public void follow_serch(ActionEvent actionEvent) {
             UserNeo4jManager user=new UserNeo4jManager();
-            ArrayList<String> data=
-                    (ArrayList<String>) user.browseFollowRequests(usernametxt.getText());
+            List<String> data= user.browseFollowRequests(usernametxt.getText());
             ObservableList<String> items = FXCollections.observableArrayList();
+            if(data.isEmpty()){
+                items.add("No data");
+            }
+            for (int i=0; i<data.size();i++)
+            {
+                items.add(data.get(0));
+            }
+            listrequest.setItems(items);
+
+        }
+        public void followrequestfun(){
+            UserNeo4jManager user=new UserNeo4jManager();
+            List<String> data= user.browseFollowRequests(userid.getText());
+            ObservableList<String> items = FXCollections.observableArrayList();
+            if(data.isEmpty()){
+                items.add("No data");
+            }
+            for (int i=0; i<data.size();i++)
+            {
+                items.add(data.get(0));
+            }
+            listrequest.setItems(items);
+        }
+        public void folowcommon(){
+            //common users
+            UserNeo4jManager user=new UserNeo4jManager();
+
+            List<String> data= user.browseSuggestedUsers("Young Kim",10);
+            ObservableList<String> items = FXCollections.observableArrayList();
+            if(data.isEmpty()){
+                items.add("No data");
+            }
             for (int i=0; i<data.size();i++)
             {
                 items.add(data.get(0));
             }
             listsuggest.setItems(items);
+        }
+        public void followrequest(){
+            UserNeo4jManager user=new UserNeo4jManager();
+            List<String> data= user.browseFollowRequests(userid.getText());
+            ObservableList<String> items = FXCollections.observableArrayList();
+            if(data.isEmpty()){
+                items.add("No data");
+            }
+            for (int i=0; i<data.size();i++)
+            {
+                items.add(data.get(0));
+            }
+            listrequest.setItems(items);
 
         }
 
@@ -605,9 +688,24 @@ public class Users implements Initializable {
 
         public void actual_search(ActionEvent actionEvent) {
             UserNeo4jManager user=new UserNeo4jManager();
-            ArrayList<String> data=
-                    (ArrayList<String>) user.browseActualFollowers(actualtxt.getText());
+            List<String> data= user.browseActualFollowers(actualtxt.getText());
             ObservableList<String> items = FXCollections.observableArrayList();
+            if(data.isEmpty()){
+                items.add("No data");
+            }
+            for (int i=0; i<data.size();i++)
+            {
+                items.add(data.get(0));
+            }
+            listactual.setItems(items);
+        }
+        public void actualSearch(){
+            UserNeo4jManager user=new UserNeo4jManager();
+            List<String> data= user.browseActualFollowers(userid.getText());
+            ObservableList<String> items = FXCollections.observableArrayList();
+            if(data.isEmpty()){
+                items.add("No data");
+            }
             for (int i=0; i<data.size();i++)
             {
                 items.add(data.get(0));
@@ -618,9 +716,24 @@ public class Users implements Initializable {
         public void followed_search(ActionEvent actionEvent) {
 
             UserNeo4jManager user=new UserNeo4jManager();
-            ArrayList<String> data=
-                    (ArrayList<String>) user.browseFollowedUsers(followedtxt.getText());
+            List<String> data= user.browseFollowedUsers(followedtxt.getText());
             ObservableList<String> items = FXCollections.observableArrayList();
+            if(data.isEmpty()){
+                items.add("No data");
+            }
+            for (int i=0; i<data.size();i++)
+            {
+                items.add(data.get(0));
+            }
+            listfollowed.setItems(items);
+        }
+        public void followedSearch(){
+            UserNeo4jManager user=new UserNeo4jManager();
+            List<String> data= user.browseFollowedUsers(userid.getText());
+            ObservableList<String> items = FXCollections.observableArrayList();
+            if(data.isEmpty()){
+                items.add("No data");
+            }
             for (int i=0; i<data.size();i++)
             {
                 items.add(data.get(0));
@@ -638,7 +751,7 @@ public class Users implements Initializable {
 
                 Statistics scene2Controller = loader.getController();
                 //Pass whatever data you want. You can have multiple method calls here
-                scene2Controller.transferMessage(appid.getText());
+                scene2Controller.transferMessage(userid.getText());
 
                 //Show scene 2 in new window
                 Stage stage = new Stage();
@@ -650,4 +763,63 @@ public class Users implements Initializable {
                 ex.printStackTrace();
             }
         }
+    private void FollowUserButtonToTable() {
+        TableColumn<Userdata, Void> colBtn = new TableColumn("Follow");
+
+        Callback<TableColumn<Userdata, Void>, TableCell<Userdata, Void>> cellFactory = new Callback<TableColumn<Userdata, Void>, TableCell<Userdata, Void>>() {
+            @Override
+            public TableCell<Userdata, Void> call(final TableColumn<Userdata, Void> param) {
+                final TableCell<Userdata, Void> cell = new TableCell<Userdata, Void>() {
+
+                    private final Button btn = new Button("Follow");
+
+                    {
+                        btn.setOnAction((ActionEvent event) -> {
+                            UserNeo4jManager user1=new UserNeo4jManager();
+                            User user=new User();
+
+                            user.setUsername(userid.getText().toString());
+                            String followeduser=getTableView().getItems().get(getIndex()).getUsername();
+                            String followeruser=userid.getText();
+                            boolean request=true;
+
+
+                            if(btn.getText().equals("Follow")){
+                                user1.addFollow(followeruser,followeduser, request);
+                                JOptionPane.showMessageDialog(null, "You followed this user");
+                                btn.setText("Unfollow");
+                                ClearTable(suggesteduser_table);
+                                suggestedusers();}else{
+                                user1.removeFollow(followeruser,followeduser);
+                                JOptionPane.showMessageDialog(null, "You unfollowed this user");
+                                btn.setText("Follow");
+                                ClearTable(suggesteduser_table);
+                                suggestedusers();
+                            }
+
+                        });
+                    }
+
+                    @Override
+                    public void updateItem(Void item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty) {
+                            setGraphic(null);
+                        } else {
+                            setGraphic(btn);
+                        }
+                    }
+                };
+                return cell;
+            }
+        };
+
+        colBtn.setCellFactory(cellFactory);
+
+
+        suggesteduser_table.getColumns().add(colBtn);
+
+    }
+
+
 }

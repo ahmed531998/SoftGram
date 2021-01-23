@@ -7,17 +7,35 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.softgram.org.example.Signup">
     <children>
-        <Button fx:id="Login" layoutX="135.0" layoutY="256.0" mnemonicParsing="false" onAction="#loginbtn" prefHeight="26.0" prefWidth="51.0" text="Login" />
-        <TextField fx:id="username" layoutX="37.0" layoutY="37.0" promptText="username" />
-        <TextField fx:id="website" layoutX="37.0" layoutY="105.0" promptText="website" />
-        <TextField fx:id="email" layoutX="37.0" layoutY="70.0" promptText="email" />
-        <ComboBox fx:id="country" layoutX="36.0" layoutY="174.0" prefWidth="150.0" promptText="Country" />
-        <DatePicker fx:id="birthday" layoutX="36.0" layoutY="212.0" prefHeight="26.0" prefWidth="149.0" promptText="Birthday" />
-        <Button layoutX="36.0" layoutY="257.0" mnemonicParsing="false" onAction="#signup" text="Signup" />
-      <PasswordField fx:id="password" layoutX="38.0" layoutY="140.0" promptText="password" />
+        <Button fx:id="Login" layoutX="309.0" layoutY="316.0" mnemonicParsing="false" onAction="#loginbtn" prefHeight="31.0" prefWidth="66.0" text="Login">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font></Button>
+        <TextField fx:id="username" layoutX="224.0" layoutY="98.0" promptText="username" />
+        <TextField fx:id="website" layoutX="224.0" layoutY="166.0" promptText="website" />
+        <TextField fx:id="email" layoutX="224.0" layoutY="131.0" promptText="email" />
+        <ComboBox fx:id="country" layoutX="224.0" layoutY="231.0" prefWidth="150.0" promptText="Country" />
+        <DatePicker fx:id="birthday" layoutX="224.0" layoutY="270.0" prefHeight="26.0" prefWidth="149.0" promptText="Birthday" />
+        <Button layoutX="224.0" layoutY="316.0" mnemonicParsing="false" onAction="#signup" text="Signup">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font></Button>
+      <PasswordField fx:id="password" layoutX="226.0" layoutY="200.0" promptText="password" />
       <Label fx:id="appid" layoutX="336.0" layoutY="29.0" prefHeight="18.0" prefWidth="80.0" text="l" visible="false" />
+      <Text layoutX="94.0" layoutY="380.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Please signup to access more functionalities" textAlignment="CENTER" wrappingWidth="464.015625">
+         <font>
+            <Font size="23.0" />
+         </font>
+      </Text>
+      <Text layoutX="208.0" layoutY="56.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Signup page" textAlignment="CENTER" underline="true" wrappingWidth="179.21795654296875">
+         <font>
+            <Font size="22.0" />
+         </font>
+      </Text>
     </children>
 </AnchorPane>

@@ -41,7 +41,7 @@ import java.util.function.Consumer;
 
 public class Admin implements Initializable {
 
-    String app_id;
+   // String app_id;
 
     @FXML TextField followertxt1,followertxt;
     @FXML ListView userlist, listcommon,listfav,listfav11,listfav1;
@@ -101,7 +101,8 @@ public class Admin implements Initializable {
     @FXML
     private TableColumn<MostPopCat, String> name_col3;
 
-    @FXML private Label appid;
+
+    @FXML private Label userid,appid;
     int page = 0;
     int p = 0;
     int p1=0;
@@ -116,7 +117,7 @@ public class Admin implements Initializable {
             // Apps app = new Apps();
             App app=new App();
             User user=new User();
-            user.setUsername(appid.getText());
+            user.setUsername(userid.getText());
             user.setEmail(dev_email.getText());
             user.setWebsite(dev_web.getText());
 
@@ -156,7 +157,7 @@ public class Admin implements Initializable {
         commonapps();
         fav_catfun();
         appoffollowers();
-        appid.setVisible(false);
+        userid.setVisible(false);
         FollowAppButtonToTable();
         FollowUserButtonToTable();
         followerappsfun();
@@ -217,10 +218,13 @@ public class Admin implements Initializable {
 
                         //Get controller of scene2
                         appid.setText(search_table.getSelectionModel().getSelectedItem().get_id());
-                        System.out.println(appid.getText());
+                       // System.out.println(appid.getText());
+                        userid.setText(userid.getText());
+                       // System.out.println(userid.getText() +"Going to Application maon page");
                         ApplicationMain scene2Controller = loader.getController();
                         //Pass whatever data you want. You can have multiple method calls here
-                        scene2Controller.transferMessage(appid.getText());
+                        scene2Controller.transferMessage(appid.getText()); //appid
+                        scene2Controller.transferMessage1(userid.getText()); //userid
 
                         //Show scene 2 in new window
                         Stage stage = new Stage();
@@ -249,6 +253,7 @@ public class Admin implements Initializable {
                         ApplicationMain scene2Controller = loader.getController();
                         //Pass whatever data you want. You can have multiple method calls here
                         scene2Controller.transferMessage(appid.getText());
+                        scene2Controller.transferMessage1(userid.getText());
 
                         //Show scene 2 in new window
                         Stage stage = new Stage();
@@ -277,6 +282,7 @@ public class Admin implements Initializable {
                         ApplicationMain scene2Controller = loader.getController();
                         //Pass whatever data you want. You can have multiple method calls here
                         scene2Controller.transferMessage(appid.getText());
+                        scene2Controller.transferMessage1(userid.getText());
 
                         //Show scene 2 in new window
                         Stage stage = new Stage();
@@ -297,10 +303,8 @@ public class Admin implements Initializable {
     }
     public void transferMessage(String message) {
         //Display the message
-        appid.setText(message);
-        app_id=message;
-
-       System.out.println(appid.getText());
+        userid.setText(message);
+      //  System.out.println(userid.getText() +"  Admin");
     }
 
     public void add_function(ActionEvent actionEvent) {
@@ -799,7 +803,7 @@ public class Admin implements Initializable {
 
             Users scene2Controller = loader.getController();
             //Pass whatever data you want. You can have multiple method calls here
-            scene2Controller.transferMessage(appid.getText());
+            scene2Controller.transferMessage(userid.getText());
 
             //Show scene 2 in new window
             Stage stage = new Stage();
@@ -824,7 +828,7 @@ public class Admin implements Initializable {
 
             Admin scene2Controller = loader.getController();
             //Pass whatever data you want. You can have multiple method calls here
-            scene2Controller.transferMessage(appid.getText());
+            scene2Controller.transferMessage(userid.getText());
 
             //Show scene 2 in new window
             Stage stage = new Stage();
@@ -970,7 +974,7 @@ public class Admin implements Initializable {
     public void followerappsfun(){
         AppNeo4jManager app=new AppNeo4jManager();
         User u=new User();
-        u.setUsername(appid.getText().toString());
+        u.setUsername(userid.getText().toString());
         List<App> data= app.browseFollowedApps(u);
         ObservableList<String> items = FXCollections.observableArrayList();
         if(data.isEmpty()){
@@ -1003,7 +1007,7 @@ public class Admin implements Initializable {
     public void appoffollowers(){
         AppNeo4jManager app=new AppNeo4jManager();
         User u=new User();
-        u.setUsername(appid.getText().toString());
+        u.setUsername(userid.getText().toString());
         List<App> data= app.browseAppsOfFollowers(u);
         ObservableList<String> items = FXCollections.observableArrayList();
         if(data.isEmpty()){
@@ -1035,7 +1039,7 @@ public class Admin implements Initializable {
     public void fav_catfun(){
         AppNeo4jManager app=new AppNeo4jManager();
         User u=new User();
-        u.setUsername(appid.getText());
+        u.setUsername(userid.getText());
         List<App> data= app.browseFavoriteCategory(u);
         ObservableList<String> items = FXCollections.observableArrayList();
         if(data.isEmpty()){
@@ -1058,7 +1062,7 @@ public class Admin implements Initializable {
 
             Statistics scene2Controller = loader.getController();
             //Pass whatever data you want. You can have multiple method calls here
-            scene2Controller.transferMessage(appid.getText());
+            scene2Controller.transferMessage(userid.getText());
 
             //Show scene 2 in new window
             Stage stage = new Stage();
@@ -1085,7 +1089,7 @@ public class Admin implements Initializable {
                             AppNeo4jManager app=new AppNeo4jManager();
                             User user=new User();
                             App app1=new App();
-                            user.setUsername(appid.getText().toString());
+                            user.setUsername(userid.getText().toString());
                             app1.setId(getTableView().getItems().get(getIndex()).get_id());
                             if(btn.getText().equals("Follow")){
                             app.followOrDevelopApp(user,app1, Relation.RelationType.FOLLOW);
@@ -1140,7 +1144,7 @@ public class Admin implements Initializable {
                             AppNeo4jManager app=new AppNeo4jManager();
                             User user=new User();
                             App app1=new App();
-                            user.setUsername(appid.getText().toString());
+                            user.setUsername(userid.getText().toString());
                             app1.setId(getTableView().getItems().get(getIndex()).getUsername());
                             if(btn.getText().equals("Follow")){
                                 app.followOrDevelopApp(user,app1, Relation.RelationType.FOLLOW);
