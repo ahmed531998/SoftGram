@@ -884,9 +884,9 @@ public class Admin implements Initializable {
           String name = "";
           String category="";
           for (App a: data){
-              items.add(a.toAppDocument().get("_id") +" "+ a.toAppDocument().get("name"));
+              items.add(a.toAppDocument().get("_id") +" "+ a.toAppDocument().get("AppName"));
                _id= (String) a.toAppDocument().get("_id");
-               name= (String) a.toAppDocument().get("name");
+               name= (String) a.toAppDocument().get("AppName");
                category= (String) a.toAppDocument().get("category");
               suggestedapp.add(new AppData(
                       name,

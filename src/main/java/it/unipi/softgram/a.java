@@ -28,6 +28,7 @@ public class a {
         AppMongoNeo4jManager AMNQ = new AppMongoNeo4jManager();
         UserMongoNeo4jManager UMNQ = new UserMongoNeo4jManager();
         List<User> us = UQ.searchUserByUsername("Richard L", 0);
+        System.out.println(us);
         User u = us.get(0);
         List<App> as = ANQ.browseFollowedApps(u);
         App a = as.get(0);
