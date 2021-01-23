@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<AnchorPane prefHeight="677.0" prefWidth="1106.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.softgram.org.example.Users">
+    <children>
+        <Button fx:id="applications" layoutX="67.0" layoutY="84.0" mnemonicParsing="false" onAction="#appmainpage" prefHeight="26.0" prefWidth="135.0" text="Applications" />
+        <Button fx:id="users" layoutX="67.0" layoutY="122.0" mnemonicParsing="false" onAction="#usersmainpage" prefHeight="26.0" prefWidth="135.0" text="Users" />
+        <Button fx:id="signout" layoutX="894.0" layoutY="28.0" mnemonicParsing="false" onAction="#signout_fun" text="Signout" />
+        <TabPane fx:id="applicationstab" layoutX="214.0" layoutY="84.0" prefHeight="538.0" prefWidth="870.0" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab fx:id="addtab" text="Add">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #bab7b6;">
+                            <children>
+                                <TextField fx:id="username" layoutX="675.0" layoutY="79.0" promptText="username" />
+                                <TextField fx:id="role" layoutX="675.0" layoutY="116.0" promptText="role" />
+                                <Button fx:id="addbtn" layoutX="675.0" layoutY="154.0" mnemonicParsing="false" onAction="#addusers" prefHeight="26.0" prefWidth="147.0" text="Add " />
+                                <Label layoutX="631.0" layoutY="32.0" prefHeight="18.0" prefWidth="331.0" text="Add New User" underline="true" wrapText="true">
+                                    <font>
+                                        <Font size="27.0" />
+                                    </font>
+                                </Label>
+                                <TextField fx:id="username_re" layoutX="358.0" layoutY="72.0" promptText="username" />
+                                <Button fx:id="addbtn1" layoutX="358.0" layoutY="106.0" mnemonicParsing="false" onAction="#remove_user" prefHeight="26.0" prefWidth="147.0" text="remove" />
+                                <Label layoutX="342.0" layoutY="27.0" prefHeight="39.0" prefWidth="187.0" text="Remove Users" underline="true" wrapText="true">
+                                    <font>
+                                        <Font size="27.0" />
+                                    </font>
+                                </Label>
+                                <Button fx:id="addbtn11" layoutX="276.0" layoutY="145.0" mnemonicParsing="false" onAction="#becomedeveloper" prefHeight="26.0" prefWidth="147.0" text="Become developer" />
+                                <Button fx:id="addbtn111" layoutX="447.0" layoutY="145.0" mnemonicParsing="false" onAction="#becomenormal" prefHeight="26.0" prefWidth="147.0" text="Become normal user" />
+                                <Label layoutY="19.0" prefHeight="98.0" prefWidth="286.0" text="Add/accept/remove Follow" textAlignment="CENTER" underline="true" wrapText="true">
+                                    <font>
+                                        <Font size="27.0" />
+                                    </font>
+                                </Label>
+                                <TextField fx:id="followerUsername" layoutX="69.0" layoutY="119.0" promptText="followerUsername" />
+                                <TextField fx:id="followedUsername" layoutX="69.0" layoutY="155.0" promptText="followedUsername" />
+                                <ComboBox fx:id="request" layoutX="68.0" layoutY="189.0" prefWidth="150.0" promptText="request" />
+                                <Button fx:id="addbtn2" layoutX="69.0" layoutY="222.0" mnemonicParsing="false" onAction="#addfollow" prefHeight="26.0" prefWidth="147.0" text="Add Follow" />
+                                <Button fx:id="addbtn21" layoutX="68.0" layoutY="259.0" mnemonicParsing="false" onAction="#acceptfollow" prefHeight="26.0" prefWidth="147.0" text="Accept follow" />
+                                <Button fx:id="addbtn211" layoutX="69.0" layoutY="293.0" mnemonicParsing="false" onAction="#removedfollow" prefHeight="26.0" prefWidth="147.0" text="Removed Follower" />
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab fx:id="searchtab" text="Search">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="507.0" prefWidth="843.0" style="-fx-background-color: #bab7b6;">
+                            <children>
+                                <AnchorPane prefHeight="450.0" prefWidth="870.0">
+                                    <children>
+                                        <TableView fx:id="user_table" layoutX="14.0" layoutY="83.0" prefHeight="342.0" prefWidth="853.0">
+                                            <columns>
+                                                <TableColumn fx:id="userid_col" prefWidth="150.40003967285156" text="User ID" />
+                                                <TableColumn fx:id="appname_col" minWidth="0.0" prefWidth="0.0" text="App Name" />
+                                                <TableColumn fx:id="role_col" prefWidth="100.0" text="Role" />
+                                                <TableColumn fx:id="email_col" prefWidth="75.0" text="Email" />
+                                                <TableColumn fx:id="last_col" minWidth="0.0" prefWidth="0.0" text="Last update" />
+                                            </columns>
+                                        </TableView>
+                                        <Button fx:id="search_btn" layoutX="607.0" layoutY="17.0" mnemonicParsing="false" onAction="#searchfun" prefHeight="41.0" prefWidth="66.0" text="Search" />
+                                        <TextField fx:id="searchtxt" layoutX="36.0" layoutY="25.0" promptText="ID" />
+                                        <Button fx:id="next" layoutX="552.0" layoutY="25.0" mnemonicParsing="false" onAction="#nextfun" text="Next" />
+                                        <Button fx:id="back" layoutX="494.0" layoutY="25.0" mnemonicParsing="false" onAction="#backfun" text="Back" />
+                                        <Label fx:id="appid" layoutX="43.0" layoutY="50.0" />
+                                    </children>
+                                </AnchorPane>
+                            </children></AnchorPane>
+                    </content>
+                </Tab>
+                <Tab text="Followers">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <ListView fx:id="listsuggest" layoutX="13.0" layoutY="79.0" prefHeight="174.0" prefWidth="342.0" />
+                                <Text layoutX="14.0" layoutY="31.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Common Apps" wrappingWidth="341.3367462158203" />
+                                <ListView fx:id="listrequest" layoutX="14.0" layoutY="333.0" prefHeight="174.0" prefWidth="342.0" />
+                                <Text layoutX="14.0" layoutY="279.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Follow requests" wrappingWidth="341.3367462158203" />
+                                <TextField fx:id="usernametxt" layoutX="14.0" layoutY="300.0" promptText="user ID" />
+                                <Button layoutX="292.0" layoutY="300.0" mnemonicParsing="false" onAction="#follow_serch" text="Search" />
+                                <ListView fx:id="listactual" layoutX="411.0" layoutY="333.0" prefHeight="174.0" prefWidth="342.0" />
+                                <Text layoutX="411.0" layoutY="279.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Actual Followers" wrappingWidth="341.3367462158203" />
+                                <TextField fx:id="actualtxt" layoutX="411.0" layoutY="300.0" promptText="user ID" />
+                                <Button layoutX="689.0" layoutY="300.0" mnemonicParsing="false" onAction="#actual_search" text="Search" />
+                                <ListView fx:id="listfollowed" layoutX="410.0" layoutY="79.0" prefHeight="174.0" prefWidth="342.0" />
+                                <Text layoutX="410.0" layoutY="30.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Followed Users" wrappingWidth="341.3367462158203" />
+                                <TextField fx:id="followedtxt" layoutX="410.0" layoutY="43.0" promptText="user ID" />
+                                <Button layoutX="688.0" layoutY="43.0" mnemonicParsing="false" onAction="#followed_search" text="Search" />
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+        <Label fx:id="appid" layoutX="284.0" layoutY="45.0" text="Label" visible="false" />
+        <Button fx:id="users1" layoutX="67.0" layoutY="158.0" mnemonicParsing="false" onAction="#statismainpage" prefHeight="26.0" prefWidth="135.0" text="Statistics" />
+    </children>
+</AnchorPane>

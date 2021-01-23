@@ -20,7 +20,6 @@
     <orderEntry type="library" name="Maven: org.openjfx:javafx-graphics:13" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-fxml:13" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-fxml:linux:13" level="project" />
-    <orderEntry type="library" name="Maven: org.openjfx:javafx-graphics:win:13" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-graphics:linux:13" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-base:13" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-base:linux:13" level="project" />
@@ -31,6 +30,6 @@
     <orderEntry type="library" name="Maven: org.openjfx:javafx-swing:13" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-swing:linux:13" level="project" />
     <orderEntry type="library" name="Maven: org.mortbay.jetty:jetty-util:6.1.25" level="project" />
-    <orderEntry type="library" name="Maven: org.json:json:20201115" level="project" />
+    <orderEntry type="library" name="Maven: org.json:json:20090211" level="project" />
   </component>
 </module>

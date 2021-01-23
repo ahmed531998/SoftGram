@@ -4,13 +4,9 @@
 <?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.chart.PieChart?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.AnchorPane?>
-
-<AnchorPane prefHeight="677.0" prefWidth="1106.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.softgram.org.example.Statistices">
+<AnchorPane prefHeight="677.0" prefWidth="1106.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.softgram.org.example.Statistics">
     <children>
         <Button fx:id="applications" layoutX="67.0" layoutY="104.0" mnemonicParsing="false" onAction="#appmainpage" prefHeight="26.0" prefWidth="135.0" text="Applications" />
         <Button fx:id="users" layoutX="67.0" layoutY="160.0" mnemonicParsing="false" onAction="#usersmainpage" prefHeight="26.0" prefWidth="135.0" text="Users" />
@@ -37,7 +33,7 @@
             </tabs>
         </TabPane>
         <Label fx:id="appid" layoutX="284.0" layoutY="45.0" text="Label" visible="false" />
-        <Button fx:id="users1" layoutX="67.0" layoutY="204.0" mnemonicParsing="false" onAction="#statismainpage" prefHeight="26.0" prefWidth="135.0" text="Statistices" />
+        <Button fx:id="users1" layoutX="67.0" layoutY="204.0" mnemonicParsing="false" onAction="#statismainpage" prefHeight="26.0" prefWidth="135.0" text="Statistics" />
     </children>
 
 </AnchorPane>

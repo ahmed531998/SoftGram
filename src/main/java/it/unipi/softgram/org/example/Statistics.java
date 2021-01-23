@@ -17,9 +17,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import static it.unipi.softgram.org.example.App.setRoot;
 
-public class Statistices implements Initializable {
+public class Statistics implements Initializable {
     @FXML
     private Label appid;
     @FXML
@@ -64,7 +63,7 @@ public class Statistices implements Initializable {
     public void usersmainpage(ActionEvent actionEvent) {
         try {
             //Load second scene
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/users.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("users.fxml"));
             Parent root = loader.load();
 
             //Get controller of scene2
@@ -87,7 +86,7 @@ public class Statistices implements Initializable {
   public void appmainpage(ActionEvent actionEvent) {
         try {
             //Load second scene
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/admin.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("admin.fxml"));
             Parent root = loader.load();
 
             //Get controller of scene2
@@ -107,10 +106,10 @@ public class Statistices implements Initializable {
         }
     }
 
-    public void signout_fun(ActionEvent actionEvent) throws IOException {
+    public void signout_fun(ActionEvent actionEvent) {
         try {
             //Load second scene
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/login.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
             Parent root = loader.load();
 
             //Get controller of scene2
@@ -132,19 +131,19 @@ public class Statistices implements Initializable {
     public void statismainpage(ActionEvent actionEvent) {
         try {
             //Load second scene
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("org/example/statistices.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("statistics.fxml"));
             Parent root = loader.load();
 
             //Get controller of scene2
 
-            Statistices scene2Controller = loader.getController();
+            Statistics scene2Controller = loader.getController();
             //Pass whatever data you want. You can have multiple method calls here
             scene2Controller.transferMessage(appid.getText());
 
             //Show scene 2 in new window
             Stage stage = new Stage();
             stage.setScene(new Scene(root));
-            stage.setTitle("Statistices Window");
+            stage.setTitle("Statistics Window");
             stage.show();
             ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
         } catch (IOException ex) {

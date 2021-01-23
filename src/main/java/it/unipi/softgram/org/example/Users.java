@@ -4,9 +4,11 @@ import com.mongodb.client.MongoCollection;
 import it.unipi.softgram.controller.mongo.UserMongoManager;
 import it.unipi.softgram.controller.mongoneo4j.UserMongoNeo4jManager;
 import it.unipi.softgram.controller.neo4j.UserNeo4jManager;
-import it.unipi.softgram.entities.App;
 import it.unipi.softgram.entities.Review;
 import it.unipi.softgram.entities.User;
+import it.unipi.softgram.table_chooser.AppData;
+import it.unipi.softgram.table_chooser.Userdata;
+import it.unipi.softgram.utilities.drivers.MongoDriver;
 import it.unipi.softgram.utilities.enumerators.Role;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -27,19 +29,15 @@ import javafx.util.Callback;
 import org.bson.BsonRegularExpression;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import it.unipi.softgram.table_chooser.AppData;
-import it.unipi.softgram.table_chooser.MostPopCat;
-import it.unipi.softgram.table_chooser.Userdata;
-import it.unipi.softgram.utilities.drivers.MongoDriver;
 
 import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ResourceBundle;
 import java.util.function.Consumer;
-
-import static it.unipi.softgram.org.example.App.setRoot;
-import static java.lang.Integer.parseInt;
 
 public class Users implements Initializable {
         int page=0;
@@ -47,13 +45,13 @@ public class Users implements Initializable {
         @FXML private PasswordField pass_id;
 
         @FXML
-        ListView<String> listsuggest = new ListView<String>();
+        ListView<String> listsuggest = new ListView<>();
         @FXML
-        ListView<String> listfollowed = new ListView<String>();
+        ListView<String> listfollowed = new ListView<>();
         @FXML
-        ListView<String> listrequest = new ListView<String>();
+        ListView<String> listrequest = new ListView<>();
         @FXML
-        ListView<String> listactual = new ListView<String>();
+        ListView<String> listactual = new ListView<>();
         ObservableList<Review> Reviews = FXCollections.observableArrayList();
         @FXML
         private DatePicker birth;
@@ -97,7 +95,7 @@ public class Users implements Initializable {
 
                         try {
                             //Load second scene
-                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/usermainpage.fxml"));
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("usermainpage.fxml"));
                             Parent root = loader.load();
 
                             //Get controller of scene2
@@ -125,10 +123,10 @@ public class Users implements Initializable {
             app_id=message;
 
         }
-        public void usersmainpage(ActionEvent actionEvent) throws IOException {
+        public void usersmainpage(ActionEvent actionEvent) {
             try {
                 //Load second scene
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/users.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("users.fxml"));
                 Parent root = loader.load();
 
                 //Get controller of scene2
@@ -151,7 +149,7 @@ public class Users implements Initializable {
         public void appmainpage(ActionEvent actionEvent) throws IOException {
             try {
                 //Load second scene
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/admin.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("admin.fxml"));
                 Parent root = loader.load();
 
                 //Get controller of scene2
@@ -176,20 +174,16 @@ public class Users implements Initializable {
 
             // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
 
-            Consumer<Document> processBlock = new Consumer<Document>() {
-                @Override
-                public void accept(Document document) {
-                    // System.out.println(document);
-                    String _id = (String) document.get("_id");
-                    String email = (String) document.get("email");
-                    String role = (String) document.get("role");
+            Consumer<Document> processBlock = document -> {
+                // System.out.println(document);
+                String _id = (String) document.get("_id");
+                String email = (String) document.get("email");
+                String role = (String) document.get("role");
 
-                    userdata.add(new Userdata(
-                            _id,
-                            "",
-                            "",email,role,""));
-                }
-
+                userdata.add(new Userdata(
+                        _id,
+                        "",
+                        "",email,role,""));
             };
             user_table.setItems(null);
             user_table.setItems(userdata);
@@ -223,8 +217,8 @@ public class Users implements Initializable {
 
         public void addusers(ActionEvent actionEvent) {
 
-            Role.RoleValue roleValue= Role.RoleValue.valueOf(role.getText().toString());
-            String usernametxt=username.getText().toString();
+            Role.RoleValue roleValue= Role.RoleValue.valueOf(role.getText());
+            String usernametxt= username.getText();
             String roleString = Role.getRoleString(roleValue);
             final String role = roleString.replaceAll("\\s","");
             if(username.getText().isEmpty()){
@@ -243,7 +237,7 @@ public class Users implements Initializable {
             if (username_re.getText().isEmpty()){
                 JOptionPane.showMessageDialog(null, "Field required");
             }else {
-                user.removeUser(username_re.getText().toString());
+                user.removeUser(username_re.getText());
                 JOptionPane.showMessageDialog(null, "User added successfully");
             }
         }
@@ -253,7 +247,7 @@ public class Users implements Initializable {
             if (username_re.getText().isEmpty()){
                 JOptionPane.showMessageDialog(null, "Field required");
             }else {
-                user.becomeDeveloper(username_re.getText().toString());
+                user.becomeDeveloper(username_re.getText());
                 JOptionPane.showMessageDialog(null, "User became a developer");
             }
         }
@@ -263,7 +257,7 @@ public class Users implements Initializable {
             if (username_re.getText().isEmpty()){
                 JOptionPane.showMessageDialog(null, "Field required");
             }else {
-                user.becomeNormalUser(username_re.getText().toString());
+                user.becomeNormalUser(username_re.getText());
                 JOptionPane.showMessageDialog(null, "User became a normal user");
             }
         }
@@ -273,7 +267,7 @@ public class Users implements Initializable {
             if (followedUsername.getText().isEmpty() || followerUsername.getText().isEmpty()){
                 JOptionPane.showMessageDialog(null, "Field required");
             }else {
-                user.addFollow(followerUsername.getText().toString(),followedUsername.getText().toString(), Boolean.parseBoolean(request.getItems().toString()));
+                user.addFollow(followerUsername.getText(), followedUsername.getText(), Boolean.parseBoolean(request.getItems().toString()));
                 JOptionPane.showMessageDialog(null, "Done");
             }
         }
@@ -293,14 +287,14 @@ public class Users implements Initializable {
             if (followedUsername.getText().isEmpty() || followerUsername.getText().isEmpty()){
                 JOptionPane.showMessageDialog(null, "Field required");
             }else {
-                user.removeFollow(followerUsername.getText().toString(),followedUsername.getText().toString());
+                user.removeFollow(followerUsername.getText(), followedUsername.getText());
                 JOptionPane.showMessageDialog(null, "Removed");
             }
         }
-        public void signout_fun(ActionEvent actionEvent) throws IOException {
+        public void signout_fun(ActionEvent actionEvent) {
             try {
                 //Load second scene
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/login.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
                 Parent root = loader.load();
 
                 //Get controller of scene2
@@ -321,8 +315,8 @@ public class Users implements Initializable {
 
         public void searchfun(ActionEvent actionEvent) {
             ClearTable(user_table);
-            findUsers(searchtxt.getText().toString());
-            System.out.println(searchtxt.getText().toString());
+            findUsers(searchtxt.getText());
+            System.out.println(searchtxt.getText());
         }
 
         public void nextfun(ActionEvent actionEvent) {
@@ -377,9 +371,9 @@ public class Users implements Initializable {
                                     collection.updateOne(query, update);*/
                                         UserMongoManager user=new UserMongoManager();
                                         User user1=new User();
-                                        user1.setUsername( username.getText().toString());
-                                        user1.setEmail(emailtxt.getText().toString());
-                                        user1.setRole(roletxt.getText().toString());
+                                        user1.setUsername(username.getText());
+                                        user1.setEmail(emailtxt.getText());
+                                        user1.setRole(roletxt.getText());
                                         user.updateUser(user1);
                                         JOptionPane.showMessageDialog(null, "Updated Successfully");
                                         ClearTable(user_table);
@@ -563,7 +557,7 @@ public class Users implements Initializable {
                                 Userdata data = getTableView().getItems().get(getIndex());
                                 System.out.println("selectedData: " + data);
                                 UserNeo4jManager useneo=new UserNeo4jManager();
-                                useneo.addFollow(appid.getText().toString(), getTableView().getItems().get(getIndex()).getUsername().toString(), false);
+                                useneo.addFollow(appid.getText(), getTableView().getItems().get(getIndex()).getUsername(), false);
                                 JOptionPane.showMessageDialog(null, "You followed this user");
                             });
                         }
@@ -602,7 +596,7 @@ public class Users implements Initializable {
         public void follow_serch(ActionEvent actionEvent) {
             UserNeo4jManager user=new UserNeo4jManager();
             ArrayList<String> data=
-                    (ArrayList<String>) user.browseFollowRequests(usernametxt.getText().toString());
+                    (ArrayList<String>) user.browseFollowRequests(usernametxt.getText());
             ObservableList<String> items = FXCollections.observableArrayList();
             for (int i=0; i<data.size();i++)
             {
@@ -615,7 +609,7 @@ public class Users implements Initializable {
         public void suggest_search(ActionEvent actionEvent) {
             UserNeo4jManager user=new UserNeo4jManager();
             ArrayList<String> data=
-                    (ArrayList<String>) user.browseUsersWithMostFollowersInYear(Integer.parseInt(yeartxt.getText().toString()),10);
+                    (ArrayList<String>) user.browseUsersWithMostFollowersInYear(Integer.parseInt(yeartxt.getText()),10);
             ObservableList<String> items = FXCollections.observableArrayList();
             for (int i=0; i<data.size();i++)
             {
@@ -628,7 +622,7 @@ public class Users implements Initializable {
         public void actual_search(ActionEvent actionEvent) {
             UserNeo4jManager user=new UserNeo4jManager();
             ArrayList<String> data=
-                    (ArrayList<String>) user.browseActualFollowers(actualtxt.getText().toString());
+                    (ArrayList<String>) user.browseActualFollowers(actualtxt.getText());
             ObservableList<String> items = FXCollections.observableArrayList();
             for (int i=0; i<data.size();i++)
             {
@@ -641,7 +635,7 @@ public class Users implements Initializable {
 
             UserNeo4jManager user=new UserNeo4jManager();
             ArrayList<String> data=
-                    (ArrayList<String>) user.browseFollowedUsers(followedtxt.getText().toString());
+                    (ArrayList<String>) user.browseFollowedUsers(followedtxt.getText());
             ObservableList<String> items = FXCollections.observableArrayList();
             for (int i=0; i<data.size();i++)
             {
@@ -653,19 +647,19 @@ public class Users implements Initializable {
         public void statismainpage(ActionEvent actionEvent) {
             try {
                 //Load second scene
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/statistices.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("statistics.fxml"));
                 Parent root = loader.load();
 
                 //Get controller of scene2
 
-                Statistices scene2Controller = loader.getController();
+                Statistics scene2Controller = loader.getController();
                 //Pass whatever data you want. You can have multiple method calls here
                 scene2Controller.transferMessage(appid.getText());
 
                 //Show scene 2 in new window
                 Stage stage = new Stage();
                 stage.setScene(new Scene(root));
-                stage.setTitle("Statistices Window");
+                stage.setTitle("Statistics Window");
                 stage.show();
                 ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
             } catch (IOException ex) {

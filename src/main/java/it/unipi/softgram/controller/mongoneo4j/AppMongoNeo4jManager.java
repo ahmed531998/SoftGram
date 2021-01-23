@@ -4,7 +4,6 @@ import it.unipi.softgram.controller.mongo.AppMongoManager;
 import it.unipi.softgram.controller.neo4j.AppNeo4jManager;
 import it.unipi.softgram.entities.App;
 import it.unipi.softgram.entities.User;
-import it.unipi.softgram.utilities.drivers.MongoDriver;
 import it.unipi.softgram.utilities.drivers.Neo4jDriver;
 import it.unipi.softgram.utilities.enumerators.Relation;
 import org.neo4j.driver.Session;

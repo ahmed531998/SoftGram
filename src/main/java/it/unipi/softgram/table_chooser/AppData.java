@@ -1,15 +1,5 @@
 package it.unipi.softgram.table_chooser;
 
-
-import com.mongodb.client.MongoCollection;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableView;
-import org.bson.Document;
-import it.unipi.softgram.utilities.drivers.MongoDriver;
-
-import javax.swing.*;
-import java.awt.*;
-
 public class AppData {
     private String name;
     private String _id;

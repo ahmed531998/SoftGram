@@ -2,28 +2,21 @@ package it.unipi.softgram.controller.mongo;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.softgram.entities.App;
-import it.unipi.softgram.entities.Review;
 import it.unipi.softgram.utilities.drivers.MongoDriver;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.function.Consumer;
-import com.mongodb.client.model.Filters;
-import org.bson.BsonRegularExpression;
-
-import javax.print.Doc;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static com.mongodb.client.model.Accumulators.avg;
 import static com.mongodb.client.model.Aggregates.*;
-import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Projections.fields;
-import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.or;
 import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.set;
 
@@ -135,7 +128,6 @@ public class AppMongoManager {
         }
         return null;
     }
-
 
     public List<Document> getPopularApps(int limit){
         try{

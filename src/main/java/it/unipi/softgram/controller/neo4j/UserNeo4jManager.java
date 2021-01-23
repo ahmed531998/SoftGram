@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
 import static org.neo4j.driver.Values.parameters;
 
 //test this

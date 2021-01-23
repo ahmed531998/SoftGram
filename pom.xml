@@ -33,7 +33,7 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics </artifactId>
             <version>13</version>
-            <classifier>win</classifier>
+            <classifier>linux</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -60,7 +60,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20201115</version>
+            <version>20090211</version>
         </dependency>
     </dependencies>
 

@@ -8,9 +8,7 @@ import it.unipi.softgram.controller.mongoneo4j.UserMongoNeo4jManager;
 import it.unipi.softgram.controller.neo4j.AppNeo4jManager;
 import it.unipi.softgram.controller.neo4j.UserNeo4jManager;
 import it.unipi.softgram.entities.App;
-import it.unipi.softgram.entities.Review;
 import it.unipi.softgram.entities.User;
-import it.unipi.softgram.utilities.drivers.MongoDriver;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

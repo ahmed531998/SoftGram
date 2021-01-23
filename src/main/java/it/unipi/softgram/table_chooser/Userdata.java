@@ -1,6 +1,5 @@
 package it.unipi.softgram.table_chooser;
 
-import java.util.Date;
 
 public class Userdata {
     private String username;

@@ -6,25 +6,22 @@ import it.unipi.softgram.controller.neo4j.AppNeo4jManager;
 import it.unipi.softgram.controller.neo4j.UserNeo4jManager;
 import it.unipi.softgram.entities.App;
 import it.unipi.softgram.entities.User;
+import it.unipi.softgram.table_chooser.AppData;
+import it.unipi.softgram.table_chooser.MostPopCat;
+import it.unipi.softgram.utilities.drivers.MongoDriver;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TableColumn.CellEditEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -32,20 +29,13 @@ import javafx.util.Callback;
 import org.bson.BsonRegularExpression;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import it.unipi.softgram.table_chooser.AppData;
-import it.unipi.softgram.table_chooser.MostPopCat;
-import it.unipi.softgram.table_chooser.Mostpopyear;
-import it.unipi.softgram.utilities.drivers.MongoDriver;
 
 import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Consumer;
 
-import static com.mongodb.client.model.Filters.eq;
-import static it.unipi.softgram.org.example.App.setRoot;
 
 public class Admin implements Initializable {
 
@@ -126,20 +116,20 @@ public class Admin implements Initializable {
             user.setUsername(appid.getText().toString());
             */
             User user=new User();
-            user.setUsername(appid.getText().toString());
-            user.setEmail(dev_email.getText().toString());
-            user.setWebsite(dev_web.getText().toString());
+            user.setUsername(appid.getText());
+            user.setEmail(dev_email.getText());
+            user.setWebsite(dev_web.getText());
 
-            app.setId(_id.getText().toString());
-            app.setCategory(category.getText().toString());
+            app.setId(_id.getText());
+            app.setCategory(category.getText());
             app.setAdSupported(Boolean.parseBoolean(ad_supported.getItems().toString()));
             app.setInAppPurchase(Boolean.parseBoolean(app_purchase.getItems().toString()));
-            app.setAgeGroup(age_group.getText().toString());
-            app.setInstallCount(Integer.parseInt(installscount.getText().toString()));
-            app.setName(appname.getText().toString());
-            app.setCurrency(currency.getText().toString());
-            app.setPrice(Double.parseDouble(price.getText().toString()));
-            app.setRatingCount(Integer.parseInt(ratingcount.getText().toString()));
+            app.setAgeGroup(age_group.getText());
+            app.setInstallCount(Integer.parseInt(installscount.getText()));
+            app.setName(appname.getText());
+            app.setCurrency(currency.getText());
+            app.setPrice(Double.parseDouble(price.getText()));
+            app.setRatingCount(Integer.parseInt(ratingcount.getText()));
             app.setDeveloper(user);
             /*neo4j
             appneo.addApp(app1,user);
@@ -196,7 +186,7 @@ public class Admin implements Initializable {
         findApp("");
         deleteButtonToTable();
         updateButtonToTable();
-        MostPopularApps();
+        //MostPopularApps();
 
         search_table.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -205,7 +195,7 @@ public class Admin implements Initializable {
                     App app=new App();
                     try {
                         //Load second scene
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("org/example/ApplicationMain.fxml"));
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("ApplicationMain.fxml"));
                         Parent root = loader.load();
 
                         //Get controller of scene2
@@ -233,7 +223,7 @@ public class Admin implements Initializable {
                     App app=new App();
                     try {
                         //Load second scene
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/ApplicationMain.fxml"));
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("ApplicationMain.fxml"));
                         Parent root = loader.load();
 
                         //Get controller of scene2
@@ -261,7 +251,7 @@ public class Admin implements Initializable {
                     App app=new App();
                     try {
                         //Load second scene
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/ApplicationMain.fxml"));
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("ApplicationMain.fxml"));
                         Parent root = loader.load();
 
                         //Get controller of scene2
@@ -312,7 +302,7 @@ public class Admin implements Initializable {
 
     public void add_function(ActionEvent actionEvent) {
         ClearTable(search_table);
-        findApp(searchtxt.getText().toString());
+        findApp(searchtxt.getText());
     }
 
     public void next_function(ActionEvent actionEvent) {
@@ -779,7 +769,7 @@ public class Admin implements Initializable {
                             ),
                     new Document()
                             .append("$match", new Document()
-                                    .append("year", Integer.parseInt(text_year.getText().toString()))
+                                    .append("year", Integer.parseInt(text_year.getText()))
                             ),
                     new Document()
                             .append("$sort", new Document()
@@ -802,7 +792,7 @@ public class Admin implements Initializable {
     public void usersmainpage(ActionEvent actionEvent) throws IOException {
         try {
             //Load second scene
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("org/example/users.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("users.fxml"));
             Parent root = loader.load();
 
             //Get controller of scene2
@@ -827,7 +817,7 @@ public class Admin implements Initializable {
     public void appmainpage(ActionEvent actionEvent) throws IOException {
         try {
             //Load second scene
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("org/example/admin.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("admin.fxml"));
             Parent root = loader.load();
 
             //Get controller of scene2
@@ -862,7 +852,7 @@ public class Admin implements Initializable {
     public void signout_fun(ActionEvent actionEvent) throws IOException {
         try {
             //Load second scene
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("org/example/login.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
             Parent root = loader.load();
 
             //Get controller of scene2
@@ -910,7 +900,7 @@ public class Admin implements Initializable {
     public void commonapps(){
         AppNeo4jManager user=new AppNeo4jManager();
         User u=new User();
-        u.setUsername(favtxt.getText().toString());
+        u.setUsername(favtxt.getText());
         ArrayList<it.unipi.softgram.entities.App> data = (ArrayList<it.unipi.softgram.entities.App>) user.browseCommonApps();
         ObservableList<String> items = FXCollections.observableArrayList();
         for (int i=0; i<data.size();i++)
@@ -923,7 +913,7 @@ public class Admin implements Initializable {
     public void Followedapps(ActionEvent actionEvent) {
         AppNeo4jManager user=new AppNeo4jManager();
         User u=new User();
-        u.setUsername(favtxt.getText().toString());
+        u.setUsername(favtxt.getText());
         ArrayList<it.unipi.softgram.entities.App> data = (ArrayList<it.unipi.softgram.entities.App>) user.browseFollowedApps(u);
         ObservableList<String> items = FXCollections.observableArrayList();
         for (int i=0; i<data.size();i++)
@@ -936,7 +926,7 @@ public class Admin implements Initializable {
     public void app_of_followers(ActionEvent actionEvent) {
         AppNeo4jManager user=new AppNeo4jManager();
         User u=new User();
-        u.setUsername(favtxt.getText().toString());
+        u.setUsername(favtxt.getText());
         ArrayList<it.unipi.softgram.entities.App> data = (ArrayList<it.unipi.softgram.entities.App>) user.browseAppsOfFollowers(u);
         ObservableList<String> items = FXCollections.observableArrayList();
         for (int i=0; i<data.size();i++)
@@ -949,7 +939,7 @@ public class Admin implements Initializable {
     public void fav_cat(ActionEvent actionEvent) {
         AppNeo4jManager user=new AppNeo4jManager();
         User u=new User();
-        u.setUsername(favtxt.getText().toString());
+        u.setUsername(favtxt.getText());
         ArrayList<it.unipi.softgram.entities.App> data = (ArrayList<it.unipi.softgram.entities.App>) user.browseFavoriteCategory(u);
         ObservableList<String> items = FXCollections.observableArrayList();
         for (int i=0; i<data.size();i++)
@@ -962,19 +952,19 @@ public class Admin implements Initializable {
     public void statismainpage(ActionEvent actionEvent) {
         try {
             //Load second scene
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/statistices.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("statistics.fxml"));
             Parent root = loader.load();
 
             //Get controller of scene2
 
-            Statistices scene2Controller = loader.getController();
+            Statistics scene2Controller = loader.getController();
             //Pass whatever data you want. You can have multiple method calls here
             scene2Controller.transferMessage(appid.getText());
 
             //Show scene 2 in new window
             Stage stage = new Stage();
             stage.setScene(new Scene(root));
-            stage.setTitle("Statistices Window");
+            stage.setTitle("Statistics Window");
             stage.show();
             ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
         } catch (IOException ex) {

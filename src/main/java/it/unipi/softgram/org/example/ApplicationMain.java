@@ -1,8 +1,8 @@
 package it.unipi.softgram.org.example;
 
 import com.mongodb.client.MongoCollection;
-import it.unipi.softgram.entities.App;
 import it.unipi.softgram.entities.Review;
+import it.unipi.softgram.utilities.drivers.MongoDriver;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -11,20 +11,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.bson.BsonRegularExpression;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import it.unipi.softgram.table_chooser.AppData;
-import it.unipi.softgram.table_chooser.MostPopCat;
-import it.unipi.softgram.utilities.drivers.MongoDriver;
-
 
 import javax.swing.*;
 import java.io.IOException;
@@ -43,7 +38,7 @@ public class ApplicationMain  implements Initializable {
     @FXML private Button home;
     String app_id;
     @FXML
-    ListView<String> list = new ListView<String>();
+    ListView<String> list = new ListView<>();
     ObservableList<Review> Reviews = FXCollections.observableArrayList();
 
 
@@ -79,78 +74,75 @@ public class ApplicationMain  implements Initializable {
 
         // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
 
-        Consumer<Document> processBlock = new Consumer<Document>() {
-            @Override
-            public void accept(Document document) {
-                //System.out.println(document);
-                String name = (String) document.get("name");
-                System.out.println(name);
-                Double price1 = (Double) document.get("price");
-                String agegroup1 = (String) document.get("ageGroup");
-                String category= (String) document.get("category");
-                String released= String.valueOf(document.get("released"));
-                String lastupdated= String.valueOf(document.get("lastUpdated"));
-                String currency_data= (String)document.get("currency");
-                String size_data= (String) document.get("size");
+        Consumer<Document> processBlock = document -> {
+            //System.out.println(document);
+            String name = (String) document.get("name");
+            System.out.println(name);
+            Double price1 = (Double) document.get("price");
+            String agegroup1 = (String) document.get("ageGroup");
+            String category= (String) document.get("category");
+            String released= String.valueOf(document.get("released"));
+            String lastupdated= String.valueOf(document.get("lastUpdated"));
+            String currency_data= (String)document.get("currency");
+            String size_data= (String) document.get("size");
 
-                Document dev= (Document) document.get("developer");
-                String developerEmail= (String) dev.get("developerEmail");
-                String developerWeb1= (String) dev.get("developerWebsite");
-                String developerID= (String) dev.get("developerId");
-                currency1.setText(currency_data);
-                size.setText(size_data);
-                name_txt.setText(name);
-                price.setText(String.valueOf(price1));
-                currency.setText(category);
-                agegroup.setText(agegroup1);
-                released_txt.setText(released);
-                last_txt.setText(lastupdated);
-                developeremail.setText(developerEmail);
-                developerweb.setText(developerWeb1);
-                developerid.setText(developerID);
+            Document dev= (Document) document.get("developer");
+            String developerEmail= (String) dev.get("developerEmail");
+            String developerWeb1= (String) dev.get("developerWebsite");
+            String developerID= (String) dev.get("developerId");
+            currency1.setText(currency_data);
+            size.setText(size_data);
+            name_txt.setText(name);
+            price.setText(String.valueOf(price1));
+            currency.setText(category);
+            agegroup.setText(agegroup1);
+            released_txt.setText(released);
+            last_txt.setText(lastupdated);
+            developeremail.setText(developerEmail);
+            developerweb.setText(developerWeb1);
+            developerid.setText(developerID);
 
-                ArrayList review= (ArrayList) document.get("reviews");
-                try {
-                    ObservableList<String> items = FXCollections.observableArrayList();
-                    if(review.isEmpty()) {
-                        items.add("No Review");
-                        list.setItems(items);
-                    }else{
-                        int j=0;
-
-                        for (int i=0; i<review.size();i++)
-                        {
-                            review.get(0);
-                            Document reviewdata= (Document)  review.get(0);
-                            Document content= (Document) reviewdata.get("review");
-
-                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                            String review_date = sdf.format((Date) content.get("date"));
-
-                            items.add(reviewdata.get("score") +"\n"+ (String) content.get("content") +"\n" + review_date +"\n" + reviewdata.get("username") );
-                            if(j >10)  {
-                                break;
-                            }
-                            j++;
-                        }
-                        list.setItems(items);
-
-
-                      System.out.println("here");
-                    }
-                }catch (NullPointerException e){
-                    ObservableList<String> items = FXCollections.observableArrayList(
-                            "No review");
+            ArrayList review= (ArrayList) document.get("reviews");
+            try {
+                ObservableList<String> items = FXCollections.observableArrayList();
+                if(review.isEmpty()) {
+                    items.add("No Review");
                     list.setItems(items);
-                }
+                }else{
+                    int j=0;
 
+                    for (int i=0; i<review.size();i++)
+                    {
+                        review.get(0);
+                        Document reviewdata= (Document)  review.get(0);
+                        Document content= (Document) reviewdata.get("review");
+
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                        String review_date = sdf.format((Date) content.get("date"));
+
+                        items.add(reviewdata.get("score") +"\n"+ content.get("content") +"\n" + review_date +"\n" + reviewdata.get("username") );
+                        if(j >10)  {
+                            break;
+                        }
+                        j++;
+                    }
+                    list.setItems(items);
+
+
+                  System.out.println("here");
+                }
+            }catch (NullPointerException e){
+                ObservableList<String> items = FXCollections.observableArrayList(
+                        "No review");
+                list.setItems(items);
             }
+
         };
 
         List<? extends Bson> pipeline = Arrays.asList(
                 new Document()
                         .append("$match", new Document()
-                                .append("$or", Arrays.asList(
+                                .append("$or", Collections.singletonList(
                                         new Document()
                                                 .append("_id", new Document()
                                                         .append("$regex", new BsonRegularExpression(text))
@@ -173,10 +165,10 @@ public class ApplicationMain  implements Initializable {
         MongoDriver driver = new MongoDriver();
         MongoCollection<Document> collection = driver.getCollection("apps");
 
-        double price1 = Double.parseDouble(price.getText().toString());
-        String name = name_txt.getText().toString();
-        String category1 = currency1.getText().toString();
-        String ageGroup = agegroup.getText().toString();
+        double price1 = Double.parseDouble(price.getText());
+        String name = name_txt.getText();
+        String category1 = currency1.getText();
+        String ageGroup = agegroup.getText();
         Stage newStage = new Stage();
         VBox comp = new VBox();
         TextField appname = new TextField(name);
@@ -191,10 +183,10 @@ public class ApplicationMain  implements Initializable {
                 Document query = new Document();
                 query.append("_id", app_id);
                 Document setData = new Document();
-                setData.append("name", appname.getText().toString())
-                        .append("price", Double.parseDouble(price11.getText().toString()))
-                        .append("category", category11.getText().toString())
-                        .append("ageGroup", agegroup.getText().toString())
+                setData.append("name", appname.getText())
+                        .append("price", Double.parseDouble(price11.getText()))
+                        .append("category", category11.getText())
+                        .append("ageGroup", agegroup.getText())
                 ;
                 Document update = new Document();
                 update.append("$set", setData);

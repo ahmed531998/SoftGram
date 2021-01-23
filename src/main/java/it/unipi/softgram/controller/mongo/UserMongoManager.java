@@ -1,7 +1,6 @@
 package it.unipi.softgram.controller.mongo;
 
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -11,16 +10,11 @@ import it.unipi.softgram.utilities.enumerators.Role;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.function.Consumer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
-import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.regex;
-import static com.mongodb.client.model.Projections.*;
-import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.set;
 
 

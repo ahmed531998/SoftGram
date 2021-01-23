@@ -1,8 +1,6 @@
 package it.unipi.softgram.org.example;
 
-import it.unipi.softgram.controller.mongo.UserMongoManager;
 import it.unipi.softgram.controller.mongoneo4j.UserMongoNeo4jManager;
-import it.unipi.softgram.controller.neo4j.UserNeo4jManager;
 import it.unipi.softgram.entities.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,18 +11,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import javax.swing.*;
-import java.awt.*;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
-
-import javax.swing.*;
-import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -56,10 +49,10 @@ public class Signup implements Initializable {
 
     }
 
-    public void loginbtn(ActionEvent actionEvent) throws IOException {
+    public void loginbtn(ActionEvent actionEvent) {
         try {
             //Load second scene
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/login.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
             Parent root = loader.load();
 
             //Get controller of scene2
@@ -78,7 +71,7 @@ public class Signup implements Initializable {
         }
     }
 
-    public void signup(ActionEvent actionEvent) throws IOException {
+    public void signup(ActionEvent actionEvent) {
 
         if(username.getText().isEmpty() || email.getText().isEmpty() || website.getText().isEmpty() || password.getText().isEmpty()){
             JOptionPane.showMessageDialog(null, "Fields required");
@@ -86,11 +79,11 @@ public class Signup implements Initializable {
             UserMongoNeo4jManager user=new UserMongoNeo4jManager();
             User userobj=new User();
             try {
-                userobj.setUsername(username.getText().toString());
-                userobj.setWebsite(website.getText().toString());
-                userobj.setPassword(password.getText().toString());
+                userobj.setUsername(username.getText());
+                userobj.setWebsite(website.getText());
+                userobj.setPassword(password.getText());
                 userobj.setCountry(country.getItems().toString());
-                userobj.setEmail(email.getText().toString());
+                userobj.setEmail(email.getText());
                 user.addUser(userobj);
                 JOptionPane.showMessageDialog(null, "Added successfully");
                 setRoot("admin");

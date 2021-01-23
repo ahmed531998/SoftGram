@@ -2,17 +2,12 @@ package it.unipi.softgram.org.example;
 
 import com.mongodb.client.MongoCollection;
 import it.unipi.softgram.controller.mongo.UserMongoManager;
-import it.unipi.softgram.controller.neo4j.UserNeo4jManager;
 import it.unipi.softgram.entities.User;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import it.unipi.softgram.utilities.drivers.MongoDriver;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
@@ -21,16 +16,14 @@ import javafx.stage.Stage;
 import org.bson.BsonRegularExpression;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import it.unipi.softgram.table_chooser.Userdata;
-import it.unipi.softgram.utilities.drivers.MongoDriver;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
 public class Usermainpage implements Initializable {
@@ -54,28 +47,25 @@ public class Usermainpage implements Initializable {
 
         // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
 
-        Consumer<Document> processBlock = new Consumer<Document>() {
-            @Override
-            public void accept(Document document) {
-                //System.out.println(document);
-                String username = (String) document.get("_id");
-                String website = (String) document.get("website");
-                String email = (String) document.get("email");
-                String role = (String) document.get("role");
-                name_tfield.setText(username);
-                email_tfield.setText(email);
-                role_tfield.setText(role);
-                web_tfield.setText(website);
+        Consumer<Document> processBlock = document -> {
+            //System.out.println(document);
+            String username = (String) document.get("_id");
+            String website = (String) document.get("website");
+            String email = (String) document.get("email");
+            String role = (String) document.get("role");
+            name_tfield.setText(username);
+            email_tfield.setText(email);
+            role_tfield.setText(role);
+            web_tfield.setText(website);
 
 
 
-            }
         };
 
         List<? extends Bson> pipeline = Arrays.asList(
                 new Document()
                         .append("$match", new Document()
-                                .append("$or", Arrays.asList(
+                                .append("$or", Collections.singletonList(
                                         new Document()
                                                 .append("_id", new Document()
                                                         .append("$regex", new BsonRegularExpression(text))
@@ -125,35 +115,32 @@ public class Usermainpage implements Initializable {
         javafx.scene.control.TextField roletxt = new javafx.scene.control.TextField(role);
         javafx.scene.control.TextField websitetxt = new javafx.scene.control.TextField(website);
         javafx.scene.control.Button update = new Button("Update");
-        update.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
+        update.setOnAction(event -> {
 
-                Document query = new Document();
+            Document query = new Document();
 
-                query.append("_id", user.getUsername());
-                Document setData = new Document();
-                setData.append("_id", username.getText())
-                        .append("role", roletxt.getText())
-                        .append("email", emailtxt.getText())
-                        .append("website", websitetxt.getText())
-                ;
-                Document update = new Document();
-                update.append("$set", setData);
-                //To update single Document
-                collection.updateOne(query, update);
-                JOptionPane.showMessageDialog(null, "Updated Successfully");
+            query.append("_id", user.getUsername());
+            Document setData = new Document();
+            setData.append("_id", username.getText())
+                    .append("role", roletxt.getText())
+                    .append("email", emailtxt.getText())
+                    .append("website", websitetxt.getText())
+            ;
+            Document update1 = new Document();
+            update1.append("$set", setData);
+            //To update single Document
+            collection.updateOne(query, update1);
+            JOptionPane.showMessageDialog(null, "Updated Successfully");
 
-                name_tfield.setText("");
-                role_tfield.setText("");
-                email_tfield.setText("");
-                web_tfield.setText("");
-                name_tfield.setText(username.getText());
-                role_tfield.setText(websitetxt.getText());
-                email_tfield.setText(emailtxt.getText());
-                web_tfield.setText(websitetxt.getText());
+            name_tfield.setText("");
+            role_tfield.setText("");
+            email_tfield.setText("");
+            web_tfield.setText("");
+            name_tfield.setText(username.getText());
+            role_tfield.setText(websitetxt.getText());
+            email_tfield.setText(emailtxt.getText());
+            web_tfield.setText(websitetxt.getText());
 
-            }
         });
 
         comp.getChildren().add(username);

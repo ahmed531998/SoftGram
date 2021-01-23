@@ -2,6 +2,7 @@ package it.unipi.softgram.org.example;
 
 import com.mongodb.client.MongoCollection;
 import it.unipi.softgram.entities.App;
+import it.unipi.softgram.utilities.drivers.MongoDriver;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,14 +14,9 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.bson.Document;
-import it.unipi.softgram.utilities.drivers.MongoDriver;
 
-import java.nio.charset.StandardCharsets;
-import java.util.function.Consumer;
-import javax.swing.*;
 import java.io.IOException;
 
-import static it.unipi.softgram.org.example.App.setRoot;
 
 public class login {
 
@@ -29,7 +25,7 @@ public class login {
     @FXML private Label msg;
     @FXML private Label appid;
 
-    public void loginbtn(ActionEvent actionEvent) throws IOException {
+    public void loginbtn(ActionEvent actionEvent) {
         if(username.getText().isEmpty() || passwordField.getText().isEmpty()){
             msg.setText("Fields required");
         }else {
@@ -40,8 +36,8 @@ public class login {
             // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
 
             Document query = new Document();
-            query.append("_id", username.getText().toString());
-            query.append("password", passwordField.getText().toString());
+            query.append("_id", username.getText());
+            query.append("password", passwordField.getText());
 
 
             if(collection.find(query).iterator().hasNext()){
@@ -49,11 +45,11 @@ public class login {
 
                 try {
                     //Load second scene
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/admin.fxml"));
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("admin.fxml"));
                     Parent root = loader.load();
 
                     //Get controller of scene2
-                    appid.setText(username.getText().toString());
+                    appid.setText(username.getText());
                     Admin scene2Controller = loader.getController();
                     //Pass whatever data you want. You can have multiple method calls here
                     scene2Controller.transferMessage(appid.getText());
@@ -65,7 +61,7 @@ public class login {
                     stage.show();
                     ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
                 } catch (IOException ex) {
-                    System.err.println(ex);
+                    ex.printStackTrace();
                 }
 
                 msg.setText("");
@@ -79,10 +75,10 @@ public class login {
 
     }
 
-    public void signup(ActionEvent actionEvent) throws IOException {
+    public void signup(ActionEvent actionEvent) {
         try {
             //Load second scene
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/signup.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("signup.fxml"));
             Parent root = loader.load();
 
             //Get controller of scene2

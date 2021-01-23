@@ -1,7 +1,8 @@
 package it.unipi.softgram.entities;
 
-import java.util.*;
 import org.bson.Document;
+
+import java.util.Date;
 
 public class User {
     private String username;
@@ -36,7 +37,7 @@ public class User {
         this.password = password;
     }
 
-    public void setWebsite(String website){}
+    public void setWebsite(String website){this.website = website;}
 
     public String getUsername() {
         return username;

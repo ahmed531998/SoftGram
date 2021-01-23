@@ -4,8 +4,6 @@ package it.unipi.softgram.entities;
 import org.bson.Document;
 
 import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
 
 public class App {
     private String id;

@@ -3,7 +3,6 @@ package it.unipi.softgram.utilities.drivers;
 import org.neo4j.driver.*;
 import org.neo4j.driver.internal.logging.JULogging;
 
-
 import java.util.logging.Level;
 
 

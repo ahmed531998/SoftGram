@@ -4,9 +4,9 @@ import it.unipi.softgram.entities.App;
 import it.unipi.softgram.entities.User;
 import it.unipi.softgram.utilities.drivers.Neo4jDriver;
 import it.unipi.softgram.utilities.enumerators.Relation;
+import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
-import org.neo4j.driver.Record;
 import org.neo4j.driver.TransactionWork;
 
 import java.text.SimpleDateFormat;

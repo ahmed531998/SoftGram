@@ -3,31 +3,25 @@ package it.unipi.softgram.controller.mongo;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Filters;
-import static com.mongodb.client.model.Sorts.descending;
-
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.softgram.entities.Review;
 import it.unipi.softgram.utilities.drivers.MongoDriver;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.regex.Pattern;
 
-
-import org.bson.conversions.Bson;
-
-
-
-
-import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Aggregates.*;
-import static com.mongodb.client.model.Updates.set;
+import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
+import static com.mongodb.client.model.Sorts.descending;
+import static com.mongodb.client.model.Updates.set;
 
 //test this
 
