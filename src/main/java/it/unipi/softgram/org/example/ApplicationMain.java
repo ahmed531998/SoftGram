@@ -135,6 +135,7 @@ public class ApplicationMain  implements Initializable {
                 ObservableList<String> items = FXCollections.observableArrayList(
                         "No review");
                 list.setItems(items);
+                e.printStackTrace();
             }
 
         };

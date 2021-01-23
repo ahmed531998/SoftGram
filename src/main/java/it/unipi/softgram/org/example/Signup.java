@@ -67,7 +67,7 @@ public class Signup implements Initializable {
             stage.show();
             ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
         } catch (IOException ex) {
-            System.err.println(ex);
+            ex.printStackTrace();
         }
     }
 

@@ -110,7 +110,7 @@ public class Users implements Initializable {
                             stage.setTitle("User Mainpage");
                             stage.show();
                         } catch (IOException ex) {
-                            System.err.println(ex);
+                            ex.printStackTrace();
                         }
                     }
 
@@ -142,7 +142,7 @@ public class Users implements Initializable {
                 stage.show();
                 ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
             } catch (IOException ex) {
-                System.err.println(ex);
+                ex.printStackTrace();
             }
         }
 
@@ -165,7 +165,7 @@ public class Users implements Initializable {
                 stage.show();
                 ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
             } catch (IOException ex) {
-                System.err.println(ex);
+                ex.printStackTrace();
             }
         }
         public void findUsers(String text) {
@@ -309,7 +309,7 @@ public class Users implements Initializable {
                 stage.show();
                 ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
             } catch (IOException ex) {
-                System.err.println(ex);
+                ex.printStackTrace();
             }
         }
 
@@ -663,7 +663,7 @@ public class Users implements Initializable {
                 stage.show();
                 ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
             } catch (IOException ex) {
-                System.err.println(ex);
+                ex.printStackTrace();
             }
         }
 }

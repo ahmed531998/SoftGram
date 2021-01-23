@@ -210,7 +210,7 @@ public class Admin implements Initializable {
                         stage.setTitle("Second Window");
                         stage.show();
                     } catch (IOException ex) {
-                        System.err.println(ex);
+                        ex.printStackTrace();
                     }
                 }
 
@@ -238,7 +238,7 @@ public class Admin implements Initializable {
                         stage.setTitle("Second Window");
                         stage.show();
                     } catch (IOException ex) {
-                        System.err.println(ex);
+                        ex.printStackTrace();
                     }
                 }
 
@@ -266,7 +266,7 @@ public class Admin implements Initializable {
                         stage.setTitle("Second Window");
                         stage.show();
                     } catch (IOException ex) {
-                        System.err.println(ex);
+                        ex.printStackTrace();
                     }
                 }
 
@@ -808,7 +808,7 @@ public class Admin implements Initializable {
             stage.show();
             ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
         } catch (IOException ex) {
-            System.err.println(ex);
+            ex.printStackTrace();
         }
         //App.setRoot("users");
         //((Node)(actionEvent.getSource())).getScene().getWindow().hide();
@@ -833,7 +833,7 @@ public class Admin implements Initializable {
             stage.show();
             ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
         } catch (IOException ex) {
-            System.err.println(ex);
+            ex.printStackTrace();
         }
     }
 
@@ -867,7 +867,7 @@ public class Admin implements Initializable {
             stage.show();
             ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
         } catch (IOException ex) {
-            System.err.println(ex);
+            ex.printStackTrace();
         }
 
     }
@@ -968,7 +968,7 @@ public class Admin implements Initializable {
             stage.show();
             ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
         } catch (IOException ex) {
-            System.err.println(ex);
+            ex.printStackTrace();
         }
     }
 }
