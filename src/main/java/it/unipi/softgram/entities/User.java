@@ -73,7 +73,10 @@ public class User {
             userDoc.append("birthday", this.getBirthday());
         if(this.getEmail()!=null)
             userDoc.append("email", this.getEmail());
+
+        userDoc.append("password", this.getPassword());
         userDoc.append("role", "Normal User");
+
         if(this.getCountry()!=null)
             userDoc.append("Country", this.getCountry());
         return userDoc;
