@@ -55,6 +55,7 @@ public class AppMongoNeo4jManager {
                 return null;
             });
         } catch (Exception e) {
+            appMongoManager.deleteApp(a);
             e.printStackTrace();
         }
     }

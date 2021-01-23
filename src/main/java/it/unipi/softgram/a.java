@@ -27,48 +27,54 @@ public class a {
 
         AppMongoNeo4jManager AMNQ = new AppMongoNeo4jManager();
         UserMongoNeo4jManager UMNQ = new UserMongoNeo4jManager();
+        List<User> us = UQ.searchUserByUsername("Richard L", 0);
+        User u = us.get(0);
+        List<App> as = ANQ.browseFollowedApps(u);
+        App a = as.get(0);
 
+
+        ANQ.relationFollowUserAppExists(u, a);
 
 //        System.out.println(AQ.getPopularApps(5));
 //        System.out.println(AQ.getPopularAppsPerYear(2019, 5));
 //        System.out.println(AQ.getPopularAppsPerCat("Finance", 5));
 //
-        List<User> us = UQ.searchUserByUsername("Richard L", 0);
-        User u = us.get(0);
-
-        System.out.println("common");
-        List<App> as = ANQ.browseCommonApps();
-        for (App a: as){
-            System.out.println(a.toAppDocument());
-        }
-        System.out.println("fav");
-
-        as = ANQ.browseFavoriteCategory(u);
-        for (App a: as){
-            System.out.println(a.toAppDocument());
-        }
-        System.out.println("foll");
-
-        as = ANQ.browseAppsOfFollowers(u);
-        for (App a: as){
-            System.out.println(a.toAppDocument());
-        }
-        System.out.println("dev");
-
-        as = ANQ.browseDevelopedApps(u);
-        for (App a: as){
-            System.out.println(a.toAppDocument());
-        }
-        System.out.println("follwed");
-
-        as = ANQ.browseFollowedApps(u);
-        for (App a: as){
-            System.out.println(a.toAppDocument());
-        }
-
-
-        Date dos = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2019-02-22 17:21:47");
-        Date dor = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2019-02-22 17:21:47");
+//        List<User> us = UQ.searchUserByUsername("Richard L", 0);
+//        User u = us.get(0);
+//
+//        System.out.println("common");
+//        List<App> as = ANQ.browseCommonApps();
+//        for (App a: as){
+//            System.out.println(a.toAppDocument());
+//        }
+//        System.out.println("fav");
+//
+//        as = ANQ.browseFavoriteCategory(u);
+//        for (App a: as){
+//            System.out.println(a.toAppDocument());
+//        }
+//        System.out.println("foll");
+//
+//        as = ANQ.browseAppsOfFollowers(u);
+//        for (App a: as){
+//            System.out.println(a.toAppDocument());
+//        }
+//        System.out.println("dev");
+//
+//        as = ANQ.browseDevelopedApps(u);
+//        for (App a: as){
+//            System.out.println(a.toAppDocument());
+//        }
+//        System.out.println("follwed");
+//
+//        as = ANQ.browseFollowedApps(u);
+//        for (App a: as){
+//            System.out.println(a.toAppDocument());
+//        }
+//
+//
+//        Date dos = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2019-02-22 17:21:47");
+//        Date dor = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2019-02-22 17:21:47");
 
     }
 }
