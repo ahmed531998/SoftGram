@@ -75,7 +75,7 @@ public class User {
             userDoc.append("email", this.getEmail());
 
         userDoc.append("password", this.getPassword());
-        userDoc.append("role", "Normal User");
+        userDoc.append("role", this.getRole());
 
         if(this.getCountry()!=null)
             userDoc.append("Country", this.getCountry());

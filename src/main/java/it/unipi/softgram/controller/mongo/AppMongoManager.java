@@ -111,15 +111,15 @@ public class AppMongoManager {
     public List<App> findApp(String text){
         try {
             MongoCollection<Document> collection = driver.getCollection("app");
-            Pattern pattern = Pattern.compile("^" + text + ".*$");
+            Pattern pattern = Pattern.compile(".*" + text + ".*$");
             Bson filter1 = Filters.regex("_id", pattern);
             Bson filter2 = Filters.regex("name", pattern);
             List<Document> output = collection.find(or(filter1,filter2))
                     .limit(100)
                     .into(new ArrayList<>());
             List<App> apps = new ArrayList<>();
-            App app = new App();
             for (Document d: output){
+                App app = new App();
                 apps.add(app.fromAppDocument(d));
             }
             return apps;
@@ -127,6 +127,48 @@ public class AppMongoManager {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public double getAverageRating(App a){
+        try{
+            MongoCollection<Document> collection = driver.getCollection("review");
+            Bson myGroup = new Document("$group", new Document("_id", a.getId())
+                    .append("average", new Document()
+                            .append("$avg", "$score")));
+
+            List <Document> output = collection.aggregate(
+                    Arrays.asList(myGroup))
+                    .into(new ArrayList<>());
+            if (output.size() > 0) {
+                Document x = output.get(0);
+                return (Double) x.get("average");
+            }
+            else return 0.0;
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
+
+    public int getRatingCount(App a){
+        try{
+            MongoCollection<Document> collection = driver.getCollection("review");
+            Bson myGroup = new Document("$group", new Document("_id", a.getId())
+                    .append("count", new Document()
+                            .append("$sum", 1)));
+
+            List <Document> output = collection.aggregate(
+                    Arrays.asList(myGroup))
+                    .into(new ArrayList<>());
+            if (output.size() > 0) {
+                Document x = output.get(0);
+                return (Integer) x.get("count");
+            }
+            else return 0;
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     public List<Document> getPopularApps(int limit){

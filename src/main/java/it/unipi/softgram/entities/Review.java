@@ -76,10 +76,12 @@ public class Review {
                 .append("date", this.date)
                 .append("content", this.content)
                 .append("appId", this.appId)
-                .append("category", this.category)
                 .append("appName", this.appName);
         if(this.score != null)
-                review.append("score", this.score);
+            review.append("score", this.score);
+        if(this.category!=null)
+            review.append("category", this.category);
+
         return review;
     }
 

@@ -22,11 +22,13 @@ public class UserMongoNeo4jManager {
     }
     //User
     public void addUser( User user){
+        String roleString = user.getRole().replaceAll("\\s","");
+
         try ( Session session = neo4jDriver.getSession() ) {
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run( "MERGE (u:User {username: $username}) " +
-                                "SET u:NormalUser",
-                        parameters( "username", user.getUsername()) );
+                                "SET u:$role ",
+                        parameters( "username", user.getUsername(), "role", roleString) );
                 try {
                     userMongoManager.addUser(user);
                 }

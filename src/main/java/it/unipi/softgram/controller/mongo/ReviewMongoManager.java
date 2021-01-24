@@ -98,9 +98,10 @@ public class ReviewMongoManager {
                     .sort(sort).skip(skip).limit(50)
                     .into(new ArrayList<>());
             List<Review> reviews = new ArrayList<>();
-            Review review = new Review();
-            for (Document reviewDoc : output)
+            for (Document reviewDoc : output) {
+                Review review = new Review();
                 reviews.add(review.fromReviewDocument(reviewDoc));
+            }
             System.out.println(output);
             return reviews;
         } catch (Exception e) {
@@ -128,9 +129,10 @@ public class ReviewMongoManager {
                     .skip(skip).limit(10)
                     .into(new ArrayList<>());
             List<Review> reviews = new ArrayList<>();
-            Review review = new Review();
-            for (Document reviewDoc : output)
+            for (Document reviewDoc : output){
+                Review review = new Review();
                 reviews.add(review.fromReviewDocument(reviewDoc));
+            }
             System.out.println(output);
             return reviews;
         } catch (Exception e) {

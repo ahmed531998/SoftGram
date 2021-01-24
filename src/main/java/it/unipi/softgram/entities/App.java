@@ -12,22 +12,20 @@ public class App {
     private String name;
     private Double price;
     private String category;
-    private int ratingCount;
-    private int installCount;
     private String size;
     private String ageGroup;
     private String currency;
     private Date lastUpdated;
-    private User developer;
-    private boolean inAppPurchase;
+    //private User developer;
+    private Boolean inAppPurchase;
 
     public App() {
 
     }
 
     public App(String id, Boolean adSupported, Date released, String name, Double price,
-               String category, int ratingCount, int installCount, String size,
-               String ageGroup, String currency, Date lastUpdated, User developer,
+               String category, String size,
+               String ageGroup, String currency, Date lastUpdated,
                Boolean inAppPurchase){
         this.name = name;
         this.category = category;
@@ -35,13 +33,11 @@ public class App {
         this.id = id;
         this.released = released;
         this.price = price;
-        this.ratingCount = ratingCount;
-        this.installCount = installCount;
         this.size = size;
         this.ageGroup = ageGroup;
         this.currency = currency;
         this.lastUpdated = lastUpdated;
-        this.developer = developer;
+        //this.developer = developer;
         this.inAppPurchase = inAppPurchase;
     }
     public boolean getInAppPurchase() { return inAppPurchase; }
@@ -53,10 +49,6 @@ public class App {
     public String getName() { return name; }
 
     public Double getPrice() { return price; }
-
-    public int getInstallCount() { return installCount; }
-
-    public int getRatingCount() { return ratingCount; }
 
     public Date getReleased() { return released; }
 
@@ -70,13 +62,9 @@ public class App {
 
     public String getCategory() { return category; }
 
-    public User getDeveloper() { return developer; }
-
     public void setId(String id) { this.id = id; }
 
     public void setName(String name) { this.name = name; }
-
-    public void setInstallCount(int installCount) { this.installCount = installCount; }
 
     public void setCategory(String category) {
         this.category = category;
@@ -88,8 +76,6 @@ public class App {
 
     public void setPrice(Double price) { this.price = price; }
 
-    public void setRatingCount(int ratingCount) { this.ratingCount = ratingCount; }
-
     public void setLastUpdated(Date lastUpdated) { this.lastUpdated = lastUpdated; }
 
     public void setAdSupported(Boolean adSupported) { this.adSupported = adSupported; }
@@ -99,8 +85,6 @@ public class App {
     public void setCurrency(String currency) { this.currency = currency; }
 
     public void setSize(String size) { this.size = size; }
-
-    public void setDeveloper(User developer) { this.developer = developer; }
 
     public Document toAppDocument(){
         Document appDoc = new Document("_id", this.getId());
@@ -112,8 +96,7 @@ public class App {
             appDoc.append("name", this.name);
         if(this.price!=null)
             appDoc.append("price", this.price);
-        appDoc.append("ratingCount", this.ratingCount);
-        appDoc.append("installCount", this.installCount);
+
         if(this.size!=null)
             appDoc.append("size", this.size);
         if(this.ageGroup!=null)
@@ -123,38 +106,43 @@ public class App {
         if(this.lastUpdated!=null)
             appDoc.append("lastUpdated", this.lastUpdated);
 
-        Document devDoc;
-        if(this.developer!=null) {
-            devDoc = new Document("developerId", this.getDeveloper().getUsername());
-            if (this.developer.getEmail() != null)
-                devDoc.append("developerEmail", this.developer.getEmail());
-            if (this.developer.getWebsite() != null)
-                devDoc.append("developerWebsite", this.developer.getWebsite());
-            appDoc.append("developer", devDoc);
-        }
+//        Document devDoc;
+//        if(this.developer!=null) {
+//            devDoc = new Document("developerId", this.getDeveloper().getUsername());
+//            if (this.developer.getEmail() != null)
+//                devDoc.append("developerEmail", this.developer.getEmail());
+//            if (this.developer.getWebsite() != null)
+//                devDoc.append("developerWebsite", this.developer.getWebsite());
+//            appDoc.append("developer", devDoc);
+//        }
         if (this.category!=null)
             appDoc.append("category", this.category);
-        appDoc.append("inAppPurchase", this.inAppPurchase);
+        if (this.inAppPurchase != null)
+          appDoc.append("inAppPurchase", this.inAppPurchase);
 
         return appDoc;
     }
 
     public App fromAppDocument(Document r){
         this.id = (String) r.get("_id");
-        this.adSupported = (Boolean) r.get("adSupported");
+        Boolean x = r.get("adSupported")!=null?
+                ((Double)r.get("adSupported") == 0.0? false : true):null;
+        this.adSupported = x;
         this.released = (Date) r.get("released");
         this.name = (String) r.get("name");
         this.price = (double) r.get("price");
-        this.ratingCount = (int) r.get("ratingCount");
-        this.installCount = (int) r.get("installCount");
+
         this.size = (String) r.get("size");
         this.ageGroup = (String) r.get("ageGroup");
         this.currency = (String) r.get("currency");
         this.lastUpdated = (Date) r.get("lastUpdated");
-        Document d = (Document) r.get("developer");
-        User x = new User();
-        this.developer = (x.fromUserDocument(d));
-        this.inAppPurchase = (Boolean) r.get("inAppPurchase");
+//        Document d = (Document) r.get("developer");
+//        User x = new User();
+//        this.developer = (x.fromUserDocument(d));
+         x = r.get("inAppPurchase")!=null?
+                ((Double)r.get("inAppPurchase") == 0.0? false : true):null;
+        this.inAppPurchase = x;
+        this.category = (String) r.get("category");
         return this;
     }
 
