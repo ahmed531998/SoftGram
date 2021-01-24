@@ -11,8 +11,8 @@ public class Review {
     private String username;
     private Date date;
     private String content;
-    private Integer score;
-    private String _id;
+    private Double score;
+    private Object _id;
 
     public Review(){
     }
@@ -27,7 +27,7 @@ public class Review {
     }
 
     public Review(String appId, String category, String username, Date date, String content,
-                  Integer score){
+                  Double score){
         this.appId = appId;
         this.category = category;
         this.username = username;
@@ -43,13 +43,17 @@ public class Review {
     public void setDate(Date date) {
         this.date = date;
     }
-    public void setScore(Integer score) {
+    public void setScore(Double score) {
         this.score = score;
     }
     public void setUsername(String username) {
         this.username = username;
     }
     public void setAppName(String appName) { this.appName = appName;    }
+
+    public void set_id(Object _id) {
+        this._id = _id;
+    }
 
     //getters
     public double getScore() { return score; }
@@ -64,7 +68,7 @@ public class Review {
     public String getUsername() {
         return username;
     }
-    public String get_id(){ return  _id;}
+    public Object get_id(){ return  _id;}
     public String getAppName() {return appName; }
 
     public Document toReviewDocument(){
@@ -85,10 +89,10 @@ public class Review {
         this.username = (String) r.get("username");
         this.date = (Date) r.get("date");
         this.content = (String) r.get("content");
-        this.score = (Integer) r.get("score");
+        this.score = (Double) r.get("score");
         this.category = (String) r.get("category");
         this.appName = (String) r.get("appName");
-        this._id = (String) r.get("_id");
+        this._id = (Object) r.get("_id");
         return this;
     }
 }

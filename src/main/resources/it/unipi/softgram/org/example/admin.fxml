@@ -41,9 +41,9 @@
                            </font></Text>
                         <TableView fx:id="suggestedapps_table" layoutX="14.0" layoutY="93.0" prefHeight="323.0" prefWidth="449.0">
                           <columns>
-                            <TableColumn fx:id="appid_col" prefWidth="141.6000213623047" text="AppID" />
-                            <TableColumn fx:id="apppname_col" prefWidth="86.39996337890625" text="AppName" />
-                              <TableColumn fx:id="category_col" minWidth="0.0" prefWidth="100.0" text="Category" />
+                            <TableColumn fx:id="appid_col" prefWidth="194.39996337890625" text="AppID" />
+                            <TableColumn fx:id="apppname_col" prefWidth="34.4000244140625" text="AppName" visible="false" />
+                              <TableColumn fx:id="category_col" minWidth="0.0" prefWidth="100.0" text="Category" visible="false" />
                           </columns>
                         </TableView>
                         <TableView fx:id="suggesteduser_table" layoutX="477.0" layoutY="93.0" prefHeight="323.0" prefWidth="380.0">
@@ -110,7 +110,7 @@
                                     <Font name="System Bold" size="14.0" />
                                  </font></Button>
                                         <TextField fx:id="searchtxt" layoutX="14.0" layoutY="84.0" promptText="ID" />
-                                        <Label fx:id="appid" layoutX="43.0" layoutY="50.0" />
+                                        <Label fx:id="appid" layoutX="43.0" layoutY="50.0" visible="false" />
                               <Label fx:id="userid" layoutX="53.0" layoutY="5.0" text="Label" visible="false" />
                               <Text layoutX="274.0" layoutY="49.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Search for Different Apps">
                                  <font>
@@ -148,7 +148,7 @@
                                             <columns>
                                                 <TableColumn fx:id="app_id_col2" prefWidth="150.40003967285156" text="App ID" />
                                                 <TableColumn fx:id="appname_col2" minWidth="0.0" prefWidth="84.800048828125" text="App Name" />
-                                                <TableColumn fx:id="name_col2" minWidth="1.5999755859375" prefWidth="54.39996337890625" text="name" />
+                                                <TableColumn fx:id="name_col2" minWidth="1.5999755859375" prefWidth="54.39996337890625" text="name" visible="false" />
                                                 <TableColumn fx:id="avg_col2" prefWidth="36.79998779296875" text="Avg" />
                                                 <TableColumn fx:id="num_col2" prefWidth="135.199951171875" text="number of reviews" />
                                                 <TableColumn fx:id="last_col2" minWidth="0.0" prefWidth="0.0" text="Last update" />
@@ -242,7 +242,7 @@
                         <TableView fx:id="commonapp_table" layoutX="14.0" layoutY="44.0" prefHeight="200.0" prefWidth="342.0">
                           <columns>
                             <TableColumn fx:id="appid_com_col" prefWidth="135.2000274658203" text="AppID" />
-                            <TableColumn fx:id="appname_com_col" prefWidth="114.4000244140625" text="AppName" />
+                            <TableColumn fx:id="appname_com_col" prefWidth="114.4000244140625" text="AppName" visible="false" />
                           </columns>
                         </TableView>
                             </children></AnchorPane>

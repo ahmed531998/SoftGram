@@ -2,6 +2,7 @@ package it.unipi.softgram.org.example;
 
 import com.mongodb.client.MongoCollection;
 import it.unipi.softgram.controller.mongo.UserMongoManager;
+import it.unipi.softgram.controller.mongoneo4j.AppMongoNeo4jManager;
 import it.unipi.softgram.controller.mongoneo4j.UserMongoNeo4jManager;
 import it.unipi.softgram.controller.neo4j.AppNeo4jManager;
 import it.unipi.softgram.controller.neo4j.UserNeo4jManager;
@@ -64,6 +65,7 @@ public class Users implements Initializable {
         @FXML private Label userid,userid1;
         ObservableList<Userdata> userdata = FXCollections.observableArrayList();
         ObservableList<Userdata> suggestedusers = FXCollections.observableArrayList();
+        User user_main=new User();
 
     @FXML
         TableView<Userdata> user_table;
@@ -96,18 +98,51 @@ public class Users implements Initializable {
             username_col.setCellValueFactory(new PropertyValueFactory<>("username"));
 
             suggestedusers();
+            ChangeRoleButtonToTable();
             FollowUserButtonToTable();
-            followedSearch();
-            actualSearch();
-            followrequestfun();
-            folowcommon();
-            followrequest();
-            BecomeDeveloperButtonToTable();
-            BecomeNormalButtonToTable();
             RemoveButtonToTable();
             UpdateButtonToTable();
             FollowButtonToTable();
             findUsers("");
+            listrequest.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+                @Override
+                public void handle(MouseEvent event) {
+                    int dialogButton = JOptionPane.YES_NO_OPTION;
+                    int dialogResult = JOptionPane.showConfirmDialog(null, "follow this user?", "!!", dialogButton);
+
+                    if (dialogResult == JOptionPane.YES_OPTION) {
+                        // Saving code here
+
+                    }
+                }
+            });
+            listsuggest.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+                @Override
+                public void handle(MouseEvent event) {
+                    if(event.getClickCount() == 2) {
+                        int dialogButton = JOptionPane.YES_NO_OPTION;
+                        int dialogResult = JOptionPane.showConfirmDialog(null, "Follow this user", "!!", dialogButton);
+
+                        if (dialogResult == JOptionPane.YES_OPTION) {
+                            // Saving code here
+                            UserNeo4jManager user1 = new UserNeo4jManager();
+                            User user = new User();
+
+                            user.setUsername(userid.getText().toString());
+                            String followeduser = listsuggest.getSelectionModel().getSelectedItem();
+                            String followeruser = userid.getText();
+                            boolean request = true;
+                            //  System.out.println("clicked on " + listrequest.getSelectionModel().getSelectedItem());
+                            user1.addFollow(followeruser, followeduser, request);
+                            JOptionPane.showMessageDialog(null, "You follow this user");
+                            followedSearch(userid.getText().toString());
+
+                        }
+                    }
+                }
+            });
             user_table.setOnMouseClicked(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event){
@@ -120,6 +155,7 @@ public class Users implements Initializable {
 
                             //Get controller of scene2
                             userid1.setText(user_table.getSelectionModel().getSelectedItem().getUsername());
+
                             Usermainpage scene2Controller = loader.getController();
                             //Pass whatever data you want. You can have multiple method calls here
                             scene2Controller.transferMessage(userid.getText());
@@ -142,7 +178,12 @@ public class Users implements Initializable {
         public void transferMessage(String message) {
             //Display the message
             userid.setText(message);
-
+            user_main.setUsername(message);
+            followedSearch(message);
+            actualSearch(message);
+            followrequest(message);
+            followrequestfun(message);
+            folowcommon(message);
         }
 
     public void suggestedusers(){
@@ -209,7 +250,7 @@ public class Users implements Initializable {
         }
         public void findUsers(String text) {
             MongoDriver driver = new MongoDriver();
-            MongoCollection<Document> collection = driver.getCollection("users");
+            MongoCollection<Document> collection = driver.getCollection("user");
 
             // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
 
@@ -256,10 +297,7 @@ public class Users implements Initializable {
 
         public void addusers(ActionEvent actionEvent) {
 
-            Role.RoleValue roleValue= Role.RoleValue.valueOf(role.getText());
             String usernametxt= username.getText();
-            String roleString = Role.getRoleString(roleValue);
-            final String role = roleString.replaceAll("\\s","");
             if(username.getText().isEmpty()){
                 JOptionPane.showMessageDialog(null, "Field required");
             }else {
@@ -436,88 +474,71 @@ public class Users implements Initializable {
             user_table.getColumns().add(colBtn);
 
         }
-        private void BecomeDeveloperButtonToTable() {
-            TableColumn<Userdata, Void> colBtn = new TableColumn("BecomeDeveloper");
 
-            Callback<TableColumn<Userdata, Void>, TableCell<Userdata, Void>> cellFactory = new Callback<TableColumn<Userdata, Void>, TableCell<Userdata, Void>>() {
-                @Override
-                public TableCell<Userdata, Void> call(final TableColumn<Userdata, Void> param) {
-                    final TableCell<Userdata, Void> cell = new TableCell<Userdata, Void>() {
-                        private final Button btn = new Button("BecomeDeveloper");
-                        {
-                            btn.setOnAction((ActionEvent event) -> {
-                                Userdata data = getTableView().getItems().get(getIndex());
-                                UserMongoNeo4jManager usermongo=new UserMongoNeo4jManager();
+    private void ChangeRoleButtonToTable() {
+        TableColumn<Userdata, Void> colBtn = new TableColumn("ChangeRole");
+
+        Callback<TableColumn<Userdata, Void>, TableCell<Userdata, Void>> cellFactory = new Callback<TableColumn<Userdata, Void>, TableCell<Userdata, Void>>() {
+            @Override
+            public TableCell<Userdata, Void> call(final TableColumn<Userdata, Void> param) {
+                final TableCell<Userdata, Void> cell = new TableCell<Userdata, Void>() {
+                    private final Button btn = new Button("ChangeRole");
+                    {
+                        btn.setOnAction((ActionEvent event) -> {
+                            Userdata data = getTableView().getItems().get(getIndex());
+                            UserMongoNeo4jManager usermongo=new UserMongoNeo4jManager();
+                            boolean r=false;
+                            boolean t=false;
+                            if(getTableView().getItems().get(getIndex()).getRole().equals("Developer")){
+                                int dialogButton = JOptionPane.YES_NO_OPTION;
+                                int dialogResult1 = JOptionPane.showConfirmDialog(null, "Change Role to Normal", "Changing", dialogButton);
+                                if (dialogResult1 == JOptionPane.YES_OPTION) {
+                                    // Saving code here
+                                    usermongo.becomeNormalUser(getTableView().getItems().get(getIndex()).getUsername());
+                                    JOptionPane.showMessageDialog(null, "this user become normal user");
+                                    ClearTable(user_table);
+                                    findUsers("");
+                                }
+                            }else if(getTableView().getItems().get(getIndex()).getRole().equals("Normal User") || getTableView().getItems().get(getIndex()).getRole().equals("NormalUser") || getTableView().getItems().get(getIndex()).getRole().equals("Normal")){
+                                int dialogButton = JOptionPane.YES_NO_OPTION;
+                                int dialogResult = JOptionPane.showConfirmDialog(null, "Change Role to Developer", "Changing", dialogButton);
+                                if (dialogResult == JOptionPane.YES_OPTION) {
+                                    usermongo.becomeDeveloper(getTableView().getItems().get(getIndex()).getUsername());
+                                    JOptionPane.showMessageDialog(null, "this user become a developer");
+                                    ClearTable(user_table);
+                                    findUsers("");
+
+                                }
+                            }
+
                             /*neo4j
                             UserNeo4jManager userneo=new UserNeo4jManager();
                             userneo.becomeDeveloper(getTableView().getItems().get(getIndex()).getUsername());*/
-                                usermongo.becomeDeveloper(getTableView().getItems().get(getIndex()).getUsername());
-                                JOptionPane.showMessageDialog(null, "this user become a developer");
-                                ClearTable(user_table);
-                                findUsers("");
-                            });
+
+                        });
+                    }
+
+
+                    @Override
+                    public void updateItem(Void item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty) {
+                            setGraphic(null);
+                        } else {
+                            setGraphic(btn);
                         }
+                    }
+                };
+                return cell;
+            }
+        };
 
+        colBtn.setCellFactory(cellFactory);
 
-                        @Override
-                        public void updateItem(Void item, boolean empty) {
-                            super.updateItem(item, empty);
-                            if (empty) {
-                                setGraphic(null);
-                            } else {
-                                setGraphic(btn);
-                            }
-                        }
-                    };
-                    return cell;
-                }
-            };
+        user_table.getColumns().add(colBtn);
 
-            colBtn.setCellFactory(cellFactory);
+    }
 
-            user_table.getColumns().add(colBtn);
-
-        }
-        private void BecomeNormalButtonToTable() {
-            TableColumn<Userdata, Void> colBtn = new TableColumn("BecomeNormal");
-
-            Callback<TableColumn<Userdata, Void>, TableCell<Userdata, Void>> cellFactory = new Callback<TableColumn<Userdata, Void>, TableCell<Userdata, Void>>() {
-                @Override
-                public TableCell<Userdata, Void> call(final TableColumn<Userdata, Void> param) {
-                    final TableCell<Userdata, Void> cell = new TableCell<Userdata, Void>() {
-
-                        private final Button btn = new Button("BecomeNormal");
-
-                        {
-                            btn.setOnAction((ActionEvent event) -> {
-                                Userdata data = getTableView().getItems().get(getIndex());
-                                UserMongoNeo4jManager usermongo=new UserMongoNeo4jManager();
-                                usermongo.becomeNormalUser(getTableView().getItems().get(getIndex()).getUsername());
-                                JOptionPane.showMessageDialog(null, "this user become normal user");
-                                ClearTable(user_table);
-                                findUsers("");
-                            });
-                        }
-
-                        @Override
-                        public void updateItem(Void item, boolean empty) {
-                            super.updateItem(item, empty);
-                            if (empty) {
-                                setGraphic(null);
-                            } else {
-                                setGraphic(btn);
-                            }
-                        }
-                    };
-                    return cell;
-                }
-            };
-
-            colBtn.setCellFactory(cellFactory);
-
-            user_table.getColumns().add(colBtn);
-
-        }
         private void RemoveButtonToTable() {
             TableColumn<Userdata, Void> colBtn = new TableColumn("Remove");
 
@@ -580,6 +601,7 @@ public class Users implements Initializable {
                             btn.setOnAction((ActionEvent event) -> {
                                 Userdata data = getTableView().getItems().get(getIndex());
                                 UserNeo4jManager useneo=new UserNeo4jManager();
+                                System.out.println(userid.getText());
                                 useneo.addFollow(userid.getText(), getTableView().getItems().get(getIndex()).getUsername(), false);
                                 JOptionPane.showMessageDialog(null, "You followed this user");
                             });
@@ -625,25 +647,25 @@ public class Users implements Initializable {
             }
             for (int i=0; i<data.size();i++)
             {
-                items.add(data.get(0));
+                items.add(data.get(i));
             }
             listrequest.setItems(items);
 
         }
-        public void followrequestfun(){
+        public void followrequestfun(String username){
             UserNeo4jManager user=new UserNeo4jManager();
-            List<String> data= user.browseFollowRequests(userid.getText());
+            List<String> data= user.browseFollowRequests(username);
             ObservableList<String> items = FXCollections.observableArrayList();
             if(data.isEmpty()){
                 items.add("No data");
             }
             for (int i=0; i<data.size();i++)
             {
-                items.add(data.get(0));
+                items.add(data.get(i));
             }
             listrequest.setItems(items);
         }
-        public void folowcommon(){
+        public void folowcommon(String username){
             //common users
             UserNeo4jManager user=new UserNeo4jManager();
 
@@ -654,20 +676,20 @@ public class Users implements Initializable {
             }
             for (int i=0; i<data.size();i++)
             {
-                items.add(data.get(0));
+                items.add(data.get(i));
             }
             listsuggest.setItems(items);
         }
-        public void followrequest(){
+        public void followrequest(String username){
             UserNeo4jManager user=new UserNeo4jManager();
-            List<String> data= user.browseFollowRequests(userid.getText());
+            List<String> data= user.browseFollowRequests(username);
             ObservableList<String> items = FXCollections.observableArrayList();
             if(data.isEmpty()){
                 items.add("No data");
             }
             for (int i=0; i<data.size();i++)
             {
-                items.add(data.get(0));
+                items.add(data.get(i));
             }
             listrequest.setItems(items);
 
@@ -680,7 +702,7 @@ public class Users implements Initializable {
             ObservableList<String> items = FXCollections.observableArrayList();
             for (int i=0; i<data.size();i++)
             {
-                items.add(data.get(0));
+                items.add(data.get(i));
             }
             listsuggest.setItems(items);
 
@@ -695,20 +717,20 @@ public class Users implements Initializable {
             }
             for (int i=0; i<data.size();i++)
             {
-                items.add(data.get(0));
+                items.add(data.get(i));
             }
             listactual.setItems(items);
         }
-        public void actualSearch(){
+        public void actualSearch(String username){
             UserNeo4jManager user=new UserNeo4jManager();
-            List<String> data= user.browseActualFollowers(userid.getText());
+            List<String> data= user.browseActualFollowers(username);
             ObservableList<String> items = FXCollections.observableArrayList();
             if(data.isEmpty()){
                 items.add("No data");
             }
             for (int i=0; i<data.size();i++)
             {
-                items.add(data.get(0));
+                items.add(data.get(i));
             }
             listactual.setItems(items);
         }
@@ -723,20 +745,21 @@ public class Users implements Initializable {
             }
             for (int i=0; i<data.size();i++)
             {
-                items.add(data.get(0));
+                items.add(data.get(i));
             }
             listfollowed.setItems(items);
         }
-        public void followedSearch(){
+        public void followedSearch(String usernme){
+
             UserNeo4jManager user=new UserNeo4jManager();
-            List<String> data= user.browseFollowedUsers(userid.getText());
+            List<String> data= user.browseFollowedUsers(usernme);
             ObservableList<String> items = FXCollections.observableArrayList();
             if(data.isEmpty()){
                 items.add("No data");
             }
             for (int i=0; i<data.size();i++)
             {
-                items.add(data.get(0));
+                items.add(data.get(i));
             }
             listfollowed.setItems(items);
         }
