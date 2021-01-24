@@ -44,7 +44,7 @@ public class Usermainpage implements Initializable {
     @FXML private Text name_tfield, email_tfield, web_tfield, role_tfield;
     ObservableList<AppData> apps = FXCollections.observableArrayList();
     @FXML Label userid;
-    @FXML Button followbtn,home;
+    @FXML Button followbtn,home,remove_btn,update_btn;
     User user=new User();
     User user2=new User();
     String username1="";
@@ -81,7 +81,22 @@ public class Usermainpage implements Initializable {
         user.setUsername(message);
         userid.setText(message);
 
-
+        String check=check(message);
+        boolean check2=check2(message, name_tfield.getText());
+        remove_btn.setVisible(false);
+        update_btn.setVisible(false);
+        if(check2==true){
+            remove_btn.setVisible(true);
+            update_btn.setVisible(true);
+        }else{
+            if(check.equals("Admin")){
+                remove_btn.setVisible(true);
+                update_btn.setVisible(true);
+            }else{
+                remove_btn.setVisible(false);
+                update_btn.setVisible(false);
+            }
+        }
 
 
     }
@@ -224,7 +239,8 @@ public class Usermainpage implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        returnapps(name_tfield.getText());
+
+
        /* UserNeo4jManager userr=new UserNeo4jManager();
         try {
             boolean result = userr.relationUserUserExists(user, user2);
@@ -483,15 +499,15 @@ public class Usermainpage implements Initializable {
     }
     public void returnapps(String text){
         System.out.println("here");
+
         MongoDriver driver=new MongoDriver();
         MongoCollection<Document> collection = driver.getCollection("app");
         Document query = new Document();
-        query.append("developer.developerId", text);
+        query.append("developer.developerId", name_tfield.getText());
 
         Consumer<Document> processBlock = new Consumer<Document>() {
             @Override
             public void accept(Document document) {
-                System.out.println(document);
                 String name = (String) document.get("name");
                 String _id = (String) document.get("_id");
                 // double adsupported = (double) document.get("adSupported");
@@ -519,5 +535,28 @@ public class Usermainpage implements Initializable {
         search_table.setItems(apps);
 
         collection.find(query).forEach(processBlock);
+    }
+    public String check(String userid) {
+        MongoDriver driver = new MongoDriver();
+        MongoCollection<Document> collection = driver.getCollection("user");
+        Document query1 = new Document();
+        query1.append("_id", userid);
+        String check = "";
+        if (collection.find(query1).iterator().hasNext() && collection.find(query1).iterator().next().get("role").equals("Admin")) {
+            return check = "Admin";
+        } else if (collection.find(query1).iterator().hasNext() && collection.find(query1).iterator().next().get("role").equals("Developer")) {
+            return check = "Developer";
+        } else  {
+            return check = "Normal";
+        }
+
+    }
+    public boolean check2(String userid, String username){
+
+        if(userid.equals(username)){
+            return true;
+        }else {
+            return false;
+        }
     }
 }

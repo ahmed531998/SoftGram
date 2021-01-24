@@ -22,7 +22,7 @@ public class StatisticsMongoManager {
     public StatisticsMongoManager(){
         this.driver = new MongoDriver();
     }
-    public Map<String, Double> getAppsWithAverageAbove(double threshold){
+    public Map<String, Double> getAppsWithAverageAbove(double threshold,int limit){
         try {
             Map<String, Double> toPlot = new LinkedHashMap<>();
             setThreshold(threshold);
@@ -31,8 +31,9 @@ public class StatisticsMongoManager {
                     .append("average", new Document().append("$avg", "$score")));
             Bson myMatch = match(gte("average", threshold));
             Bson mySort = sort(descending("average"));
+            Bson myLimit = limit(limit);
             List<Document> output = collection.aggregate(
-                    Arrays.asList(myGroup, myMatch, mySort))
+                    Arrays.asList(myGroup, myMatch, mySort,myLimit))
                     .into(new ArrayList<>());
             for (Document d : output) {
                 toPlot.put((String) d.get("_id"), (Double) d.get("average"));
@@ -44,7 +45,7 @@ public class StatisticsMongoManager {
         }
         return null;
     }
-    public Map<String, Integer> getUserActivity(double threshold){
+    public Map<String, Integer> getUserActivity(double threshold, int limit){
         try {
             Map<String, Integer> toPlot = new LinkedHashMap<>();
             setThreshold(threshold);
@@ -53,8 +54,9 @@ public class StatisticsMongoManager {
                     .append("count", new Document().append("$sum", 1)));
             Bson myMatch = match(gte("count", threshold));
             Bson mySort = sort(descending("count"));
+            Bson myLimit = limit(limit);
             List<Document> output = collection.aggregate(
-                    Arrays.asList(myGroup, myMatch, mySort))
+                    Arrays.asList(myGroup, myMatch, mySort,myLimit))
                     .into(new ArrayList<>());
             for (Document d : output) {
                 toPlot.put((String) d.get("_id"), (Integer) d.get("count"));
@@ -75,8 +77,9 @@ public class StatisticsMongoManager {
             Bson myGroup = new Document("$group", new Document("_id",  new Document("year", new Document().append("$year", "$date")))
                     .append("count", new Document().append("$sum", 1)));
             Bson mySort = sort(descending("count"));
+            Bson myLimit = limit(5);
             List<Document> output = collection.aggregate(
-                    Arrays.asList(myGroup, mySort))
+                    Arrays.asList(myGroup, mySort,myLimit))
                     .into(new ArrayList<>());
             for (Document d : output) {
                 Document y = (Document) d.get("_id");
