@@ -4,11 +4,13 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.softgram.entities.Review;
 import it.unipi.softgram.utilities.drivers.MongoDriver;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import java.util.function.Consumer;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,90 +30,92 @@ import static com.mongodb.client.model.Updates.set;
 public class ReviewMongoManager {
     private MongoDriver driver;
 
-    public enum DateQuery{
+    public enum DateQuery {
         After,
         On
     }
 
-    public ReviewMongoManager(){
-       try{
-           driver = new MongoDriver();
-       }
-       catch (Exception e){
-           e.printStackTrace();
-       }
+    public ReviewMongoManager() {
+        try {
+            driver = new MongoDriver();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void postNewReview(Review review) {
         Document reviewDoc = review.toReviewDocument();
         try {
+
             MongoCollection<Document> reviewCollection = driver.getCollection("review");
             reviewCollection.insertOne(reviewDoc);
-        } catch (Exception e){
+
+            System.out.println("added");
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public List<Review> searchByWordInUserReviews(String word, String username, int skip){
-        Bson entityFilter = eq("username",username);
+    public List<Review> searchByWordInUserReviews(String word, String username, int skip) {
+        Bson entityFilter = eq("username", username);
         Pattern pattern = Pattern.compile("^" + word + ".*$");
-        Bson wordFilter = Filters.regex("content",pattern);
+        Bson wordFilter = Filters.regex("content", pattern);
         return searchBy(wordFilter, entityFilter, skip);
     }
 
-    public List<Review> searchByWordInAppReviews(String word, String appId, int skip){
+    public List<Review> searchByWordInAppReviews(String word, String appId, int skip) {
         Bson entityFilter = eq("appId", appId);
         Pattern pattern = Pattern.compile("^" + word + ".*$");
-        Bson wordFilter = Filters.regex("content",pattern);
+        Bson wordFilter = Filters.regex("content", pattern);
         return searchBy(wordFilter, entityFilter, skip);
     }
 
-    public List<Review> searchByDateInUserReviews(Date myDate, DateQuery when, String username, int skip){
-        Bson dateFilter = (when == DateQuery.On)? eq("date", myDate):
-                (when == DateQuery.After)? gt("date", myDate):
+    public List<Review> searchByDateInUserReviews(Date myDate, DateQuery when, String username, int skip) {
+        Bson dateFilter = (when == DateQuery.On) ? eq("date", myDate) :
+                (when == DateQuery.After) ? gt("date", myDate) :
                         lt("date", myDate);
 
-        Bson entityFilter = eq("username",username);
+        Bson entityFilter = eq("username", username);
 
         return searchBy(dateFilter, entityFilter, skip);
     }
 
-    public List<Review> searchByDateInAppReviews(Date myDate, DateQuery when, String appId, int skip){
-        Bson dateFilter = (when == DateQuery.On)? eq("date", myDate):
-                (when == DateQuery.After)? gt("date", myDate):
+    public List<Review> searchByDateInAppReviews(Date myDate, DateQuery when, String appId, int skip) {
+        Bson dateFilter = (when == DateQuery.On) ? eq("date", myDate) :
+                (when == DateQuery.After) ? gt("date", myDate) :
                         lt("date", myDate);
 
-        Bson entityFilter = eq("appId",appId);
+        Bson entityFilter = eq("appId", appId);
 
         return searchBy(dateFilter, entityFilter, skip);
     }
 
-    public List<Review> searchBy(Bson filter1,  Bson entityFilter, int skip) {
+    public List<Review> searchBy(Bson filter1, Bson entityFilter, int skip) {
         Bson sort = sort(descending("date"));
         try {
             MongoCollection<Document> reviewCollection = driver.getCollection("review");
-            List<Document> output = reviewCollection.find(and(filter1,entityFilter))
+            List<Document> output = reviewCollection.find(and(filter1, entityFilter))
                     .sort(sort).skip(skip).limit(50)
                     .into(new ArrayList<>());
             List<Review> reviews = new ArrayList<>();
             Review review = new Review();
-            for(Document reviewDoc : output)
+            for (Document reviewDoc : output)
                 reviews.add(review.fromReviewDocument(reviewDoc));
             System.out.println(output);
             return reviews;
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         return null;
     }
 
-    public List<Review> showReviewsOfUser(String username, int skip){
+    public List<Review> showReviewsOfUser(String username, int skip) {
         Bson entityFilter = eq("username", username);
         return showReviews(entityFilter, skip);
     }
 
-    public List<Review> showReviewsOfApp(String appId, int skip){
+    public List<Review> showReviewsOfApp(String appId, int skip) {
         Bson entityFilter = eq("appId", appId);
         return showReviews(entityFilter, skip);
     }
@@ -125,30 +129,29 @@ public class ReviewMongoManager {
                     .into(new ArrayList<>());
             List<Review> reviews = new ArrayList<>();
             Review review = new Review();
-            for(Document reviewDoc : output)
+            for (Document reviewDoc : output)
                 reviews.add(review.fromReviewDocument(reviewDoc));
             System.out.println(output);
             return reviews;
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         return null;
     }
 
-    public Review showScore(String username, String appId){
+    public Review showScore(String username, String appId) {
         try {
             MongoCollection<Document> reviewCollection = driver.getCollection("review");
             Document reviewDoc = reviewCollection.find(and(
-                    eq("username",username)
-                    ,eq("appId",appId),exists("score"))).first();
+                    eq("username", username)
+                    , eq("appId", appId), exists("score"))).first();
             Review reviewScore = new Review();
-            if(reviewDoc == null)
+            if (reviewDoc == null)
                 return null;
             reviewScore.fromReviewDocument(reviewDoc);
             return reviewScore;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
@@ -157,24 +160,25 @@ public class ReviewMongoManager {
     public void updateReviewScore(Review oldReview, double newScore) {
         try {
             MongoCollection<Document> reviewCollection = driver.getCollection("review");
-            UpdateResult result = reviewCollection.updateOne(eq("_id",oldReview.get_id()),
-                    set("score",newScore));
-            if(result.getModifiedCount()==0)
+            UpdateResult result = reviewCollection.updateOne(eq("_id", oldReview.get_id()),
+                    set("score", newScore));
+            if (result.getModifiedCount() == 0)
                 System.out.println("Requested review to update not found");
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("Error not updated");
         }
     }
 
     public void updateReviewContent(Review oldReview, String newContent) {
         try {
             MongoCollection<Document> reviewCollection = driver.getCollection("review");
-            UpdateResult result = reviewCollection.updateOne(eq("_id",oldReview.get_id()),
-                    set("content",newContent));
-            if(result.getModifiedCount()==0)
+            UpdateResult result = reviewCollection.updateOne(eq("_id", oldReview.get_id()),
+                    set("content", newContent));
+            if (result.getModifiedCount() == 0)
                 System.out.println("Requested review to update not found");
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -182,39 +186,73 @@ public class ReviewMongoManager {
     public void delete(Review r) {
         try {
             MongoCollection<Document> reviewCollection = driver.getCollection("review");
-            DeleteResult result = reviewCollection.deleteOne(eq("_id",r.get_id()));
-            if(result.getDeletedCount()==0){
+            DeleteResult result = reviewCollection.deleteOne(eq("_id", r.get_id()));
+            if (result.getDeletedCount() == 0) {
                 System.out.println("Review to delete not found");
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     //users commented greatest number of apps in Month
-    public List<Document> Top10UsersReviewersInMonth(Date monthYear){
+    public List<Document> Top10UsersReviewersInMonth(Date monthYear) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
         String monthYearString = sdf.format(monthYear);
         Pattern pattern = Pattern.compile("^" + monthYearString + ".*$");
-        Bson myMatch = eq(regex("date",pattern));
+        Bson myMatch = eq(regex("date", pattern));
         Bson myGroup1 = new Document("$group",
                 new Document("_id", new Document("username", "$username")
                         .append("appId", "$appId")));
-        Bson myGroup2 = group("$username", Accumulators.sum("reviewedAppCount",1));
+        Bson myGroup2 = group("$username", Accumulators.sum("reviewedAppCount", 1));
         Bson mySort = sort(descending("reviewedAppCount"));
         Bson myLimit = limit(10);
-        Bson myProjection = project(fields(excludeId(),include("username","reviewedAppCount")));
-        try{
+        Bson myProjection = project(fields(excludeId(), include("username", "reviewedAppCount")));
+        try {
             MongoCollection<Document> reviewColl = driver.getCollection("review");
             return reviewColl.aggregate(
-                    Arrays.asList(myMatch, myGroup1, myGroup2,mySort,myLimit,myProjection))
+                    Arrays.asList(myMatch, myGroup1, myGroup2, mySort, myLimit, myProjection))
                     .into(new ArrayList<>());
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
+    public void checkreview(String appid, String userid) {
+
+        try {
+            MongoCollection<Document> reviewCollection = driver.getCollection("review");
+            Document reviewDoc = new Document();
+            reviewDoc.append("appId", appid);
+            reviewDoc.append("username", userid);
+            reviewDoc.append("score", new Document()
+                    .append("$exists", true)
+            );
+            int limit = 1;
+
+
+            Review reviewScore = new Review();
+            Consumer<Document> processBlock = new Consumer<Document>() {
+                @Override
+                public void accept(Document document) {
+                    if (!reviewDoc.isEmpty()) {
+                        //insert both
+                        System.out.println(document);
+
+                    }else{
+
+
+                    }
+                }
+            };
+            reviewCollection.find(reviewDoc).limit(limit).forEach(processBlock);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
 }

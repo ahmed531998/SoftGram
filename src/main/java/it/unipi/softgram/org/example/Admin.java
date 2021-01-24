@@ -123,8 +123,8 @@ public class Admin implements Initializable {
 
             app.setId(_id.getText());
             app.setCategory(category.getText());
-            app.setAdSupported(Boolean.parseBoolean(ad_supported.getItems().toString()));
-            app.setInAppPurchase(Boolean.parseBoolean(app_purchase.getItems().toString()));
+            app.setAdSupported(Boolean.parseBoolean(ad_supported.getSelectionModel().getSelectedItem().toString()));
+            app.setInAppPurchase(Boolean.parseBoolean(app_purchase.getSelectionModel().getSelectedItem().toString()));
             app.setAgeGroup(age_group.getText());
             app.setInstallCount(Integer.parseInt(installscount.getText()));
             app.setName(appname.getText());
@@ -152,15 +152,12 @@ public class Admin implements Initializable {
         app_purchase.getItems().addAll(options);
         ad_supported.getItems().addAll(options);
        // commonapps();
-        suggestedusers();
         suggestedapps();
         commonapps();
-        fav_catfun();
-        appoffollowers();
         userid.setVisible(false);
         FollowAppButtonToTable();
         FollowUserButtonToTable();
-        followerappsfun();
+
 
 
         app_id_col.setCellValueFactory(new PropertyValueFactory<>("_id"));
@@ -218,9 +215,7 @@ public class Admin implements Initializable {
 
                         //Get controller of scene2
                         appid.setText(search_table.getSelectionModel().getSelectedItem().get_id());
-                       // System.out.println(appid.getText());
                         userid.setText(userid.getText());
-                       // System.out.println(userid.getText() +"Going to Application maon page");
                         ApplicationMain scene2Controller = loader.getController();
                         //Pass whatever data you want. You can have multiple method calls here
                         scene2Controller.transferMessage(appid.getText()); //appid
@@ -305,6 +300,10 @@ public class Admin implements Initializable {
         //Display the message
         userid.setText(message);
       //  System.out.println(userid.getText() +"  Admin");
+        fav_catfun(message);
+        appoffollowers(message);
+        followerappsfun(message);
+        suggestedusers(message);
     }
 
     public void add_function(ActionEvent actionEvent) {
@@ -364,7 +363,7 @@ public class Admin implements Initializable {
                         category,
                         agegroup,
                         lastupdated1,
-                        apppurchases, 0, 0.0));
+                        apppurchases, 0, 0.0,""));
             }
 
         };
@@ -583,7 +582,7 @@ public class Admin implements Initializable {
                         "",
                         "",
                         "",
-                        false, numberOfReviews, avg));
+                        false, numberOfReviews, avg,""));
             }
 
         };
@@ -897,7 +896,7 @@ public class Admin implements Initializable {
                       category,
                       "",
                       "",
-                      true, 0, 0.0));
+                      true, 0, 0.0,""));
           }
 
 
@@ -906,7 +905,7 @@ public class Admin implements Initializable {
           suggestedapps_table.setItems(suggestedapp);
     }
 
-    public void suggestedusers(){
+    public void suggestedusers(String username){
         UserNeo4jManager user=new UserNeo4jManager();
 
         List<String> data= user.browseSuggestedUsers("Young Kim",10);
@@ -945,7 +944,7 @@ public class Admin implements Initializable {
                     category,
                     "",
                     "",
-                    true, 0, 0.0));
+                    true, 0, 0.0,""));
         }
 
 
@@ -971,10 +970,11 @@ public class Admin implements Initializable {
 
         listfav11.setItems(items);
     }
-    public void followerappsfun(){
+
+    public void followerappsfun(String message){
         AppNeo4jManager app=new AppNeo4jManager();
         User u=new User();
-        u.setUsername(userid.getText().toString());
+        u.setUsername(message);
         List<App> data= app.browseFollowedApps(u);
         ObservableList<String> items = FXCollections.observableArrayList();
         if(data.isEmpty()){
@@ -1004,10 +1004,11 @@ public class Admin implements Initializable {
         }
         listfav1.setItems(items);
     }
-    public void appoffollowers(){
+
+    public void appoffollowers(String username){
         AppNeo4jManager app=new AppNeo4jManager();
         User u=new User();
-        u.setUsername(userid.getText().toString());
+        u.setUsername(username);
         List<App> data= app.browseAppsOfFollowers(u);
         ObservableList<String> items = FXCollections.observableArrayList();
         if(data.isEmpty()){
@@ -1036,17 +1037,18 @@ public class Admin implements Initializable {
 
         listfav.setItems(items);
     }
-    public void fav_catfun(){
+
+    public void fav_catfun(String username){
         AppNeo4jManager app=new AppNeo4jManager();
         User u=new User();
-        u.setUsername(userid.getText());
+        u.setUsername(username);
         List<App> data= app.browseFavoriteCategory(u);
         ObservableList<String> items = FXCollections.observableArrayList();
         if(data.isEmpty()){
             items.add("No data");
         }
         for (App a: data){
-            items.add(String.valueOf(data.get(0)));
+            items.add((String) a.toAppDocument().get("_id"));
 
         }
         listfav.setItems(items);

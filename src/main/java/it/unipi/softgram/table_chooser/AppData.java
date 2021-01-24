@@ -12,10 +12,11 @@ public class AppData {
     private boolean inAppPurchase;
     private double Avg;
     private int numberOfReviews;
+    String userid;
 
 
     public AppData(String name, String _id, double adSupported, String released, double price, String category,
-                   String ageGroup, String lastUpdated, boolean inAppPurchase, int numberOfReviews, double Avg) {
+                   String ageGroup, String lastUpdated, boolean inAppPurchase, int numberOfReviews, double Avg, String userid) {
         this.name = name;
         this._id = _id;
         this.adSupported = adSupported;
@@ -27,7 +28,16 @@ public class AppData {
         this.inAppPurchase = inAppPurchase;
         this.numberOfReviews=numberOfReviews;
         this.Avg=Avg;
+        this.userid=userid;
 
+    }
+
+    public String getUserid() {
+        return userid;
+    }
+
+    public void setUserid(String userid) {
+        this.userid = userid;
     }
 
     public double getAvg() {
