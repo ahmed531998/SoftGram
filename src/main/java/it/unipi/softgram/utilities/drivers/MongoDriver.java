@@ -1,6 +1,6 @@
 package it.unipi.softgram.utilities.drivers;
 
-import com.mongodb.ConnectionString;
+
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -18,9 +18,9 @@ public class MongoDriver {
         if(mongoClient==null){
             Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
             mongoLogger.setLevel(Level.WARNING);
-            ConnectionString uri = new ConnectionString("mongodb://localhost:27017");
             try {
-                mongoClient = MongoClients.create(uri);
+                mongoClient = MongoClients.create("mongodb://172.16.3.103:27020,172.16.3.104:27020,172.16.3.105:27020/"+
+                        "retryWrites=true&w=majority&wtimeout=5000&readConcernLevel=majority");
                 mongoDatabase = mongoClient.getDatabase("softgram");
             }
             catch (Exception e){
