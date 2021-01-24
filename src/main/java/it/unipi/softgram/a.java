@@ -1,5 +1,6 @@
 package it.unipi.softgram;
 
+import com.mongodb.client.MongoClients;
 import it.unipi.softgram.controller.mongo.AppMongoManager;
 import it.unipi.softgram.controller.mongo.ReviewMongoManager;
 import it.unipi.softgram.controller.mongo.UserMongoManager;
@@ -9,6 +10,8 @@ import it.unipi.softgram.controller.neo4j.AppNeo4jManager;
 import it.unipi.softgram.controller.neo4j.UserNeo4jManager;
 import it.unipi.softgram.entities.App;
 import it.unipi.softgram.entities.User;
+import it.unipi.softgram.utilities.drivers.MongoDriver;
+import it.unipi.softgram.utilities.drivers.Neo4jDriver;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,11 +33,25 @@ public class a {
         List<User> us = UQ.searchUserByUsername("Richard L", 0);
         System.out.println(us);
         User u = us.get(0);
+        System.out.println(u.getUsername());
+
         List<App> as = ANQ.browseFollowedApps(u);
         App a = as.get(0);
 
+        System.out.println(a.toAppDocument());
 
-        ANQ.relationFollowUserAppExists(u, a);
+        a.setId("ahmed");
+        a.setName("andrea");
+
+        AMNQ.addApp(a, u);
+
+        System.out.println(ANQ.relationDevelopUserAppExists(u, a));
+
+        Neo4jDriver.close();
+        MongoDriver.close();
+
+
+        //ANQ.relationFollowUserAppExists(u, a);
 
 //        System.out.println(AQ.getPopularApps(5));
 //        System.out.println(AQ.getPopularAppsPerYear(2019, 5));

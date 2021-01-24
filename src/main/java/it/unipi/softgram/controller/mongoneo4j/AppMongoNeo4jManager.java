@@ -48,14 +48,19 @@ public class AppMongoNeo4jManager {
                     r.printStackTrace();
                     return null;
                 }
-                if (u != null) {
-                    /*AppNeo4jManager neo = new AppNeo4jManager();
-                    neo.followOrDevelopApp(u, a, Relation.RelationType.DEVELOP);*/
-                }
                 return null;
             });
         } catch (Exception e) {
             appMongoManager.deleteApp(a);
+            e.printStackTrace();
+            return;
+        }
+        try {
+            if (u != null) {
+                AppNeo4jManager neo = new AppNeo4jManager();
+                neo.followOrDevelopApp(u, a, Relation.RelationType.DEVELOP);
+            }
+        }catch(Exception e){
             e.printStackTrace();
         }
     }
