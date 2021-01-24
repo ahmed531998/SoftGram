@@ -78,7 +78,7 @@ public class Signup implements Initializable {
                 userobj.setUsername(username.getText());
                 userobj.setWebsite(website.getText());
                 userobj.setPassword(password.getText());
-                userobj.setCountry(country.getItems().toString());
+                userobj.setCountry(country.getSelectionModel().getSelectedItem().toString());
                 userobj.setEmail(email.getText());
                 user.addUser(userobj);
                 JOptionPane.showMessageDialog(null, "Added successfully");
