@@ -19,8 +19,7 @@ public class MongoDriver {
             Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
             mongoLogger.setLevel(Level.WARNING);
             try {
-                mongoClient = MongoClients.create("mongodb://172.16.3.103:27020,172.16.3.104:27020,172.16.3.105:27020/"+
-                        "retryWrites=true&w=majority&wtimeout=5000&readConcernLevel=majority");
+                mongoClient = MongoClients.create("mongodb://localhost:27017");
                 mongoDatabase = mongoClient.getDatabase("softgram");
             }
             catch (Exception e){

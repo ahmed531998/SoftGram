@@ -73,8 +73,8 @@
                            </font></Button>
                                 <TextField fx:id="ratingcount" layoutX="128.0" layoutY="220.0" promptText="rating count" />
                                 <TextField fx:id="age_group" layoutX="576.0" layoutY="108.0" promptText="Age group" />
-                                <ComboBox fx:id="app_purchase" layoutX="575.0" layoutY="175.0" prefWidth="150.0" promptText="App purchases" />
-                                <ComboBox fx:id="ad_supported" layoutX="575.0" layoutY="142.0" prefWidth="150.0" promptText="Ad supported" />
+                                <ComboBox fx:id="app_purchase" layoutX="575.0" layoutY="175.0" prefWidth="150.0" />
+                                <ComboBox fx:id="ad_supported" layoutX="575.0" layoutY="142.0" prefWidth="150.0" />
                                 <Label layoutX="269.0" layoutY="14.0" prefHeight="18.0" prefWidth="331.0" text="Add New Application" underline="true" wrapText="true">
                                     <font>
                                         <Font size="27.0" />

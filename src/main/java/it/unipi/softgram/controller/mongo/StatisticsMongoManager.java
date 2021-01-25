@@ -116,12 +116,12 @@ public class StatisticsMongoManager {
         }
         return null;
     }
-    public Map<Integer, Integer> getYearlyUserActivityProfile(User u){
+    public Map<Integer, Integer> getYearlyUserActivityProfile(String u){
         try {
             Map<Integer, Integer> toPlot = new TreeMap<>();
             MongoCollection<Document> collection = driver.getCollection("review");
 
-            Bson myMatch = match(eq("username", u.getUsername()));
+            Bson myMatch = match(eq("username", u));
             Bson myGroup = new Document("$group", new Document("_id",  new Document("year", new Document().append("$year", "$date")))
                     .append("count", new Document().append("$sum", 1)));
             List<Document> output = collection.aggregate(
@@ -142,7 +142,7 @@ public class StatisticsMongoManager {
 
     public Map<Integer, String> getBestAppEachYear(){
         try {
-            Map<Integer, String> toPlot = new TreeMap<>();
+            Map<Integer, String> toPlot = new LinkedHashMap<>();
             setThreshold(threshold);
             MongoCollection<Document> collection = driver.getCollection("review");
             Bson myProject = new Document("$project", new Document("year", new Document().append("$year", "$date"))
@@ -161,6 +161,7 @@ public class StatisticsMongoManager {
                     .into(new ArrayList<>());
             for (Document d : output) {
                 toPlot.put((Integer) d.get("_id"), (String) d.get("best"));
+                System.out.println(toPlot);
             }
             System.out.println(toPlot);
             return toPlot;

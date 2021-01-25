@@ -1,6 +1,7 @@
 package it.unipi.softgram.org.example;
 
 import com.mongodb.client.MongoCollection;
+import it.unipi.softgram.controller.mongo.AppMongoManager;
 import it.unipi.softgram.controller.mongoneo4j.AppMongoNeo4jManager;
 import it.unipi.softgram.controller.neo4j.AppNeo4jManager;
 import it.unipi.softgram.controller.neo4j.UserNeo4jManager;
@@ -111,26 +112,67 @@ public class Admin implements Initializable {
 
     public void Add_apps(ActionEvent actionEvent) {
 
-        if (_id.getText().isEmpty() || appname.getText().isEmpty() || price.getText().isEmpty() || dev_email.getText().isEmpty() || dev_web.getText().isEmpty()) {
+        if (_id.getText().isEmpty() || appname.getText().isEmpty() || category.getText().isEmpty()) {
             JOptionPane.showMessageDialog(null, "Fields required");
         } else {
             // Apps app = new Apps();
             App app=new App();
             User user=new User();
             user.setUsername(userid.getText());
-            user.setEmail(dev_email.getText());
-            user.setWebsite(dev_web.getText());
+
+            if(price.getText().isEmpty()){
+                app.setPrice(0.0);
+            }else{
+                app.setPrice(Double.parseDouble(price.getText()));
+            }
+            if(ad_supported.getSelectionModel().isEmpty()){
+                app.setAdSupported(true);
+            }else{
+                app.setAdSupported(Boolean.parseBoolean(ad_supported.getSelectionModel().getSelectedItem().toString()));
+            }
+            if(app_purchase.getSelectionModel().isEmpty()){
+                app.setInAppPurchase(true);
+                System.out.println(app.getInAppPurchase());
+            }else{
+                app.setInAppPurchase(Boolean.parseBoolean(app_purchase.getSelectionModel().getSelectedItem().toString()));
+
+            }
+            if(age_group.getText().isEmpty()){
+                app.setAgeGroup("Everyone");
+            }else{
+                app.setAgeGroup(age_group.getText());
+            }
+            if(installscount.getText().isEmpty()){
+                app.setInstallCount(0);
+            }else{
+                app.setInstallCount(Integer.parseInt(installscount.getText()));
+            }
+            if(ratingcount.getText().isEmpty()){
+                app.setRatingCount(0);
+            }else{
+                app.setRatingCount(Integer.parseInt(ratingcount.getText()));
+            }
+
+            if(currency.getText().isEmpty()){
+                app.setCurrency("USD");
+            }else{
+                app.setCurrency(currency.getText());
+            }
+
+            if(dev_email.getText().isEmpty()){
+                user.setEmail("");
+            }else{
+                user.setEmail(dev_email.getText());
+            }
+            if(dev_web.getText().isEmpty()){
+                user.setWebsite("");
+            }else{
+                user.setWebsite(dev_web.getText());
+            }
 
             app.setId(_id.getText());
             app.setCategory(category.getText());
-            app.setAdSupported(Boolean.parseBoolean(ad_supported.getSelectionModel().getSelectedItem().toString()));
-            app.setInAppPurchase(Boolean.parseBoolean(app_purchase.getSelectionModel().getSelectedItem().toString()));
-            app.setAgeGroup(age_group.getText());
-            app.setInstallCount(Integer.parseInt(installscount.getText()));
             app.setName(appname.getText());
-            app.setCurrency(currency.getText());
-            app.setPrice(Double.parseDouble(price.getText()));
-            app.setRatingCount(Integer.parseInt(ratingcount.getText()));
             app.setDeveloper(user);
             AppMongoNeo4jManager app1=new AppMongoNeo4jManager();
             app1.addApp(app, user);
@@ -146,6 +188,7 @@ public class Admin implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         ObservableList<String> options =
                 FXCollections.observableArrayList(
+
                         "True",
                         "False"
                 );
@@ -484,15 +527,20 @@ public class Admin implements Initializable {
                             Stage newStage = new Stage();
                             VBox comp = new VBox();
                             TextField appname = new TextField(name);
+                            appname.setPromptText("App name");
                             TextField price1 = new TextField("" + price);
+                            price1.setPromptText("Price");
                             TextField category1 = new TextField("" + category);
+                            category1.setPromptText("Category");
                             TextField agegroup = new TextField(ageGroup);
+                            agegroup.setPromptText("Age group");
                             Button update = new Button("Update");
                             update.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent event) {
 
                                     AppMongoNeo4jManager app=new AppMongoNeo4jManager();
+                                    AppMongoManager appmongo=new AppMongoManager();
                                     App app1=new App();
                                     app1.setId(getTableView().getItems().get(getIndex()).get_id());
                                     app1.setName(appname.getText().toString());
@@ -503,19 +551,7 @@ public class Admin implements Initializable {
                                         app.updateCategory(app1);
                                     if(app1.getName() != null)
                                         app.updateName(app1);
-
-                                    /*Document query = new Document();
-                                    query.append("_id", getTableView().getItems().get(getIndex()).get_id());
-                                    Document setData = new Document();
-                                    setData.append("name", appname.getText().toString())
-                                            .append("price", Double.parseDouble(price1.getText().toString()))
-                                            .append("category", category1.getText().toString())
-                                            .append("ageGroup", agegroup.getText().toString())
-                                    ;
-                                    Document update = new Document();
-                                    update.append("$set", setData);
-                                    //To update single Document
-                                    collection.updateOne(query, update);*/
+                                    appmongo.updateApp(app1);
                                     JOptionPane.showMessageDialog(null, "Updated Successfully");
                                     ClearTable(search_table);
                                     findApp("");
@@ -652,20 +688,19 @@ public class Admin implements Initializable {
                 @Override
                 public void accept(Document document) {
 
-                    String name = (String) document.get("name");
-                    String _id = (String) document.get("_id");
-                    String category = (String) document.get("category");
-                    double avg = (Double) document.get("Avg");
+                    try {
+                        String name = (String) document.get("name");
+                        String _id = (String) document.get("_id");
+                        String category = (String) document.get("category");
 
-                    if(avg == 0){
-                        avg=0.0;
+                        boolean apppurchases = true;
+                        app_data_array1.add(new MostPopCat(
+                                _id,
+                                name,
+                                category, 0.0, ""));
+                    }catch (NullPointerException e){
+                        e.printStackTrace();
                     }
-
-                    boolean apppurchases = true;
-                    app_data_array1.add(new MostPopCat(
-                            _id,
-                            name,
-                            category, avg, ""));
                 }
 
             };

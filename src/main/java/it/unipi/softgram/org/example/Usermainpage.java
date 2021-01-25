@@ -4,6 +4,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.softgram.controller.mongo.ReviewMongoManager;
+import it.unipi.softgram.controller.mongo.StatisticsMongoManager;
 import it.unipi.softgram.controller.mongo.UserMongoManager;
 import it.unipi.softgram.controller.neo4j.UserNeo4jManager;
 import it.unipi.softgram.entities.Review;
@@ -19,6 +20,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
@@ -48,6 +50,8 @@ public class Usermainpage implements Initializable {
     User user=new User();
     User user2=new User();
     String username1="";
+    @FXML
+    PieChart piechart;
     ObservableList<reviewData> reviewdataa = FXCollections.observableArrayList();
     @FXML
     TableView<AppData> search_table;
@@ -69,17 +73,27 @@ public class Usermainpage implements Initializable {
     private TableColumn<AppData, Date> last_col;
     @FXML
     private TableColumn<AppData, Boolean> is_purchasesCol;
+    private final ObservableList<PieChart.Data> details= FXCollections.observableArrayList();
+    @FXML
+    private BarChart<?, ?> barchart;
+    @FXML
+    private CategoryAxis x;
+    @FXML
+    private NumberAxis y;
     @FXML
     TableView<reviewData> review_tble;
     @FXML private TableColumn<reviewData, String> id_Col;
     @FXML private TableColumn<reviewData, String> content_col;
     @FXML private TableColumn<reviewData, Double> score_col;
+    StatisticsMongoManager statisticsMongoManager=new StatisticsMongoManager();
 
     public void transferMessage(String message) {
        // AppID.setText(message);
 
         user.setUsername(message);
         userid.setText(message);
+
+
 
         String check=check(message);
         boolean check2=check2(message, name_tfield.getText());
@@ -104,6 +118,11 @@ public class Usermainpage implements Initializable {
         // AppID.setText(message);
         user2.setUsername(message);
         username1=message;
+
+
+        //yearlyusedactivity();
+
+        yearlyusedactivity(message);
         findUsers(message);
         returnapps(message);
     }
@@ -253,6 +272,9 @@ public class Usermainpage implements Initializable {
         }catch (NoSuchRecordException e){
 
         }*/
+
+
+
 
 
         id_Col.setCellValueFactory(new PropertyValueFactory<>("_id"));
@@ -558,5 +580,31 @@ public class Usermainpage implements Initializable {
         }else {
             return false;
         }
+    }
+    /*public void yearlyusedactivity(){
+       // barchart.getData().clear();
+        XYChart.Series set1 ;
+        Map<Integer, Integer> hash= (Map<Integer, Integer>) statisticsMongoManager.monitorYearlyActivity();
+        for ( Map.Entry<Integer, Integer> entry : hash.entrySet()) {
+            int key = entry.getKey();
+            int tab = entry.getValue();
+            // do something with key and/or tab
+            set1=new XYChart.Series<>();
+            set1.getData().add(new XYChart.Data(key, tab));
+            barchart.getData().addAll(set1);
+        }
+
+    }*/
+
+    public void yearlyusedactivity(String u){
+        Map<Integer, Integer> hash= (Map<Integer, Integer>) statisticsMongoManager.getYearlyUserActivityProfile(u);
+        for ( Map.Entry<Integer, Integer> entry : hash.entrySet()) {
+            int key = entry.getKey();
+            int tab = entry.getValue();
+            // do something with key and/or tab
+            details.addAll(new PieChart.Data(String.valueOf(key), tab)
+            );
+        }
+        piechart.setData(details);
     }
 }

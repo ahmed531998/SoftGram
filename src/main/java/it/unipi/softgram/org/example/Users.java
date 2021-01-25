@@ -1,6 +1,7 @@
 package it.unipi.softgram.org.example;
 
 import com.mongodb.client.MongoCollection;
+import it.unipi.softgram.controller.mongo.StatisticsMongoManager;
 import it.unipi.softgram.controller.mongo.UserMongoManager;
 import it.unipi.softgram.controller.mongoneo4j.AppMongoNeo4jManager;
 import it.unipi.softgram.controller.mongoneo4j.UserMongoNeo4jManager;
@@ -93,6 +94,7 @@ public class Users implements Initializable {
             email_col.setCellValueFactory(new PropertyValueFactory<>("email"));
 
 
+
             //suggested users
 
             username_col.setCellValueFactory(new PropertyValueFactory<>("username"));
@@ -143,6 +145,7 @@ public class Users implements Initializable {
                     }
                 }
             });
+
             user_table.setOnMouseClicked(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event){
@@ -156,6 +159,7 @@ public class Users implements Initializable {
                             //Get controller of scene2
                             userid1.setText(user_table.getSelectionModel().getSelectedItem().getUsername());
 
+                            System.out.println(userid1.getText());
                             Usermainpage scene2Controller = loader.getController();
                             //Pass whatever data you want. You can have multiple method calls here
                             scene2Controller.transferMessage(userid.getText());
