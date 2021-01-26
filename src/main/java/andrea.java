@@ -1,16 +1,22 @@
+import it.unipi.softgram.controller.mongoneo4j.UserMongoNeo4jManager;
+import it.unipi.softgram.controller.neo4j.AppNeo4jManager;
 import it.unipi.softgram.controller.neo4j.UserNeo4jManager;
+import it.unipi.softgram.entities.App;
 import it.unipi.softgram.entities.User;
+import it.unipi.softgram.utilities.drivers.Neo4jDriver;
+import it.unipi.softgram.utilities.enumerators.Relation;
+import it.unipi.softgram.utilities.enumerators.Role;
 
 
 import java.util.List;
 import java.util.Scanner;
 
 public class andrea {
-    public String viewUser(List<User> foundUsers){
+    public void viewUser(List<User> foundUsers){
         int i = 0;
         if(foundUsers == null) {
             System.out.println("No user found");
-            return null;
+            return;
         }
         for (User u: foundUsers){
             System.out.println(i + " " + u.getUsername());
@@ -19,24 +25,49 @@ public class andrea {
         Scanner sc = new Scanner(System.in);
         String ans;
         do{
-            System.out.println("Write the user number to show that user profile // write beak to go back");
+            System.out.println("Write the user number to show user profile // write break to go back");
             ans = sc.nextLine();
             try {
                 if(ans.equals("break"))
-                    return null;
+                    return;
                 int userIndex = Integer.parseInt(ans);
                 if(userIndex < 0 || userIndex >= foundUsers.size()) {
                     throw new NumberFormatException();
                 }
                 else {
                     foundUsers.get(userIndex).printUserInformation();
-                    return foundUsers.get(userIndex).getUsername();
+                    askToFollowUnfollowOrBrowsePosts(foundUsers.get(userIndex));
                 }
             }
             catch (NumberFormatException n){
                 System.out.println("Please insert the correct number");
             }
         }while(true);
+    }
+
+    public void askToFollowUnfollowOrBrowsePosts(User user){
+        String print;
+        if(followedUsers.contains(user))
+            print = "Write 0 to browse posts, 1 to unfollow 2 to go back";
+        else
+            print =  "Write 0 to browse posts, 1 to follow 2 to go back"
+        System.out.println(print);
+        Scanner sc = new Scanner(System.in);
+        String ans = sc.nextLine();
+        switch (ans){
+            case "0":
+                browsePosts(user);
+                break;
+            case "1":
+                UserNeo4jManager neo = new UserNeo4jManager();
+                if(followedUsers.contains(user))
+                    neo.removeFollow(this.username,user.getUsername());
+                else
+                    neo.addFollow(this.username, user.getUsername(), true);
+                break;
+            default:
+                break;
+        }
     }
 
     public void acceptRejectFollows(List<User> followRequests){
@@ -84,4 +115,95 @@ public class andrea {
             }
         }while(true);
     }
+
+    public void removeUser(){
+        System.out.println("Please write the username of the user to remove");
+        Scanner sc = new Scanner(System.in);
+        String username = sc.nextLine();
+        UserMongoNeo4jManager umn = new UserMongoNeo4jManager();
+        umn.removeUser(username);
+    }
+
+    public void changeUserRole(){
+        System.out.println("Please write the username of the user to change his role");
+        Scanner sc = new Scanner(System.in);
+        String username = sc.nextLine();
+        UserMongoNeo4jManager umn = new UserMongoNeo4jManager();
+        System.out.println("Please enter the new role between {Normal User,Developer,Admin}");
+        try {
+            Role.RoleValue role = Role.getRoleFromString(sc.nextLine());
+        }
+        catch (RuntimeException r) {
+            System.out.println("Insert one of this {Normal User,Developer,Admin}");
+            return;
+        }
+        umn.changeUserRole(username, role);
+    }
+
+    public void viewApp(List<App> foundApps){
+        int i = 0;
+        if(foundApps == null) {
+            System.out.println("No app found");
+            return;
+        }
+        for (App a: foundApps){
+            System.out.println(i + " " + a.getName());
+            i++;
+        }
+        Scanner sc = new Scanner(System.in);
+        String ans;
+        do{
+            System.out.println("Write the app number to show app // write break to go back");
+            ans = sc.nextLine();
+            try {
+                if(ans.equals("break"))
+                    return;
+                int appIndex = Integer.parseInt(ans);
+                if(appIndex < 0 || appIndex >= foundApps.size()) {
+                    throw new NumberFormatException();
+                }
+                else {
+                    foundApps.get(appIndex).printAppInformation();
+                    askToFollowUnfollowBrowsePostsOrWriteReview(foundApps.get(appIndex));
+                }
+            }
+            catch (NumberFormatException n){
+                System.out.println("Please insert the correct number");
+            }
+        }while(true);
+    }
+
+
+    public void askToFollowUnfollowBrowsePostsOrWriteReview(App app){
+        String print;
+        if(followedApp.contains(app))
+            print = "Write 0 to browse posts, 1 to unfollow 2 to write review 3 to go back";
+        else
+            print =  "Write 0 to browse posts, 1 to follow 2 to write review 3 to go back";
+        System.out.println(print);
+        Scanner sc = new Scanner(System.in);
+        String ans = sc.nextLine();
+        switch (ans){
+            case "0":
+                browsePosts(app);
+                break;
+            case "1":
+                AppNeo4jManager neo = new AppNeo4jManager();
+                if(followedApp.contains(app))
+                    neo.unfollowApp(this.username, app);
+                else
+                    neo.followOrDevelopApp(this.username, app, Relation.RelationType.FOLLOW);
+                break;
+            case "2":
+                writeReview(app);
+            default:
+                break;
+        }
+    }
+    public void writeReview(App app){
+        System.out.println("Write the review content");
+        Scanner sc = new Scanner(System.in);
+        String ans;
+    }
 }
+

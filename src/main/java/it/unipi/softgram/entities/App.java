@@ -157,6 +157,29 @@ public class App {
 
         return appDoc;
     }
+    public void printAppInformation (){
+        System.out.println(this.id);
+        if(this.name!=null)
+            System.out.println(this.name);
+        if(this.category!=null)
+            System.out.println(this.category);
+        if(this.size!=null)
+            System.out.println(this.size);
+        if(this.price!=null)
+            System.out.println(this.price);
+        if(this.currency!=null)
+            System.out.println(this.currency);
+        if(this.released!=null)
+            System.out.println(this.released);
+        if(this.adSupported!=null)
+            System.out.println(this.adSupported);
+        if(this.inAppPurchase!=null)
+            System.out.println(this.inAppPurchase);
+        if(this.lastUpdated!=null)
+            System.out.println(this.lastUpdated);
+        if(this.ageGroup!=null)
+            System.out.println(this.ageGroup);
+    }
 
     public App fromAppDocument(Document r){
         this.id = (String) r.get("_id");
