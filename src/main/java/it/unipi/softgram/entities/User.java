@@ -93,8 +93,23 @@ public class User {
         userDoc.append("role", this.getRole());
 
         if(this.getCountry()!=null)
-            userDoc.append("Country", this.getCountry());
+            userDoc.append("country", this.getCountry());
+        if(this.website!=null)
+            userDoc.append("website",this.website);
         return userDoc;
+    }
+
+    public void printUserInformation (){
+        System.out.println(this.username);
+        if(this.birthday!=null)
+            System.out.println(this.birthday);
+        if(this.email!=null)
+            System.out.println(this.email);
+        if(this.country!=null)
+            System.out.println(this.country);
+        System.out.println(this.role);
+        if(this.website!=null)
+            System.out.println(this.website);
     }
 
     public User fromUserDocument(Document r){
