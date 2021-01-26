@@ -178,15 +178,6 @@ public class andrea {
 
 
     public void askToFollowUnfollowBrowsePostsOrWriteReview(App app){
-        ReviewMongoManager rm = new ReviewMongoManager();
-        Review reviewScore = rm.showScore(this.username, app.getId());
-        if(reviewScore == null){
-            System.out.println("You never scored this app");
-        }
-        else{
-            System.out.println("Your review when you scored this app is:");
-            reviewScore.printReviewInformation();
-        }
         String print;
         if(followedApp.contains(app))
             print = "Write 0 to browse posts, 1 to unfollow 2 to write review 3 to edit/add a score 4 to go back";
@@ -240,28 +231,62 @@ public class andrea {
             String content = sc.nextLine();
             review.setContent(content);
             System.out.println("Write the review score");
-            while(true){
-                String scoreString = sc.nextLine();
-                try {
-                    double score = Double.parseDouble(scoreString);
-                    if(score<0 || score > 5)
-                        throw new NumberFormatException();
-                }
-                catch (NumberFormatException n){
-                    System.out.println("Please insert a valid score");
-                    continue;
-                }
-                break;
-            }
+            double score = writeScore();
+            review.setScore(score);
             review.setDate(new Date());
             rm.postNewReview(review);
         }
         else{
             System.out.println("Your review when you scored this app is:");
             reviewScore.printReviewInformation();
-            System.out.println("Do you want to edit your past review?");
+            System.out.println("Do you want to edit your past score? y/n");
+            Scanner sc = new Scanner(System.in);
+            String ans = sc.nextLine();
+            while(true){
+                if(ans.equals("n"))
+                    return;
+                else if(ans.equals("y")){
+                    System.out.println("Write your new score");
+                    double score = writeScore();
+                    rm.updateReviewScore(reviewScore, score);
+                    System.out.println("Do you want to edit your past content? y/n");
+                    ans = sc.nextLine();
+                    if(ans.equals("n"))
+                        return;
+                    else if(ans.equals("y")){
+                        System.out.println("Write your new content");
+                        String content = sc.nextLine();
+                        rm.updateReviewContent(reviewScore, content);
+                        return;
+                    }
+                    else{
+                        System.out.println("invalid input");
+                    }
+                }
+                else{
+                    System.out.println("invalid input");
+                }
+            }
         }
 
+    }
+
+    public double writeScore(){
+        Scanner sc = new Scanner(System.in);
+        double score;
+        while(true){
+            String scoreString = sc.nextLine();
+            try {
+                score = Double.parseDouble(scoreString);
+                if(score<0 || score > 5)
+                    throw new NumberFormatException();
+            }
+            catch (NumberFormatException n){
+                System.out.println("Please insert a valid score");
+                continue;
+            }
+            return score;
+        }
     }
 }
 
