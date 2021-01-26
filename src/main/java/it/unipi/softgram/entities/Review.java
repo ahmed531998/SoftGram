@@ -26,6 +26,14 @@ public class Review {
         this.score = null;
     }
 
+    public Review(String appId, String category, String username, String content,
+                  Double score){
+        this.appId = appId;
+        this.category = category;
+        this.username = username;
+        this.content = content;
+        this.score = score;
+    }
     public Review(String appId, String category, String username, Date date, String content,
                   Double score){
         this.appId = appId;

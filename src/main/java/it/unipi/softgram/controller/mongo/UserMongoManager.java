@@ -97,7 +97,7 @@ public class UserMongoManager {
     public List<User> searchUserBy(Bson query, int skip){
         try{
             MongoCollection<Document> userColl = driver.getCollection("user");
-            List<Document> output = userColl.find(query).skip(skip).limit(20)
+            List<Document> output = userColl.find(query).skip(skip).limit(10)
                    .into(new ArrayList<>());
             return convertFromDocument(output);
         }

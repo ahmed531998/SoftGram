@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="684.0" prefWidth="820.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.softgram.gui.ReviewTab">
+    <TableView layoutX="225.0" layoutY="132.0" prefHeight="500.0" prefWidth="588.0">
+        <columns>
+            <TableColumn fx:id="appId" prefWidth="120.0" text="App Id" />
+            <TableColumn fx:id="appName" minWidth="0.0" prefWidth="92.0" text="App Name" />
+            <TableColumn fx:id="appCategory" prefWidth="99.0" text="Category" />
+            <TableColumn fx:id="appSize" prefWidth="59.0" text="Size" />
+            <TableColumn fx:id="appRelease" prefWidth="98.0" text="Release" />
+        <TableColumn fx:id="appPrice" prefWidth="58.0" text="Price" />
+        <TableColumn fx:id="appAds" prefWidth="58.0" text="Ads" />
+        </columns>
+    </TableView>
+    <TextField fx:id="appSearchBox" layoutX="225.0" layoutY="75.0" prefHeight="26.0" prefWidth="208.0" promptText="Enter Search Parameters" />
+    <RadioButton fx:id="appNameTick" layoutX="438.0" layoutY="101.0" mnemonicParsing="false" text="App name/Id" />
+    <RadioButton fx:id="appReleaseTick" layoutX="561.0" layoutY="101.0" mnemonicParsing="false" text="Release" />
+    <RadioButton fx:id="adSupportedTick" layoutX="689.0" layoutY="101.0" mnemonicParsing="false" text="adSupported" />
+    <RadioButton fx:id="appCategoryTick" layoutX="438.0" layoutY="79.0" mnemonicParsing="false" text="Category" />
+    <RadioButton fx:id="appSizeTick" layoutX="561.0" layoutY="79.0" mnemonicParsing="false" prefHeight="18.0" prefWidth="59.0" text="Size" />
+    <RadioButton fx:id="appPriceTick" layoutX="689.0" layoutY="79.0" mnemonicParsing="false" text="price" />
+    <Button fx:id="applications" layoutX="77.0" layoutY="94.0" mnemonicParsing="false" onAction="#appTab" prefHeight="26.0" prefWidth="135.0" text="Applications">
+        <font>
+            <Font name="System Bold" size="14.0" />
+        </font>
+    </Button>
+    <Button fx:id="users" layoutX="77.0" layoutY="132.0" mnemonicParsing="false" onAction="#userTab" prefHeight="26.0" prefWidth="135.0" text="Users">
+        <font>
+            <Font name="System Bold" size="14.0" />
+        </font>
+    </Button>
+    <Button fx:id="users1" layoutX="77.0" layoutY="168.0" mnemonicParsing="false" onAction="#reviewTab" prefHeight="26.0" prefWidth="135.0" text="Reviews">
+        <font>
+            <Font name="System Bold" size="14.0" />
+        </font>
+    </Button>
+    <Button fx:id="signout" layoutX="731.0" layoutY="14.0" mnemonicParsing="false" onAction="#signout" text="Signout">
+        <font>
+            <Font name="System Bold" size="14.0" />
+        </font>
+    </Button>
+    <Button fx:id="appSearchButton" layoutX="298.0" layoutY="106.0" mnemonicParsing="false" onAction="#appSearch" text="Search" />
+</AnchorPane>

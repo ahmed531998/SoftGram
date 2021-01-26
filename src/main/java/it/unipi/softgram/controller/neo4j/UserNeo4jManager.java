@@ -8,9 +8,7 @@ import org.neo4j.driver.Session;
 import org.neo4j.driver.TransactionWork;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.neo4j.driver.Values.parameters;
 
@@ -122,13 +120,13 @@ public class UserNeo4jManager {
         return null;
     }
 
-    public List<String> browseTop10UsersWithMostFollowersInYear(int year){
+    public Set<String> browseTop10UsersWithMostFollowersInYear(int year){
         return browseUsersWithMostFollowersInYear(year, 10);
     }
 
-    public List<String> browseUsersWithMostFollowersInYear(int year, int limit){
+    public Set<String> browseUsersWithMostFollowersInYear(int year, int limit){
         try (Session session = neo4jDriver.getSession()){
-            return session.readTransaction((TransactionWork<List<String>>) tx ->{
+            return session.readTransaction(tx ->{
                 Result result = tx.run("MATCH (u1:User)-[f:FOLLOW]->(u2:User) " +
                                 "WHERE " +
                                 "date({year: $nextYear, month: 1, day: 1}) > f.date >= date({year: $currentYear, month: 1, day: 1}) " +
@@ -137,7 +135,7 @@ public class UserNeo4jManager {
                                 "ORDER BY followers DESC " +
                                 "LIMIT $limit ",
                         parameters("limit", limit, "currentYear", year, "nextYear",year+1));
-                ArrayList<String> followers = new ArrayList<>();
+                Set<String> followers = new HashSet<>();
                 while (result.hasNext()){
                     Record r = result.next();
                     followers.add(r.get("u2.username").asString() + " " + r.get("followers").asInt() + " " + "followers");
@@ -152,16 +150,16 @@ public class UserNeo4jManager {
     }
 
     //example with Young Kim
-    public List<String> browseSuggestedUsers(String username, int limit){
+    public Set<String> browseSuggestedUsers(String username, int limit){
         try (Session session = neo4jDriver.getSession()){
-            return session.readTransaction((TransactionWork<List<String>>) tx ->{
+            return session.readTransaction(tx ->{
                 Result result = tx.run("MATCH (u1:User {username: $username})-[:FOLLOW]->(u2:User)-[:FOLLOW]->(u3:User), " +
                                 "(u1)-[:FOLLOW]->(a:App)<-[:FOLLOW]-(u3) " +
                                 "WHERE NOT (u1)-[:FOLLOW]->(u3) AND u3<>u1 " +
                                 "RETURN DISTINCT u3.username " +
                                 "LIMIT $limit ",
                         parameters("username", username, "limit", limit));
-                ArrayList<String> users = new ArrayList<>();
+                Set<String> users = new HashSet<>();
                 while (result.hasNext()){
                     Record r = result.next();
                     users.add(r.get("u3.username").asString());

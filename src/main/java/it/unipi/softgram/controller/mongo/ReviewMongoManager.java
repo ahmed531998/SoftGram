@@ -60,14 +60,32 @@ public class ReviewMongoManager {
         Bson entityFilter = eq("username", username);
         Pattern pattern = Pattern.compile("^" + word + ".*$");
         Bson wordFilter = Filters.regex("content", pattern);
-        return searchBy(wordFilter, entityFilter, skip);
+        return searchBy(wordFilter, entityFilter, skip, false);
+    }
+
+    public List<Review> searchByWord(String word, int skip) {
+        Pattern pattern = Pattern.compile(".*" + word + ".*$");
+        Bson wordFilter = Filters.regex("content", pattern);
+        return searchBy(wordFilter, wordFilter, skip, true);
+    }
+
+
+    public List<Review> searchByDate(Date myDate, DateQuery when, int skip) {
+        Bson dateFilter = (when == DateQuery.On) ? eq("date", myDate) :
+                (when == DateQuery.After) ? gt("date", myDate) :
+                        lt("date", myDate);
+        return searchBy(dateFilter, dateFilter, skip, true);
+    }
+    public List<Review> searchByScore(Double score, int skip) {
+        Bson entityFilter = gte("score", score);
+        return searchBy(entityFilter, entityFilter, skip, true);
     }
 
     public List<Review> searchByWordInAppReviews(String word, String appId, int skip) {
         Bson entityFilter = eq("appId", appId);
-        Pattern pattern = Pattern.compile("^" + word + ".*$");
+        Pattern pattern = Pattern.compile(".*" + word + ".*$");
         Bson wordFilter = Filters.regex("content", pattern);
-        return searchBy(wordFilter, entityFilter, skip);
+        return searchBy(wordFilter, entityFilter, skip, false);
     }
 
     public List<Review> searchByDateInUserReviews(Date myDate, DateQuery when, String username, int skip) {
@@ -77,7 +95,7 @@ public class ReviewMongoManager {
 
         Bson entityFilter = eq("username", username);
 
-        return searchBy(dateFilter, entityFilter, skip);
+        return searchBy(dateFilter, entityFilter, skip, false);
     }
 
     public List<Review> searchByDateInAppReviews(Date myDate, DateQuery when, String appId, int skip) {
@@ -87,15 +105,15 @@ public class ReviewMongoManager {
 
         Bson entityFilter = eq("appId", appId);
 
-        return searchBy(dateFilter, entityFilter, skip);
+        return searchBy(dateFilter, entityFilter, skip, false);
     }
 
-    public List<Review> searchBy(Bson filter1, Bson entityFilter, int skip) {
+    public List<Review> searchBy(Bson filter1, Bson entityFilter, int skip, boolean oneEntity) {
         Bson sort = sort(descending("date"));
         try {
             MongoCollection<Document> reviewCollection = driver.getCollection("review");
-            List<Document> output = reviewCollection.find(and(filter1, entityFilter))
-                    .sort(sort).skip(skip).limit(50)
+            List<Document> output = reviewCollection.find(oneEntity? and(filter1, entityFilter): filter1)
+                    /*.sort(sort)*/.skip(skip).limit(50)
                     .into(new ArrayList<>());
             List<Review> reviews = new ArrayList<>();
             for (Document reviewDoc : output) {
@@ -113,6 +131,11 @@ public class ReviewMongoManager {
 
     public List<Review> showReviewsOfUser(String username, int skip) {
         Bson entityFilter = eq("username", username);
+        return showReviews(entityFilter, skip);
+    }
+
+    public List<Review> showReviewsOfCat(String cat, int skip) {
+        Bson entityFilter = eq("category", cat);
         return showReviews(entityFilter, skip);
     }
 

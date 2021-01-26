@@ -11,12 +11,12 @@ import org.bson.conversions.Bson;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import static com.mongodb.client.model.Aggregates.*;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.or;
+import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.set;
 
@@ -51,7 +51,6 @@ public class AppMongoManager {
             MongoCollection<Document> appColl = driver.getCollection("app");
             BasicDBObject searchQuery = new BasicDBObject("_id", a.getId());
             BasicDBObject updateFields = new BasicDBObject();
-            updateFields.append("name", a.getName());
             updateFields.append("size", a.getSize());
             updateFields.append("lastUpdated", a.getLastUpdated());
             updateFields.append("currency", a.getCurrency());
@@ -108,14 +107,117 @@ public class AppMongoManager {
         }
     }
 
-    public List<App> findApp(String text){
+    public List<App> findApp(String text, int limit, int skip){
         try {
             MongoCollection<Document> collection = driver.getCollection("app");
             Pattern pattern = Pattern.compile(".*" + text + ".*$");
             Bson filter1 = Filters.regex("_id", pattern);
             Bson filter2 = Filters.regex("name", pattern);
             List<Document> output = collection.find(or(filter1,filter2))
-                    .limit(100)
+                    .skip(skip)
+                    .limit(limit)
+                    .into(new ArrayList<>());
+            List<App> apps = new ArrayList<>();
+            for (Document d: output){
+                App app = new App();
+                apps.add(app.fromAppDocument(d));
+            }
+            return apps;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<App> findAppByCategory(String cat, int limit, int skip){
+        try {
+            MongoCollection<Document> collection = driver.getCollection("app");
+            Pattern pattern = Pattern.compile(".*" + cat + ".*$");
+            Bson filter1 = Filters.regex("category", pattern);
+            List<Document> output = collection.find(filter1)
+                    .skip(skip)
+                    .limit(limit)
+                    .into(new ArrayList<>());
+            List<App> apps = new ArrayList<>();
+            for (Document d: output){
+                App app = new App();
+                apps.add(app.fromAppDocument(d));
+            }
+            return apps;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<App> findAppBySize(Double size, int limit, int skip){
+        try {
+            MongoCollection<Document> collection = driver.getCollection("app");
+            Bson filter1 = match(gte("size", size));
+            List<Document> output = collection.find(filter1)
+                    .skip(skip)
+                    .limit(limit)
+                    .into(new ArrayList<>());
+            List<App> apps = new ArrayList<>();
+            for (Document d: output){
+                App app = new App();
+                apps.add(app.fromAppDocument(d));
+            }
+            return apps;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+    public List<App> findAppByPrice(Double price, int limit, int skip){
+        try {
+            MongoCollection<Document> collection = driver.getCollection("app");
+            Bson filter1 = match(gte("price", price));
+            List<Document> output = collection.find(filter1)
+                    .skip(skip)
+                    .limit(limit)
+                    .into(new ArrayList<>());
+            List<App> apps = new ArrayList<>();
+            for (Document d: output){
+                App app = new App();
+                apps.add(app.fromAppDocument(d));
+            }
+            return apps;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+    public List<App> findAppByAd(Boolean adSupported, int limit, int skip){
+        try {
+            MongoCollection<Document> collection = driver.getCollection("app");
+            Bson filter1 = match(gte("adSupported", adSupported));
+            List<Document> output = collection.find(filter1)
+                    .skip(skip)
+                    .limit(limit)
+                    .into(new ArrayList<>());
+            List<App> apps = new ArrayList<>();
+            for (Document d: output){
+                App app = new App();
+                apps.add(app.fromAppDocument(d));
+            }
+            return apps;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<App> findAppByRelease(int year, int limit, int skip){
+        try {
+            MongoCollection<Document> collection = driver.getCollection("app");
+            Bson myGroup = new Document("$project", new Document("_id", "$_id")
+                    .append("name", "name")
+                    .append("category", "$category")
+                    .append("year", new Document()
+                            .append("$year", "released")));
+            Bson filter1 = match(eq("year", year));
+            List<Document> output = collection.aggregate( Arrays.asList(myGroup, filter1, skip(skip), limit(limit)))
                     .into(new ArrayList<>());
             List<App> apps = new ArrayList<>();
             for (Document d: output){
@@ -137,7 +239,7 @@ public class AppMongoManager {
                             .append("$avg", "$score")));
 
             List <Document> output = collection.aggregate(
-                    Arrays.asList(myGroup))
+                    Collections.singletonList(myGroup))
                     .into(new ArrayList<>());
             if (output.size() > 0) {
                 Document x = output.get(0);
@@ -158,7 +260,7 @@ public class AppMongoManager {
                             .append("$sum", 1)));
 
             List <Document> output = collection.aggregate(
-                    Arrays.asList(myGroup))
+                    Collections.singletonList(myGroup))
                     .into(new ArrayList<>());
             if (output.size() > 0) {
                 Document x = output.get(0);
@@ -171,23 +273,37 @@ public class AppMongoManager {
         return 0;
     }
 
-    public List<Document> getPopularApps(int limit){
+    public List<App> getPopularApps(int limit, int skip){
         try{
             MongoCollection<Document> collection = driver.getCollection("review");
-            Bson myGroup = new Document("$group", new Document("_id", "$appId")
+            Bson myGroup = new Document("$group", new Document("_id", new Document("appId", "$appId").append("name", "$appName"))
                     .append("average", new Document()
                             .append("$avg", "$score"))
                     .append("count", new Document()
                             .append("$sum", 1)));
             Bson mySort = sort(descending("average", "count"));
-            Bson mySkip = skip(0);
+            Bson mySkip = skip(skip);
             Bson myLimit = limit(limit);
 
             List <Document> output = collection.aggregate(
                     Arrays.asList(myGroup, mySort, mySkip, myLimit))
                     .into(new ArrayList<>());
 
-            return output;
+            List <App> result = new ArrayList<>();
+            for (Document d: output){
+                App a = new App();
+                Document id = (Document) d.get("_id");
+                String appId = (String) id.get("appId");
+                String appName = (String) id.get("name");
+                Integer reviewCount = (Integer) d.get("count");
+                Double average = (Double) d.get("average");
+                a.setName(appName);
+                a.setId(appId);
+                a.setAverage(average);
+                a.setReviewCount(reviewCount);
+                result.add(a);
+            }
+            return result;
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -195,31 +311,46 @@ public class AppMongoManager {
     }
 
 
-    public List<Document> getPopularAppsPerCat(String cat, int limit){
+    public List<App> getPopularAppsPerCat(String cat, int limit, int skip){
         try {
             MongoCollection<Document> collection = driver.getCollection("review");
 
             Bson myMatch = match(eq("category",cat));
-            Bson myGroup = new Document("$group", new Document("_id", "$appId")
+            Bson myGroup = new Document("$group", new Document("_id", new Document("appId", "$appId").append("name", "$appName"))
                     .append("average", new Document()
                             .append("$avg", "$score"))
                     .append("count", new Document()
                             .append("$sum", 1)));
             Bson mySort = sort(descending("average", "count"));
-            Bson mySkip = skip(0);
+            Bson mySkip = skip(skip);
             Bson myLimit = limit(limit);
             List <Document> output = collection.aggregate(
                     Arrays.asList(myMatch, myGroup, mySort, mySkip, myLimit))
                     .into(new ArrayList<>());
 
-            return output;
+            List <App> result = new ArrayList<>();
+            for (Document d: output){
+                App a = new App();
+                Document id = (Document) d.get("_id");
+                String appId = (String) id.get("appId");
+                String appName = (String) id.get("name");
+                Integer reviewCount = (Integer) d.get("count");
+                Double average = (Double) d.get("average");
+                a.setName(appName);
+                a.setId(appId);
+                a.setAverage(average);
+                a.setReviewCount(reviewCount);
+                a.setCategory(cat);
+                result.add(a);
+            }
+            return result;
         }catch(Exception e){
             e.printStackTrace();
         }
         return null;
     }
 
-    public List<Document> getPopularAppsPerYear(int year, int limit){
+    public List<App> getPopularAppsPerYear(int year, int limit, int skip){
         try{
             MongoCollection<Document> collection = driver.getCollection("review");
 
@@ -234,13 +365,29 @@ public class AppMongoManager {
                             .append("$sum", 1)));
             Bson myMatch = match(eq("year", year));
             Bson mySort = sort(descending("average", "count"));
-            Bson mySkip = skip(0);
+            Bson mySkip = skip(skip);
             Bson myLimit = limit(limit);
             List <Document> output = collection.aggregate(
                     Arrays.asList(myGroup, myMatch, mySort, mySkip, myLimit))
                     .into(new ArrayList<>());
 
-            return output;
+            List <App> result = new ArrayList<>();
+            for (Document d: output){
+                App a = new App();
+                String id = (String) d.get("_id");
+                String name = (String) d.get("appName");
+                Integer reviewCount = (Integer) d.get("count");
+                Double average = (Double) d.get("average");
+                String category = (String) d.get("category");
+                a.setName(name);
+                a.setId(id);
+                a.setAverage(average);
+                a.setReviewCount(reviewCount);
+                a.setYearOfInterest(year);
+                a.setCategory(category);
+                result.add(a);
+            }
+            return result;
     }catch(Exception e){
         e.printStackTrace();
     }

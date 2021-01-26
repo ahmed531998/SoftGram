@@ -2,14 +2,14 @@ package it.unipi.softgram.org.example;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
 import it.unipi.softgram.controller.mongo.ReviewMongoManager;
+import it.unipi.softgram.controller.mongo.StatisticsMongoManager;
 import it.unipi.softgram.controller.mongo.UserMongoManager;
+import it.unipi.softgram.controller.mongoneo4j.UserMongoNeo4jManager;
 import it.unipi.softgram.controller.neo4j.UserNeo4jManager;
+import it.unipi.softgram.entities.App;
 import it.unipi.softgram.entities.Review;
 import it.unipi.softgram.entities.User;
-import it.unipi.softgram.table_chooser.AppData;
-import it.unipi.softgram.table_chooser.reviewData;
 import it.unipi.softgram.utilities.drivers.MongoDriver;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,16 +19,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import org.bson.BsonRegularExpression;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.neo4j.driver.exceptions.NoSuchRecordException;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -42,44 +41,56 @@ public class Usermainpage implements Initializable {
 
     //@FXML private Label AppID;
     @FXML private Text name_tfield, email_tfield, web_tfield, role_tfield;
-    ObservableList<AppData> apps = FXCollections.observableArrayList();
+    ObservableList<App> apps = FXCollections.observableArrayList();
     @FXML Label userid;
     @FXML Button followbtn,home,remove_btn,update_btn;
     User user=new User();
     User user2=new User();
     String username1="";
-    ObservableList<reviewData> reviewdataa = FXCollections.observableArrayList();
     @FXML
-    TableView<AppData> search_table;
+    PieChart piechart;
+    ObservableList<Review> reviewdataa = FXCollections.observableArrayList();
     @FXML
-    private TableColumn<AppData, String> app_id_col;
+    TableView<App> search_table;
     @FXML
-    private TableColumn<AppData, String> appname_col;
+    private TableColumn<App, String> app_id_col;
     @FXML
-    private TableColumn<AppData, Boolean> adsupported_col;
+    private TableColumn<App, String> appname_col;
     @FXML
-    private TableColumn<AppData, Double> price_col;
+    private TableColumn<App, Boolean> adsupported_col;
     @FXML
-    private TableColumn<AppData, Date> released_col;
+    private TableColumn<App, Double> price_col;
     @FXML
-    private TableColumn<AppData, String> cat_col;
+    private TableColumn<App, Date> released_col;
     @FXML
-    private TableColumn<AppData, Integer> age_col;
+    private TableColumn<App, String> cat_col;
     @FXML
-    private TableColumn<AppData, Date> last_col;
+    private TableColumn<App, Integer> age_col;
     @FXML
-    private TableColumn<AppData, Boolean> is_purchasesCol;
+    private TableColumn<App, Date> last_col;
     @FXML
-    TableView<reviewData> review_tble;
-    @FXML private TableColumn<reviewData, String> id_Col;
-    @FXML private TableColumn<reviewData, String> content_col;
-    @FXML private TableColumn<reviewData, Double> score_col;
+    private TableColumn<App, Boolean> is_purchasesCol;
+    private final ObservableList<PieChart.Data> details= FXCollections.observableArrayList();
+    @FXML
+    private BarChart<?, ?> barchart;
+    @FXML
+    private CategoryAxis x;
+    @FXML
+    private NumberAxis y;
+    @FXML
+    TableView<Review> review_tble;
+    @FXML private TableColumn<Review, String> id_Col;
+    @FXML private TableColumn<Review, String> content_col;
+    @FXML private TableColumn<Review, Double> score_col;
+    StatisticsMongoManager statisticsMongoManager=new StatisticsMongoManager();
 
     public void transferMessage(String message) {
        // AppID.setText(message);
 
         user.setUsername(message);
         userid.setText(message);
+
+
 
         String check=check(message);
         boolean check2=check2(message, name_tfield.getText());
@@ -104,50 +115,23 @@ public class Usermainpage implements Initializable {
         // AppID.setText(message);
         user2.setUsername(message);
         username1=message;
+
+
+        //yearlyusedactivity();
+
+        yearlyusedactivity(message);
         findUsers(message);
-        returnapps(message);
+        //returnapps(message);
     }
     public void findUsers(String text){
-        MongoDriver driver = new MongoDriver();
-        MongoCollection<Document> collection = driver.getCollection("user");
-
-        // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
-
-        Consumer<Document> processBlock = document -> {
-            //System.out.println(document);
-            String username = (String) document.get("_id");
-            String website = (String) document.get("website");
-            String email = (String) document.get("email");
-            String role = (String) document.get("role");
-            name_tfield.setText(username);
-            email_tfield.setText(email);
-            role_tfield.setText(role);
-            web_tfield.setText(website);
-
-
-
-        };
-
-        List<? extends Bson> pipeline = Arrays.asList(
-                new Document()
-                        .append("$match", new Document()
-                                .append("$or", Collections.singletonList(
-                                        new Document()
-                                                .append("_id", new Document()
-                                                        .append("$regex", new BsonRegularExpression(text))
-                                                )
-                                        )
-                                )
-                        ),
-                new Document()
-                        .append("$skip", 0.0),
-                new Document()
-                        .append("$limit", 100.0)
-        );
-
-        collection.aggregate(pipeline)
-                .allowDiskUse(false)
-                .forEach(processBlock);
+        UserMongoManager userFinder = new UserMongoManager();
+        List<User> users = userFinder.searchUserByUsername(text, 0);
+        if (users.size() > 0) {
+            name_tfield.setText(users.get(0).getUsername());
+            email_tfield.setText(users.get(0).getEmail());
+            role_tfield.setText(users.get(0).getRole());
+            web_tfield.setText(users.get(0).getWebsite());
+        }
     }
 
 
@@ -156,7 +140,7 @@ public class Usermainpage implements Initializable {
         // do what you have to do
         stage.close();
         try {
-            App.setRoot("users");
+            SoftGramApplication.setRoot("users");
             ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
 
         } catch (IOException e) {
@@ -165,9 +149,6 @@ public class Usermainpage implements Initializable {
     }
 
     public void updatefun(ActionEvent actionEvent) {
-
-
-
         String _id = name_tfield.getText();
         String email = email_tfield.getText();
         String role = role_tfield.getText();
@@ -181,15 +162,15 @@ public class Usermainpage implements Initializable {
         javafx.scene.control.TextField websitetxt = new javafx.scene.control.TextField(website);
         javafx.scene.control.Button update = new Button("Update");
         update.setOnAction(event -> {
+            //why here
             UserMongoManager user=new UserMongoManager();
             User user1=new User();
             user1.setUsername(user2.getUsername());
             user1.setWebsite(websitetxt.getText());
             user1.setRole(roletxt.getText());
             user1.setEmail(emailtxt.getText());
-
-
             user.updateUser(user1);
+
             JOptionPane.showMessageDialog(null, "Updated");
             name_tfield.setText("");
             role_tfield.setText("");
@@ -219,7 +200,7 @@ public class Usermainpage implements Initializable {
 
         if (dialogResult == JOptionPane.YES_OPTION) {
             // Saving code here
-            UserMongoManager usermongo=new UserMongoManager();
+            UserMongoNeo4jManager usermongo=new UserMongoNeo4jManager();
 
             usermongo.removeUser(user.getUsername());
             JOptionPane.showMessageDialog(null, "User removed successfully");
@@ -239,22 +220,6 @@ public class Usermainpage implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-
-
-       /* UserNeo4jManager userr=new UserNeo4jManager();
-        try {
-            boolean result = userr.relationUserUserExists(user, user2);
-
-            if (result == false) {
-                followbtn.setText("Follow");
-            } else {
-                followbtn.setText("UnFollow");
-            }
-        }catch (NoSuchRecordException e){
-
-        }*/
-
-
         id_Col.setCellValueFactory(new PropertyValueFactory<>("_id"));
         content_col.setCellValueFactory(new PropertyValueFactory<>("content"));
         score_col.setCellValueFactory(new PropertyValueFactory<>("score"));
@@ -271,20 +236,20 @@ public class Usermainpage implements Initializable {
         deleteButtonToTable();
         showReviews(name_tfield.getText());
     }
-    private void updateButtonToTable() {
-        TableColumn<reviewData, Void> colBtn = new TableColumn("Update");
 
-        Callback<TableColumn<reviewData, Void>, TableCell<reviewData, Void>> cellFactory = new Callback<TableColumn<reviewData, Void>, TableCell<reviewData, Void>>() {
+    private void updateButtonToTable() {
+        TableColumn<Review, Void> colBtn = new TableColumn("Update");
+
+        Callback<TableColumn<Review, Void>, TableCell<Review, Void>> cellFactory = new Callback<TableColumn<Review, Void>, TableCell<Review, Void>>() {
             @Override
-            public TableCell<reviewData, Void> call(final TableColumn<reviewData, Void> param) {
-                final TableCell<reviewData, Void> cell = new TableCell<reviewData, Void>() {
+            public TableCell<Review, Void> call(final TableColumn<Review, Void> param) {
+                final TableCell<Review, Void> cell = new TableCell<Review, Void>() {
 
                     private final Button btn = new Button("Update");
 
                     {
                         btn.setOnAction((ActionEvent event) -> {
-                            reviewData data = getTableView().getItems().get(getIndex());
-
+                            Review data = getTableView().getItems().get(getIndex());
 
                             Stage newStage = new Stage();
                             VBox comp = new VBox();
@@ -297,12 +262,13 @@ public class Usermainpage implements Initializable {
 
                                     ReviewMongoManager reviewMongoManager=new ReviewMongoManager();
                                     ReviewMongoManager reviewm=new ReviewMongoManager();
+
                                     MongoDriver driver=new MongoDriver();
                                     Review review=new Review();
                                     try {
                                         MongoCollection<Document> reviewCollection = driver.getCollection("review");
                                         Document reviewDoc = new Document();
-                                        reviewDoc.append("appId", getTableView().getItems().get(getIndex()).getAppid());
+                                        reviewDoc.append("appId", getTableView().getItems().get(getIndex()).getAppId());
                                         reviewDoc.append("username", userid.getText());
                                         reviewDoc.append("content", new Document()
                                                 .append("$exists", true)
@@ -351,7 +317,7 @@ public class Usermainpage implements Initializable {
                         if (empty) {
                             setGraphic(null);
                         } else {
-                            reviewData data = getTableView().getItems().get(getIndex());
+                            Review data = getTableView().getItems().get(getIndex());
                             if(name_tfield.getText().equals(getTableView().getItems().get(getIndex()).getUsername())) {
                                 setGraphic(btn);
                             }else{
@@ -383,18 +349,18 @@ public class Usermainpage implements Initializable {
 
     private void deleteButtonToTable() {
 
-        TableColumn<reviewData, Void> colBtn = new TableColumn("Delete");
+        TableColumn<Review, Void> colBtn = new TableColumn("Delete");
 
-        Callback<TableColumn<reviewData, Void>, TableCell<reviewData, Void>> cellFactory = new Callback<TableColumn<reviewData, Void>, TableCell<reviewData, Void>>() {
+        Callback<TableColumn<Review, Void>, TableCell<Review, Void>> cellFactory = new Callback<TableColumn<Review, Void>, TableCell<Review, Void>>() {
             @Override
-            public TableCell<reviewData, Void> call(final TableColumn<reviewData, Void> param) {
-                final TableCell<reviewData, Void> cell = new TableCell<reviewData, Void>() {
+            public TableCell<Review, Void> call(final TableColumn<Review, Void> param) {
+                final TableCell<Review, Void> cell = new TableCell<Review, Void>() {
                     private final Button btn = new Button("Delete");
 
                     {
 
                         btn.setOnAction((ActionEvent event) -> {
-                            reviewData data = getTableView().getItems().get(getIndex());
+                            Review data = getTableView().getItems().get(getIndex());
                             System.out.println("selectedData: " + data);
 
                             int dialogButton = JOptionPane.YES_NO_OPTION;
@@ -429,7 +395,7 @@ public class Usermainpage implements Initializable {
                         if (empty) {
                             setGraphic(null);
                         } else {
-                            reviewData data = getTableView().getItems().get(getIndex());
+                            Review data = getTableView().getItems().get(getIndex());
                             if(name_tfield.getText().equals(getTableView().getItems().get(getIndex()).getUsername())) {
                                 setGraphic(btn);
                             }else{
@@ -465,15 +431,11 @@ public class Usermainpage implements Initializable {
                 String content= (String) document.get("content");
                 Double score= (Double) document.get("score");
                 String username= (String) document.get("username");
+                String category= (String) document.get("category");
                 String idapp= (String) document.get("appId");
                 if(score== null)
                     score=0.0;
-                reviewdataa.add(new reviewData(
-                        id,
-                        content,
-                        score,
-                        username,
-                        idapp
+                reviewdataa.add(new Review(idapp, category, username, content, score
                 ));
             }
 
@@ -497,6 +459,7 @@ public class Usermainpage implements Initializable {
                 .allowDiskUse(false)
                 .forEach(processBlock);
     }
+    /*
     public void returnapps(String text){
         System.out.println("here");
 
@@ -535,7 +498,7 @@ public class Usermainpage implements Initializable {
         search_table.setItems(apps);
 
         collection.find(query).forEach(processBlock);
-    }
+    }*/
     public String check(String userid) {
         MongoDriver driver = new MongoDriver();
         MongoCollection<Document> collection = driver.getCollection("user");
@@ -558,5 +521,33 @@ public class Usermainpage implements Initializable {
         }else {
             return false;
         }
+    }
+    /*public void yearlyusedactivity(){
+       // barchart.getData().clear();
+        XYChart.Series set1 ;
+        Map<Integer, Integer> hash= (Map<Integer, Integer>) statisticsMongoManager.monitorYearlyActivity();
+        for ( Map.Entry<Integer, Integer> entry : hash.entrySet()) {
+            int key = entry.getKey();
+            int tab = entry.getValue();
+            // do something with key and/or tab
+            set1=new XYChart.Series<>();
+            set1.getData().add(new XYChart.Data(key, tab));
+            barchart.getData().addAll(set1);
+        }
+
+    }*/
+
+    public void yearlyusedactivity(String u){
+        User myUser = new User();
+        myUser.setUsername(u);
+        Map<Integer, Integer> hash= (Map<Integer, Integer>) statisticsMongoManager.getYearlyUserActivityProfile(myUser);
+        for ( Map.Entry<Integer, Integer> entry : hash.entrySet()) {
+            int key = entry.getKey();
+            int tab = entry.getValue();
+            // do something with key and/or tab
+            details.addAll(new PieChart.Data(String.valueOf(key), tab)
+            );
+        }
+        piechart.setData(details);
     }
 }

@@ -22,14 +22,17 @@
          <font>
             <Font name="System Bold" size="14.0" />
          </font></Button>
-        <Button fx:id="signout" layoutX="894.0" layoutY="28.0" mnemonicParsing="false" onAction="#signout_fun" text="Signout" />
+        <Button fx:id="signout" layoutX="1012.0" layoutY="38.0" mnemonicParsing="false" onAction="#signout_fun" text="Signout">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font></Button>
         <TabPane fx:id="applicationstab" layoutX="214.0" layoutY="84.0" prefHeight="538.0" prefWidth="870.0" tabClosingPolicy="UNAVAILABLE">
             <tabs>
                 <Tab fx:id="addtab" text="App Activity ">
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #bab7b6;">
                      <children>
-                        <BarChart fx:id="barchart" barGap="2.0" layoutX="199.0" layoutY="-90.0" prefHeight="745.0" prefWidth="450.0" rotate="270.0">
+                        <BarChart fx:id="barchart" barGap="2.0" layoutX="199.0" layoutY="-90.0" prefHeight="745.0" prefWidth="450.0" rotate="270.0" title="App Activity">
                           <xAxis>
                             <CategoryAxis side="BOTTOM" />
                           </xAxis>
@@ -46,9 +49,11 @@
                 </Tab>
             <Tab text="Monitor Activity by year">
               <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #bab7b6;">
                      <children>
-                        <PieChart fx:id="piechart" layoutX="58.0" layoutY="28.0" prefHeight="434.0" prefWidth="744.0" />
+                        <PieChart fx:id="piechart" layoutX="58.0" layoutY="63.0" prefHeight="399.0" prefWidth="744.0" title="Activity by year" />
+                        <TextField fx:id="year" layoutX="70.0" layoutY="29.0" promptText="year" />
+                        <Button layoutX="260.0" layoutY="29.0" mnemonicParsing="false" onAction="#run_yearbtn" text="Run" />
                      </children>
                   </AnchorPane>
               </content>
@@ -57,7 +62,7 @@
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #bab7b6;">
                      <children>
-                        <BarChart fx:id="barchart1" barGap="2.0" layoutX="226.0" layoutY="-80.0" prefHeight="746.0" prefWidth="401.0" rotate="270.0">
+                        <BarChart fx:id="barchart1" barGap="2.0" layoutX="226.0" layoutY="-80.0" prefHeight="746.0" prefWidth="401.0" rotate="270.0" title="User Activity">
                            <xAxis>
                               <CategoryAxis side="BOTTOM" />
                            </xAxis>
@@ -68,6 +73,22 @@
                         <TextField fx:id="threshhold1" layoutX="116.0" layoutY="50.0" promptText="threshhold" />
                         <TextField fx:id="limit1" layoutX="296.0" layoutY="50.0" promptText="limit" />
                         <Button layoutX="503.0" layoutY="50.0" mnemonicParsing="false" onAction="#run_btn1" text="Run" />
+                     </children>
+                  </AnchorPane>
+              </content>
+            </Tab>
+            <Tab text="GetbestAppEachYear">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #bab7b6;">
+                     <children>
+                        <BarChart fx:id="barchartt" layoutX="165.0" layoutY="38.0">
+                          <xAxis>
+                            <CategoryAxis side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis side="LEFT" />
+                          </yAxis>
+                        </BarChart>
                      </children>
                   </AnchorPane>
               </content>

@@ -19,6 +19,10 @@ public class App {
     //private User developer;
     private Boolean inAppPurchase;
 
+    private Double average;
+    private Integer reviewCount;
+    private Integer yearOfInterest;
+
     public App() {
 
     }
@@ -26,7 +30,7 @@ public class App {
     public App(String id, Boolean adSupported, Date released, String name, Double price,
                String category, String size,
                String ageGroup, String currency, Date lastUpdated,
-               Boolean inAppPurchase){
+               Boolean inAppPurchase, Double average, Integer reviewCount, Integer yearOfInterest){
         this.name = name;
         this.category = category;
         this.adSupported = adSupported;
@@ -39,6 +43,9 @@ public class App {
         this.lastUpdated = lastUpdated;
         //this.developer = developer;
         this.inAppPurchase = inAppPurchase;
+        this.average = average;
+        this.reviewCount = reviewCount;
+        this.yearOfInterest = yearOfInterest;
     }
     public boolean getInAppPurchase() { return inAppPurchase; }
 
@@ -61,6 +68,18 @@ public class App {
     public Date getLastUpdated() { return lastUpdated; }
 
     public String getCategory() { return category; }
+
+    public Double getAverage() {
+        return average;
+    }
+
+    public Integer getReviewCount() {
+        return reviewCount;
+    }
+
+    public Integer getYearOfInterest() {
+        return yearOfInterest;
+    }
 
     public void setId(String id) { this.id = id; }
 
@@ -85,6 +104,22 @@ public class App {
     public void setCurrency(String currency) { this.currency = currency; }
 
     public void setSize(String size) { this.size = size; }
+
+    public void setInAppPurchase(Boolean inAppPurchase) {
+        this.inAppPurchase = inAppPurchase;
+    }
+
+    public void setAverage(Double average) {
+        this.average = average;
+    }
+
+    public void setReviewCount(Integer reviewCount) {
+        this.reviewCount = reviewCount;
+    }
+
+    public void setYearOfInterest(Integer yearOfInterest) {
+        this.yearOfInterest = yearOfInterest;
+    }
 
     public Document toAppDocument(){
         Document appDoc = new Document("_id", this.getId());

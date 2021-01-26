@@ -85,6 +85,7 @@ public class AppMongoNeo4jManager {
             });
         }
         catch (Exception e){
+            appMongoManager.addApp(a);
             e.printStackTrace();
         }
     }
