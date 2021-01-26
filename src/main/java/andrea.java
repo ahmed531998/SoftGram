@@ -1,13 +1,16 @@
+import it.unipi.softgram.controller.mongo.ReviewMongoManager;
 import it.unipi.softgram.controller.mongoneo4j.UserMongoNeo4jManager;
 import it.unipi.softgram.controller.neo4j.AppNeo4jManager;
 import it.unipi.softgram.controller.neo4j.UserNeo4jManager;
 import it.unipi.softgram.entities.App;
+import it.unipi.softgram.entities.Review;
 import it.unipi.softgram.entities.User;
 import it.unipi.softgram.utilities.drivers.Neo4jDriver;
 import it.unipi.softgram.utilities.enumerators.Relation;
 import it.unipi.softgram.utilities.enumerators.Role;
 
 
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
@@ -175,11 +178,20 @@ public class andrea {
 
 
     public void askToFollowUnfollowBrowsePostsOrWriteReview(App app){
+        ReviewMongoManager rm = new ReviewMongoManager();
+        Review reviewScore = rm.showScore(this.username, app.getId());
+        if(reviewScore == null){
+            System.out.println("You never scored this app");
+        }
+        else{
+            System.out.println("Your review when you scored this app is:");
+            reviewScore.printReviewInformation();
+        }
         String print;
         if(followedApp.contains(app))
-            print = "Write 0 to browse posts, 1 to unfollow 2 to write review 3 to go back";
+            print = "Write 0 to browse posts, 1 to unfollow 2 to write review 3 to edit/add a score 4 to go back";
         else
-            print =  "Write 0 to browse posts, 1 to follow 2 to write review 3 to go back";
+            print =  "Write 0 to browse posts, 1 to follow 2 to write review 3 to edit/add a score 4 to go back";
         System.out.println(print);
         Scanner sc = new Scanner(System.in);
         String ans = sc.nextLine();
@@ -196,6 +208,8 @@ public class andrea {
                 break;
             case "2":
                 writeReview(app);
+            case"3":
+                addEditScore(app);
             default:
                 break;
         }
@@ -203,7 +217,51 @@ public class andrea {
     public void writeReview(App app){
         System.out.println("Write the review content");
         Scanner sc = new Scanner(System.in);
-        String ans;
+        Review review = new Review();
+        review.setUsername(this.username);
+        review.setAppId(app.getId());
+        String content = sc.nextLine();
+        review.setContent(content);
+        review.setDate(new Date());
+        ReviewMongoManager rm = new ReviewMongoManager();
+        rm.postNewReview(review);
+    }
+
+    public void addEditScore(App app){
+        ReviewMongoManager rm = new ReviewMongoManager();
+        Review reviewScore = rm.showScore(this.username, app.getId());
+        if(reviewScore == null){
+            System.out.println("You never scored this app, add a score");
+            Scanner sc = new Scanner(System.in);
+            Review review = new Review();
+            review.setUsername(this.username);
+            review.setAppId(app.getId());
+            System.out.println("Write the review content");
+            String content = sc.nextLine();
+            review.setContent(content);
+            System.out.println("Write the review score");
+            while(true){
+                String scoreString = sc.nextLine();
+                try {
+                    double score = Double.parseDouble(scoreString);
+                    if(score<0 || score > 5)
+                        throw new NumberFormatException();
+                }
+                catch (NumberFormatException n){
+                    System.out.println("Please insert a valid score");
+                    continue;
+                }
+                break;
+            }
+            review.setDate(new Date());
+            rm.postNewReview(review);
+        }
+        else{
+            System.out.println("Your review when you scored this app is:");
+            reviewScore.printReviewInformation();
+            System.out.println("Do you want to edit your past review?");
+        }
+
     }
 }
 
