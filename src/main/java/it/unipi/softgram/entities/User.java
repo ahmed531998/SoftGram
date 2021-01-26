@@ -13,6 +13,21 @@ public class User {
     private String role;
     private String website;
 
+    public User(){
+
+    }
+
+    public User(String username, String country, String password, String email,
+                String role, String website, Date birthday){
+        this.username = username;
+        this.birthday = birthday;
+        this.country = country;
+        this.password = password;
+        this.email = email;
+        this.role = role;
+        this.website = website;
+    }
+
     public void setRole(String role) {
         this.role = role;
     }

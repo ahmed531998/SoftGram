@@ -2,6 +2,7 @@ package it.unipi.softgram.org.example;
 
 import it.unipi.softgram.controller.mongoneo4j.UserMongoNeo4jManager;
 import it.unipi.softgram.entities.User;
+import it.unipi.softgram.gui.WelcomeScreen;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -17,9 +18,10 @@ import javafx.stage.Stage;
 import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.ResourceBundle;
-
-import static it.unipi.softgram.org.example.App.setRoot;
 
 public class Signup implements Initializable {
 
@@ -27,6 +29,7 @@ public class Signup implements Initializable {
     @FXML private PasswordField password;
     @FXML private ComboBox country;
     @FXML private Label appid;
+    @FXML private DatePicker birthday;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -35,7 +38,7 @@ public class Signup implements Initializable {
                         "Italy",
                         "Iraq",
                         "UK",
-                        "Chine",
+                        "China",
                         "India",
                         "Egypt",
                         "US"
@@ -45,14 +48,14 @@ public class Signup implements Initializable {
 
     }
 
-    public void loginbtn(ActionEvent actionEvent) {
+    public void loginAction(ActionEvent actionEvent) {
         try {
             //Load second scene
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("WelcomeScreen.fxml"));
             Parent root = loader.load();
 
             //Get controller of scene2
-            login scene2Controller = loader.getController();
+            WelcomeScreen scene2Controller = loader.getController();
             //Pass whatever data you want. You can have multiple method calls here
             //scene2Controller.transferMessage("");
 
@@ -67,24 +70,28 @@ public class Signup implements Initializable {
         }
     }
 
-    public void signup(ActionEvent actionEvent) {
-
-        if(username.getText().isEmpty() || email.getText().isEmpty() || website.getText().isEmpty() || password.getText().isEmpty()){
+    public void signupAction(ActionEvent actionEvent) {
+        if(username.getText().isEmpty() || email.getText().isEmpty() || password.getText().isEmpty()){
             JOptionPane.showMessageDialog(null, "Fields required");
         }else{
             UserMongoNeo4jManager user=new UserMongoNeo4jManager();
             User userobj=new User();
             try {
                 userobj.setUsername(username.getText());
-                userobj.setWebsite(website.getText());
+                if (!website.getText().isEmpty())
+                    userobj.setWebsite(website.getText());
                 userobj.setPassword(password.getText());
-                userobj.setCountry(country.getSelectionModel().getSelectedItem().toString());
+                if(!country.getSelectionModel().getSelectedItem().toString().isEmpty())
+                    userobj.setCountry(country.getSelectionModel().getSelectedItem().toString());
                 userobj.setEmail(email.getText());
+                userobj.setRole("Normal User");
+                if(birthday.getValue() != null)
+                   userobj.setBirthday(Date.from(Instant.from(birthday.getValue().atStartOfDay(ZoneId.systemDefault()))));
                 user.addUser(userobj);
                 JOptionPane.showMessageDialog(null, "Added successfully");
                 try {
                     //Load second scene
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("admin.fxml"));
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("reviewTab.fxml"));
                     Parent root = loader.load();
 
                     //Get controller of scene2

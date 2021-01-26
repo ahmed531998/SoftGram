@@ -27,8 +27,8 @@ public class UserMongoNeo4jManager {
         try ( Session session = neo4jDriver.getSession() ) {
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run( "MERGE (u:User {username: $username}) " +
-                                "SET u:$role ",
-                        parameters( "username", user.getUsername(), "role", roleString) );
+                                "SET u:"+roleString,
+                        parameters( "username", user.getUsername() ));
                 try {
                     userMongoManager.addUser(user);
                 }
@@ -42,17 +42,20 @@ public class UserMongoNeo4jManager {
             });
         }
         catch (Exception e){
+            userMongoManager.removeUser(user.getUsername());
             e.printStackTrace();
         }
     }
 
     public void removeUser(String username){
+        User x = userMongoManager.searchUserByUsername(username, 0).get(0);
         try ( Session session = neo4jDriver.getSession() ) {
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run( "MATCH (u:User {username: $username}) " +
                                 "DETACH DELETE u",
                         parameters( "username", username) );
                 try {
+
                     userMongoManager.removeUser(username);
                 }
                 catch (RuntimeException r ) {
@@ -65,6 +68,7 @@ public class UserMongoNeo4jManager {
             });
         }
         catch (Exception e){
+            userMongoManager.addUser(x);
             e.printStackTrace();
         }
     }
@@ -89,6 +93,7 @@ public class UserMongoNeo4jManager {
             });
         }
         catch (Exception e){
+            userMongoManager.becomeNormalUser(username);
             e.printStackTrace();
         }
     }
@@ -114,6 +119,7 @@ public class UserMongoNeo4jManager {
             });
         }
         catch (Exception e){
+            userMongoManager.becomeDeveloper(username);
             e.printStackTrace();
         }
     }
@@ -121,6 +127,7 @@ public class UserMongoNeo4jManager {
     //Admin
     public void changeUserRole(String username, Role.RoleValue role){
         String roleString = Role.getRoleString(role).replaceAll("\\s","");
+        User x = userMongoManager.searchUserByUsername(username, 0).get(0);
         try ( Session session = neo4jDriver.getSession() ) {
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run( "MATCH (u:User {username: $username}) " +
@@ -140,6 +147,7 @@ public class UserMongoNeo4jManager {
             });
         }
         catch (Exception e){
+            userMongoManager.changeUserRole(username, Role.getRoleFromString(x.getRole()));
             e.printStackTrace();
         }
     }

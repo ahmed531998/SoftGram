@@ -181,12 +181,12 @@
                                                 <Font name="System Bold" size="14.0" />
                                             </font></Button>
                                         <TextField fx:id="text_pop" layoutX="444.0" layoutY="15.0" promptText="Category" />
-                                        <Button fx:id="search_btn_pop" layoutX="796.0" layoutY="13.0" mnemonicParsing="false" onAction="#search_popular_cate" text="Search">
+                                        <Button fx:id="search_btn_pop" layoutX="796.0" layoutY="13.0" mnemonicParsing="false" onAction="#getBestAppsPerCategory" text="Search">
                                             <font>
                                                 <Font name="System Bold" size="13.0" />
                                             </font></Button>
                                         <TextField fx:id="text_year" layoutX="444.0" layoutY="51.0" promptText="Year" />
-                                        <Button fx:id="year_btn" layoutX="796.0" layoutY="52.0" mnemonicParsing="false" onAction="#seatch_function_year" text="Search">
+                                        <Button fx:id="year_btn" layoutX="796.0" layoutY="52.0" mnemonicParsing="false" onAction="#getBestAppsPerYear" text="Search">
                                             <font>
                                                 <Font name="System Bold" size="13.0" />
                                             </font></Button>

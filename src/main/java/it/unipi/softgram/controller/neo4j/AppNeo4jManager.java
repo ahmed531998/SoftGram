@@ -10,9 +10,7 @@ import org.neo4j.driver.Session;
 import org.neo4j.driver.TransactionWork;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.neo4j.driver.Values.parameters;
 
@@ -80,8 +78,8 @@ public class AppNeo4jManager {
     }
 
 
-    private List<App> getApps(Result result) {
-        ArrayList<App> Apps = new ArrayList<>();
+    private Set<App> getApps(Result result) {
+        Set<App> Apps = new HashSet<>();
         while (result.hasNext()){
             Record r = result.next();
             App a = new App();
@@ -93,7 +91,7 @@ public class AppNeo4jManager {
         return Apps;
     }
 
-    public List<App> browseFollowedApps(User u){
+    public Set<App> browseFollowedApps(User u){
         try (Session session = neo.getSession()){
             return session.readTransaction(tx ->{
                 Result result = tx.run("MATCH (u:User)-[:FOLLOW]->(a:App) WHERE u.username = $username " +
@@ -139,7 +137,7 @@ public class AppNeo4jManager {
     }
 
 
-    public List<App> browseDevelopedApps(User u){
+    public Set<App> browseDevelopedApps(User u){
         try (Session session = neo.getSession()){
             return session.readTransaction(tx ->{
                 Result result = tx.run("MATCH (u:User)-[:DEVELOP]->(a:App) WHERE u.username = $username " +
@@ -155,7 +153,7 @@ public class AppNeo4jManager {
     }
 
 
-    public List<App> browseAppsOfFollowers(User u){
+    public Set<App> browseAppsOfFollowers(User u){
         try (Session session = neo.getSession()){
             return session.readTransaction(tx ->{
                 Result result = tx.run("MATCH (u:User)-[:FOLLOW]->(:User)-[*]->(a:App) WHERE u.username = $username " +
@@ -170,7 +168,7 @@ public class AppNeo4jManager {
         return null;
     }
 
-    public List<App> browseFavoriteCategory(User u){
+    public Set<App> browseFavoriteCategory(User u){
         try (Session session = neo.getSession()){
             return session.readTransaction(tx ->{
                 Result result = tx.run("MATCH (u:User)-[:FOLLOW]->(a2:App) WHERE u.username = $username " +
@@ -187,7 +185,7 @@ public class AppNeo4jManager {
         return null;
     }
 
-    public List<App> browseCommonApps(){
+    public Set<App> browseCommonApps(){
         try (Session session = neo.getSession()){
             return session.readTransaction(tx ->{
                 Result result = tx.run("MATCH (a:App) " +
