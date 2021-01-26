@@ -5,6 +5,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.softgram.entities.App;
+import it.unipi.softgram.entities.User;
 import it.unipi.softgram.utilities.drivers.MongoDriver;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -23,6 +24,8 @@ import static com.mongodb.client.model.Updates.set;
 
 public class AppMongoManager {
     private MongoDriver driver;
+
+
 
     public AppMongoManager(){
         try{
@@ -72,11 +75,19 @@ public class AppMongoManager {
     public void updateCategory(App a){
         try {
             MongoCollection<Document> userColl = driver.getCollection("app");
+            MongoCollection<Document> reviewcoll = driver.getCollection("review");
             UpdateResult result = userColl.updateOne(eq("_id", a.getId()),
                     set("category",a.getCategory()));
+            UpdateResult resultRev = reviewcoll.updateMany(eq("appId", a.getId()),
+                    set("category",a.getCategory()));
+
             if(result.getModifiedCount()==0){
                 System.out.println("Requested app to update not found");
             }
+            if(resultRev.getModifiedCount()==0){
+                System.out.println("Requested app to update has no reviews");
+            }
+
         }
         catch (Exception e){
             throw new RuntimeException("write operation failed");
@@ -86,10 +97,18 @@ public class AppMongoManager {
     public void updateName(App a){
     try {
         MongoCollection<Document> userColl = driver.getCollection("app");
+        MongoCollection<Document> reviewColl = driver.getCollection("review");
+
         UpdateResult result = userColl.updateOne(eq("_id", a.getId()),
                 set("name",a.getName()));
+        UpdateResult resultRev = reviewColl.updateMany(eq("appId", a.getId()),
+                set("appName",a.getName()));
+
         if(result.getModifiedCount()==0){
             System.out.println("Requested app to update not found");
+        }
+        if(resultRev.getModifiedCount()==0){
+            System.out.println("Requested app to update has no reviews");
         }
     }
         catch (Exception e){
@@ -99,7 +118,9 @@ public class AppMongoManager {
     public void deleteApp(App a){
         try {
             MongoCollection<Document> appColl = driver.getCollection("app");
+            MongoCollection<Document> reviewColl = driver.getCollection("review");
             appColl.deleteOne(Filters.eq("_id", a.getId()));
+            reviewColl.deleteMany(Filters.eq("appId", a.getId()));
             System.out.println("deleted");
         }
         catch (Exception e){
@@ -120,6 +141,8 @@ public class AppMongoManager {
             List<App> apps = new ArrayList<>();
             for (Document d: output){
                 App app = new App();
+                app.setAverage(getAverageRating(app));
+                app.setReviewCount(getRatingCount(app));
                 apps.add(app.fromAppDocument(d));
             }
             return apps;
@@ -141,6 +164,8 @@ public class AppMongoManager {
             List<App> apps = new ArrayList<>();
             for (Document d: output){
                 App app = new App();
+                app.setAverage(getAverageRating(app));
+                app.setReviewCount(getRatingCount(app));
                 apps.add(app.fromAppDocument(d));
             }
             return apps;
@@ -150,10 +175,10 @@ public class AppMongoManager {
         return null;
     }
 
-    public List<App> findAppBySize(Double size, int limit, int skip){
+    public List<App> findAppBySize(String size, int limit, int skip){
         try {
             MongoCollection<Document> collection = driver.getCollection("app");
-            Bson filter1 = match(gte("size", size));
+            Bson filter1 = eq("size", size);
             List<Document> output = collection.find(filter1)
                     .skip(skip)
                     .limit(limit)
@@ -161,6 +186,8 @@ public class AppMongoManager {
             List<App> apps = new ArrayList<>();
             for (Document d: output){
                 App app = new App();
+                app.setAverage(getAverageRating(app));
+                app.setReviewCount(getRatingCount(app));
                 apps.add(app.fromAppDocument(d));
             }
             return apps;
@@ -169,10 +196,11 @@ public class AppMongoManager {
         }
         return null;
     }
-    public List<App> findAppByPrice(Double price, int limit, int skip){
+
+    public List<App> findAppById(String id, int limit, int skip){
         try {
             MongoCollection<Document> collection = driver.getCollection("app");
-            Bson filter1 = match(gte("price", price));
+            Bson filter1 = eq("_id", id);
             List<Document> output = collection.find(filter1)
                     .skip(skip)
                     .limit(limit)
@@ -180,6 +208,30 @@ public class AppMongoManager {
             List<App> apps = new ArrayList<>();
             for (Document d: output){
                 App app = new App();
+                app.setAverage(getAverageRating(app));
+                app.setReviewCount(getRatingCount(app));
+                apps.add(app.fromAppDocument(d));
+            }
+            return apps;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<App> findAppByPrice(Double price, int limit, int skip){
+        try {
+            MongoCollection<Document> collection = driver.getCollection("app");
+            Bson filter1 = gte("price", price);
+            List<Document> output = collection.find(filter1)
+                    .skip(skip)
+                    .limit(limit)
+                    .into(new ArrayList<>());
+            List<App> apps = new ArrayList<>();
+            for (Document d: output){
+                App app = new App();
+                app.setAverage(getAverageRating(app));
+                app.setReviewCount(getRatingCount(app));
                 apps.add(app.fromAppDocument(d));
             }
             return apps;
@@ -191,7 +243,7 @@ public class AppMongoManager {
     public List<App> findAppByAd(Boolean adSupported, int limit, int skip){
         try {
             MongoCollection<Document> collection = driver.getCollection("app");
-            Bson filter1 = match(gte("adSupported", adSupported));
+            Bson filter1 = gte("adSupported", adSupported);
             List<Document> output = collection.find(filter1)
                     .skip(skip)
                     .limit(limit)
@@ -199,6 +251,8 @@ public class AppMongoManager {
             List<App> apps = new ArrayList<>();
             for (Document d: output){
                 App app = new App();
+                app.setAverage(getAverageRating(app));
+                app.setReviewCount(getRatingCount(app));
                 apps.add(app.fromAppDocument(d));
             }
             return apps;
@@ -222,6 +276,8 @@ public class AppMongoManager {
             List<App> apps = new ArrayList<>();
             for (Document d: output){
                 App app = new App();
+                app.setAverage(getAverageRating(app));
+                app.setReviewCount(getRatingCount(app));
                 apps.add(app.fromAppDocument(d));
             }
             return apps;

@@ -81,6 +81,11 @@ public class UserMongoManager {
     }
 
 
+    public List<User> searchUserByExactUsername(String username, int skip){
+        Bson query = eq("_id",username);
+        return this.searchUserBy(query,skip);
+    }
+
     public List<User> searchUserByUsername(String username, int skip){
         Pattern pattern = Pattern.compile("^" + username + ".*$");
         Bson query = Filters.regex("_id",pattern);
@@ -202,31 +207,6 @@ public class UserMongoManager {
             throw new RuntimeException("write operation failed");
         }
     }
-
-    public void updateUser(User user){
-        try {
-            MongoDriver driver = new MongoDriver();
-            MongoCollection<Document> collection = driver.getCollection("user");
-            Document query = new Document();
-            query.append("_id", user.getUsername());
-            Document setData = new Document();
-            setData.append("website", user.getWebsite())
-                    .append("role", user.getRole())
-                    .append("email", user.getEmail())
-            ;
-            Document update = new Document();
-            update.append("$set", setData);
-            //To update single Document
-            UpdateResult result= collection.updateOne(query, update);
-            if(result.getModifiedCount()==0){
-                System.out.println("Requested user to update not found");
-            }
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
 }
 
 

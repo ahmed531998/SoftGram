@@ -68,8 +68,6 @@ public class ReviewMongoManager {
         Bson wordFilter = Filters.regex("content", pattern);
         return searchBy(wordFilter, wordFilter, skip, true);
     }
-
-
     public List<Review> searchByDate(Date myDate, DateQuery when, int skip) {
         Bson dateFilter = (when == DateQuery.On) ? eq("date", myDate) :
                 (when == DateQuery.After) ? gt("date", myDate) :
@@ -87,7 +85,6 @@ public class ReviewMongoManager {
         Bson wordFilter = Filters.regex("content", pattern);
         return searchBy(wordFilter, entityFilter, skip, false);
     }
-
     public List<Review> searchByDateInUserReviews(Date myDate, DateQuery when, String username, int skip) {
         Bson dateFilter = (when == DateQuery.On) ? eq("date", myDate) :
                 (when == DateQuery.After) ? gt("date", myDate) :
@@ -97,7 +94,6 @@ public class ReviewMongoManager {
 
         return searchBy(dateFilter, entityFilter, skip, false);
     }
-
     public List<Review> searchByDateInAppReviews(Date myDate, DateQuery when, String appId, int skip) {
         Bson dateFilter = (when == DateQuery.On) ? eq("date", myDate) :
                 (when == DateQuery.After) ? gt("date", myDate) :

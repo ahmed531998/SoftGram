@@ -27,6 +27,33 @@ public class App {
 
     }
 
+    public void printAppInformation (){
+        System.out.println(this.id);
+        System.out.println(this.name);
+        System.out.println(this.category);
+        if(this.released!=null)
+            System.out.println(this.released);
+        if(this.adSupported!=null)
+            System.out.println(this.adSupported);
+        if(this.inAppPurchase!=null)
+            System.out.println(this.inAppPurchase);
+        if(this.price!=null)
+            System.out.println(this.price);
+        if(this.size!=null)
+            System.out.println(this.size);
+        if(this.ageGroup!=null)
+            System.out.println(this.ageGroup);
+        if(this.currency!=null)
+            System.out.println(this.currency);
+        if(this.lastUpdated!=null)
+            System.out.println(this.lastUpdated);
+        if(this.average!=null)
+            System.out.println(this.average);
+        if(this.reviewCount!=null)
+            System.out.println(this.reviewCount);
+    }
+
+
     public App(String id, Boolean adSupported, Date released, String name, Double price,
                String category, String size,
                String ageGroup, String currency, Date lastUpdated,
@@ -165,7 +192,7 @@ public class App {
         this.adSupported = x;
         this.released = (Date) r.get("released");
         this.name = (String) r.get("name");
-        this.price = (double) r.get("price");
+        this.price = (Double) r.get("price");
 
         this.size = (String) r.get("size");
         this.ageGroup = (String) r.get("ageGroup");

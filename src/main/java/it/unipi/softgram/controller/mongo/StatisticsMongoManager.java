@@ -138,8 +138,6 @@ public class StatisticsMongoManager {
         }
         return null;
     }
-
-
     public Map<Integer, String> getBestAppEachYear(){
         try {
             Map<Integer, String> toPlot = new TreeMap<>();
@@ -169,7 +167,6 @@ public class StatisticsMongoManager {
         }
         return null;
     }
-
     public Map<Integer, List<Map<String, String>>> getBestAppInEachCategoryEachYear(){
         try {
             Map<Integer, List<Map<String, String>>> toPlot = new TreeMap<>();
@@ -212,7 +209,6 @@ public class StatisticsMongoManager {
         }
         return null;
     }
-
     public Map<String, List<Map<Integer, Double>>> getYearlyAverageCategoryRate(){
         try {
             Map<String, List<Map<Integer, Double>>> toPlot = new TreeMap<>();

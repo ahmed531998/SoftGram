@@ -17,6 +17,19 @@ public class User {
 
     }
 
+    public void printUserInformation (){
+        System.out.println(this.username);
+        if(this.birthday!=null)
+            System.out.println(this.birthday);
+        if(this.email!=null)
+            System.out.println(this.email);
+        if(this.country!=null)
+            System.out.println(this.country);
+        System.out.println(this.role);
+        if(this.website!=null)
+            System.out.println(this.website);
+    }
+
     public User(String username, String country, String password, String email,
                 String role, String website, Date birthday){
         this.username = username;

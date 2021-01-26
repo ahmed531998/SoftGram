@@ -17,6 +17,19 @@ public class Review {
     public Review(){
     }
 
+    public void printReviewInformation (){
+        System.out.println(this._id);
+        System.out.println(this.appId);
+        System.out.println(this.appName);
+        System.out.println(this.category);
+        System.out.println(this.date);
+        System.out.println(this.content);
+        System.out.println(this.username);
+        if(this.score!=null)
+            System.out.println(this.score);
+
+    }
+
     public Review(String appId, String category, String username, Date date, String content){
         this.appId = appId;
         this.category = category;
